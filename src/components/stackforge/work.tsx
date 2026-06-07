@@ -1,21 +1,56 @@
+import Image from "next/image";
+
+const projects = [
+  {
+    title: "Nova Clinic Website",
+    description:
+      "A modern, responsive website designed to improve patient engagement and appointment conversion.",
+    tags: ["UI/UX", "Performance", "Healthcare"],
+    image: "/work/nova-clinic.png",
+  },
+  {
+    title: "Vertex Startup Landing",
+    description:
+      "A high-performance landing page built to communicate clarity and drive early-stage conversions.",
+    tags: ["Landing Page", "Startup", "Conversion"],
+    image: "/work/vertex-startup.png",
+  },
+  {
+    title: "Elevate Portfolio System",
+    description:
+      "A personal brand portfolio designed with clarity, speed, and strong visual hierarchy.",
+    tags: ["Portfolio", "UI Design", "Personal Brand"],
+    image: "/work/elevate-portfolio.png",
+  },
+  {
+    title: "DineFine Restaurant Experience",
+    description:
+      "A visually rich restaurant website focused on menu experience and customer engagement.",
+    tags: ["Restaurant", "UI/UX", "Experience"],
+    image: "/work/dinefine-restaurant.png",
+  },
+];
+
 export function Work() {
   return (
-    <section id="work" className="py-24 md:py-32 lg:py-40">
+    <section id="work" className="py-24 md:py-32 lg:py-[120px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
-        {/* Section Label */}
-        <div className="flex items-center gap-3 mb-6">
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.1em] uppercase">
-            Selected Work
-          </span>
-        </div>
-
-        <div className="flex items-end justify-between mb-16 md:mb-24">
-          <h2 className="text-[32px] md:text-[48px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.03em] text-forge-text max-w-[600px]">
-            Recent projects
-          </h2>
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 md:mb-24">
+          <div>
+            <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
+              Selected Work
+            </span>
+            <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text max-w-[600px]">
+              Selected Work
+            </h2>
+            <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed max-w-[520px]">
+              A look at some of the systems we&apos;ve designed and built.
+            </p>
+          </div>
           <a
             href="#"
-            className="hidden md:flex items-center gap-2 text-[14px] text-forge-text-secondary font-medium tracking-wide uppercase hover:text-forge-text transition-colors duration-200"
+            className="hidden md:inline-flex items-center gap-2 text-[14px] text-forge-text-secondary font-medium tracking-[0.06em] uppercase hover:text-forge-text transition-colors duration-200"
           >
             View All
             <svg
@@ -36,55 +71,48 @@ export function Work() {
           </a>
         </div>
 
-        {/* Work Grid Placeholder */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[
-            {
-              label: "Enterprise SaaS Platform",
-              category: "Web Application",
-              year: "2024",
-            },
-            {
-              label: "E-Commerce Experience",
-              category: "Full Stack",
-              year: "2024",
-            },
-            {
-              label: "Fintech Dashboard",
-              category: "Design + Dev",
-              year: "2024",
-            },
-            {
-              label: "Brand Identity System",
-              category: "Design System",
-              year: "2023",
-            },
-          ].map((project, index) => (
-            <div
-              key={index}
-              className="group border border-forge-border bg-forge-surface p-8 md:p-10 transition-colors duration-300 hover:border-forge-text-secondary/30"
+        {/* Project Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {projects.map((project) => (
+            <a
+              key={project.title}
+              href="#"
+              className="group block rounded-[14px] border border-forge-divider bg-forge-surface overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-forge-accent/20"
             >
-              {/* Placeholder Visual Area */}
-              <div className="w-full aspect-[16/10] bg-forge-bg mb-8 flex items-center justify-center">
-                <span className="text-[13px] text-forge-text-secondary/40 font-mono tracking-wider">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
+              {/* Image */}
+              <div className="relative w-full aspect-video overflow-hidden">
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
               </div>
 
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-[18px] md:text-[20px] font-semibold text-forge-text tracking-[-0.01em]">
-                    {project.label}
-                  </h3>
-                  <p className="mt-1 text-[14px] text-forge-text-secondary">
-                    {project.category}
-                  </p>
+              {/* Content */}
+              <div className="p-5 md:p-6">
+                <h3 className="text-[18px] md:text-[20px] font-semibold text-forge-text tracking-[-0.01em]">
+                  {project.title}
+                </h3>
+
+                <p className="mt-2 text-[14px] md:text-[15px] text-forge-text-secondary leading-relaxed">
+                  {project.description}
+                </p>
+
+                {/* Tags */}
+                <div className="flex flex-wrap items-center gap-2 mt-5">
+                  {project.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-medium tracking-wide text-forge-text-secondary/80 bg-forge-bg border border-forge-divider/60"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                <span className="text-[13px] text-forge-text-secondary/60 font-mono">
-                  {project.year}
-                </span>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

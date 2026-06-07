@@ -36,3 +36,32 @@ Stage Summary:
 - Fully responsive (stacks on mobile, visual hidden on small screens)
 - Files modified: hero.tsx, globals.css
 - Files created: hero-visual.tsx
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Build premium Selected Work section with project cards and AI mockup images
+
+Work Log:
+- Generated 4 AI website mockup images (1344x768 landscape) using z-ai CLI:
+  - nova-clinic.png (medical clinic website mockup)
+  - vertex-startup.png (SaaS startup landing page mockup)
+  - elevate-portfolio.png (personal portfolio mockup)
+  - dinefine-restaurant.png (restaurant website mockup)
+- Rewrote src/components/stackforge/work.tsx with premium card layout:
+  - Section header: "Selected Work" title + subtitle + "View All" link
+  - 2-column grid (1-col on mobile) with gap-8
+  - Cards: rounded-[14px], overflow-hidden, bg-forge-surface, border-forge-divider
+  - Hover: -translate-y-1 lift + border-forge-accent/20 highlight
+  - Image: aspect-video with Next.js Image component, scale-[1.03] on hover
+  - Content: title, description, pill-style tags (rounded-md, bg-forge-bg, border)
+- ESLint passed clean
+- Browser verified: 4 cards render, correct titles, 3 tags each, image containers present, zero console errors
+
+Stage Summary:
+- Premium Selected Work section with 4 project cards
+- AI-generated mockup images for each project
+- Cards with image, title, description, and tag pills
+- Hover effects: lift, border highlight, image zoom
+- Files created: public/work/*.png (4 images)
+- Files modified: work.tsx
