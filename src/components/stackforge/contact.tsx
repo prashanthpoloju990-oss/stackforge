@@ -1,8 +1,22 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { cn } from "@/lib/utils";
+import {
+  ChevronUpIcon,
+  AtSignIcon,
+  UserIcon,
+  Sparkles,
+  Globe,
+  RefreshCw,
+  Layout,
+  Palette,
+  HelpCircle,
+  SendIcon,
+  ShieldCheck,
+} from "lucide-react";
 
 /* ── Types ── */
 interface FormData {
@@ -66,6 +80,13 @@ const SERVICE_SELECT_OPTIONS = ["", ...SERVICE_OPTIONS] as const;
 const BUDGET_SELECT_OPTIONS = ["", ...BUDGET_OPTIONS] as const;
 const TIMELINE_SELECT_OPTIONS = ["", ...TIMELINE_OPTIONS] as const;
 
+const QUICK_SERVICES = [
+  { label: "New Website", icon: Globe, value: "New Website" },
+  { label: "Redesign", icon: RefreshCw, value: "Website Redesign" },
+  { label: "Landing Page", icon: Layout, value: "Landing Page" },
+  { label: "UI/UX Design", icon: Palette, value: "UI/UX Design" },
+];
+
 /* ── Helpers ── */
 function isEmailLike(str: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
@@ -75,6 +96,81 @@ function isWhatsAppLike(str: string): boolean {
   return /^\+?\d[\d\s-]{6,}$/.test(str.replace(/\s/g, ""));
 }
 
+/* ── Select option builder ── */
+function buildOptions(
+  items: readonly string[],
+  defaultLabel: string
+) {
+  return items.map((item) => (
+    <option key={item} value={item} disabled={item === ""}>
+      {item === "" ? defaultLabel : item}
+    </option>
+  ));
+}
+
+/* ── Floating Paths (decorative SVG animation) ── */
+function FloatingPaths({ position }: { position: number }) {
+  const paths = Array.from({ length: 36 }, (_, i) => ({
+    id: i,
+    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
+      380 - i * 5 * position
+    } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${
+      152 - i * 5 * position
+    } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
+      684 - i * 5 * position
+    } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
+    color: `rgba(255, 106, 0, ${0.06 + i * 0.015})`,
+    width: 0.5 + i * 0.03,
+  }));
+
+  return (
+    <div className="pointer-events-none absolute inset-0">
+      <svg
+        className="h-full w-full"
+        viewBox="0 0 696 316"
+        fill="none"
+      >
+        <title>Background Paths</title>
+        {paths.map((path) => (
+          <motion.path
+            key={path.id}
+            d={path.d}
+            stroke="currentColor"
+            strokeWidth={path.width}
+            strokeOpacity={0.06 + path.id * 0.015}
+            className="text-forge-accent"
+            initial={{ pathLength: 0.3, opacity: 0.6 }}
+            animate={{
+              pathLength: 1,
+              opacity: [0.3, 0.6, 0.3],
+              pathOffset: [0, 1, 0],
+            }}
+            transition={{
+              duration: 20 + Math.random() * 10,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "linear",
+            }}
+          />
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+/* ── Separator ── */
+function AuthSeparator() {
+  return (
+    <div className="flex w-full items-center justify-center">
+      <div className="bg-border h-px flex-1" />
+      <span className="text-muted-foreground px-3 text-xs uppercase tracking-wider">
+        or fill in the form
+      </span>
+      <div className="bg-border h-px flex-1" />
+    </div>
+  );
+}
+
+/* ── Main Component ── */
 export function Contact() {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.05 });
   const nameRef = useRef<HTMLInputElement>(null);
@@ -124,7 +220,6 @@ export function Contact() {
   /* ── Handlers ── */
   const handleChange = (field: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-    /* Clear error on change */
     if (touched[field] && errors[field as keyof FormErrors]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -136,7 +231,6 @@ export function Contact() {
 
   const handleBlur = (field: keyof FormData) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
-    /* Only validate the touched field for inline feedback */
     const fieldErrors = validate();
     const fieldError = fieldErrors[field as keyof FormErrors];
     setErrors((prev) => {
@@ -154,7 +248,6 @@ export function Contact() {
     e.preventDefault();
     setSubmitError(null);
 
-    /* Touch all required fields */
     setTouched({ name: true, contact: true });
     const newErrors = validate();
     setErrors(newErrors);
@@ -182,282 +275,447 @@ export function Contact() {
       setErrors({});
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again."
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again."
       );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  /* ── Select option builder ── */
-  const buildOptions = (
-    items: readonly string[],
-    defaultLabel: string
-  ) => {
-    return items.map((item) => (
-      <option key={item} value={item} disabled={item === ""}>
-        {item === "" ? defaultLabel : item}
-      </option>
-    ));
+  const handleQuickService = (value: string) => {
+    handleChange("serviceNeed", value);
+    nameRef.current?.focus();
   };
 
   return (
-    <section id="contact" className="py-24 md:py-32 lg:py-36">
+    <section id="contact">
       <div
         ref={ref}
         className={cn(
-          "mx-auto max-w-[560px] px-6 md:px-8 transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
+          "relative transition-all duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)]",
+          isVisible
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-[30px]"
         )}
       >
-        {/* ── Section Header ── */}
-        <div className="text-center mb-10 md:mb-12">
-          <h2 className="text-fluid-hero font-bold text-forge-text font-playfair">
-            Start Your Project
-          </h2>
-          <p className="mt-4 text-fluid-body-lg text-forge-text-secondary max-w-[400px] mx-auto">
-            Tell us what you need — we&apos;ll handle the rest.
-          </p>
-        </div>
+        <div className="relative md:min-h-screen md:overflow-hidden md:grid md:grid-cols-2">
+          {/* ═══ LEFT DECORATIVE PANEL (desktop only) ═══ */}
+          <div className="bg-forge-surface/60 relative hidden h-full flex-col border-r p-10 lg:flex">
+            <div className="from-forge-bg absolute inset-0 z-10 bg-gradient-to-t to-transparent" />
 
-        {/* ── Form / Success ── */}
-        {isSuccess ? (
-          <SuccessState />
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            noValidate
-            className="form-field-stagger space-y-5"
-          >
-            {/* Row 1: Full Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
-              >
-                Full Name
-              </label>
-              <input
-                ref={nameRef}
-                id="name"
-                type="text"
-                value={form.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-                onBlur={() => handleBlur("name")}
-                placeholder="John Doe"
-                autoComplete="name"
-                className={cn(
-                  "form-input",
-                  touched.name && errors.name && "has-error"
-                )}
-              />
-              {touched.name && errors.name && (
-                <p className="mt-1.5 pl-1 text-[12px] text-red-400/80 leading-none">
-                  {errors.name}
-                </p>
-              )}
-            </div>
-
-            {/* Row 2: Email or WhatsApp */}
-            <div>
-              <label
-                htmlFor="contact"
-                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
-              >
-                Contact
-              </label>
-              <input
-                id="contact"
-                type="text"
-                value={form.contact}
-                onChange={(e) => handleChange("contact", e.target.value)}
-                onBlur={() => handleBlur("contact")}
-                placeholder="Email or WhatsApp number"
-                autoComplete="email"
-                className={cn(
-                  "form-input",
-                  touched.contact && errors.contact && "has-error"
-                )}
-              />
-              {touched.contact && errors.contact && (
-                <p className="mt-1.5 pl-1 text-[12px] text-red-400/80 leading-none">
-                  {errors.contact}
-                </p>
-              )}
-            </div>
-
-            {/* Row 3: Business Type */}
-            <div>
-              <label
-                htmlFor="businessType"
-                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
-              >
-                Business Type
-              </label>
-              <select
-                id="businessType"
-                value={form.businessType}
-                onChange={(e) => handleChange("businessType", e.target.value)}
-                className="form-input form-select"
-              >
-                {buildOptions(SELECT_OPTIONS, "Select business type")}
-              </select>
-            </div>
-
-            {/* Row 4: What do you need? */}
-            <div>
-              <label
-                htmlFor="serviceNeed"
-                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
-              >
-                What do you need?
-              </label>
-              <select
-                id="serviceNeed"
-                value={form.serviceNeed}
-                onChange={(e) => handleChange("serviceNeed", e.target.value)}
-                className="form-input form-select"
-              >
-                {buildOptions(SERVICE_SELECT_OPTIONS, "Select a service")}
-              </select>
-            </div>
-
-            {/* Row 5: Budget Range */}
-            <div>
-              <label
-                htmlFor="budget"
-                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
-              >
-                Budget Range
-              </label>
-              <select
-                id="budget"
-                value={form.budget}
-                onChange={(e) => handleChange("budget", e.target.value)}
-                className="form-input form-select"
-              >
-                {buildOptions(BUDGET_SELECT_OPTIONS, "Select budget")}
-              </select>
-            </div>
-
-            {/* Row 6: Timeline */}
-            <div>
-              <label
-                htmlFor="timeline"
-                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
-              >
-                Timeline
-              </label>
-              <select
-                id="timeline"
-                value={form.timeline}
-                onChange={(e) => handleChange("timeline", e.target.value)}
-                className="form-input form-select"
-              >
-                {buildOptions(TIMELINE_SELECT_OPTIONS, "Select timeline")}
-              </select>
-            </div>
-
-            {/* Row 7: Project Details */}
-            <div>
-              <label
-                htmlFor="details"
-                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
-              >
-                Project Details{" "}
-                <span className="text-forge-text-secondary/30 normal-case tracking-normal font-normal">
-                  (optional)
-                </span>
-              </label>
-              <textarea
-                id="details"
-                value={form.details}
-                onChange={(e) => handleChange("details", e.target.value)}
-                placeholder="Briefly describe what you're looking for..."
-                rows={4}
-                className="form-input form-textarea"
-              />
-            </div>
-
-            {/* CTA Button — Neumorphic gradient reveal */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={!isValid || isSubmitting}
-                className="btn-forge-submit"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center gap-2.5">
-                    <svg
-                      className="animate-spin h-[18px] w-[18px]"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Sending...
-                  </span>
-                ) : (
-                  "Get My Website"
-                )}
-              </button>
-            </div>
-
-            {/* Trust Text */}
-            <div className="pt-1 flex items-center justify-center gap-2">
-              <svg
-                className="w-3.5 h-3.5 text-forge-accent/50 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                />
-              </svg>
-              <p className="text-[12px] text-forge-text-secondary/40 leading-relaxed">
-                No spam. We&apos;ll contact you within 12 hours.
+            {/* Branding */}
+            <div className="z-10 flex items-center gap-2.5">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-forge-accent/10 ring-1 ring-forge-accent/20">
+                <Sparkles className="size-4 text-forge-accent" />
+              </div>
+              <p className="text-lg font-semibold text-forge-text tracking-tight font-syne">
+                StackForge
               </p>
             </div>
 
-            {/* Submit Error */}
-            {submitError && (
-              <div className="flex items-start gap-2.5 p-3 rounded-lg bg-red-500/5 border border-red-500/10 mt-2">
-                <svg
-                  className="w-4 h-4 text-red-400/70 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                  />
-                </svg>
-                <p className="text-[13px] text-red-400/80 leading-relaxed">
-                  {submitError}
+            {/* Testimonial */}
+            <div className="z-10 mt-auto pb-4">
+              <blockquote className="space-y-3">
+                <p className="text-fluid-h2 font-playfair text-forge-text">
+                  &ldquo;StackForge delivered our site in 3 days. The quality
+                  blew our expectations — best decision we made.&rdquo;
+                </p>
+                <footer className="font-mono text-sm font-semibold text-forge-text-secondary">
+                  ~ Priya Sharma, Hyderabadi Startups
+                </footer>
+              </blockquote>
+              <div className="mt-8 flex items-center gap-6 text-forge-text-secondary/60">
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-forge-accent tabular-nums">
+                    150+
+                  </span>
+                  <span className="text-xs uppercase tracking-wider">
+                    Projects
+                  </span>
+                </div>
+                <div className="h-8 w-px bg-forge-divider" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-forge-accent tabular-nums">
+                    98%
+                  </span>
+                  <span className="text-xs uppercase tracking-wider">
+                    Satisfaction
+                  </span>
+                </div>
+                <div className="h-8 w-px bg-forge-divider" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-forge-accent tabular-nums">
+                    3d
+                  </span>
+                  <span className="text-xs uppercase tracking-wider">
+                    Avg. Delivery
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Paths */}
+            <div className="absolute inset-0">
+              <FloatingPaths position={1} />
+              <FloatingPaths position={-1} />
+            </div>
+          </div>
+
+          {/* ═══ RIGHT FORM PANEL ═══ */}
+          <div className="relative flex min-h-screen flex-col justify-center p-4 md:p-8 lg:p-10">
+            {/* Radial gradient decorations */}
+            <div
+              aria-hidden
+              className="absolute inset-0 isolate contain-strict -z-10 opacity-50"
+            >
+              <div className="absolute top-0 right-0 h-80 w-56 -translate-y-1/2 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,rgba(255,106,0,0.06)_0,hsla(0,0%,55%,0.02)_50%,rgba(255,106,0,0.01)_80%)]" />
+              <div className="absolute top-0 right-0 h-80 w-60 translate-x-[5%] -translate-y-1/2 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,rgba(255,106,0,0.04)_0,rgba(255,106,0,0.01)_80%,transparent_100%)]" />
+              <div className="absolute bottom-0 left-0 h-64 w-64 translate-y-1/2 -translate-x-1/4 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,rgba(255,106,0,0.03)_0,transparent_80%)]" />
+            </div>
+
+            {/* Back to top */}
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="absolute top-6 left-5 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-forge-text"
+            >
+              <ChevronUpIcon className="size-4" />
+              Back to top
+            </button>
+
+            <div className="mx-auto w-full max-w-lg space-y-6 sm:space-y-7">
+              {/* Mobile branding */}
+              <div className="flex items-center gap-2.5 lg:hidden">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-forge-accent/10 ring-1 ring-forge-accent/20">
+                  <Sparkles className="size-4 text-forge-accent" />
+                </div>
+                <p className="text-lg font-semibold text-forge-text tracking-tight font-syne">
+                  StackForge
                 </p>
               </div>
-            )}
-          </form>
-        )}
+
+              {/* Section Header */}
+              <div className="space-y-1.5">
+                <h2 className="text-fluid-hero font-bold text-forge-text font-playfair">
+                  Let&apos;s Build Something
+                </h2>
+                <p className="text-fluid-body-lg text-forge-text-secondary">
+                  Pick a quick start or tell us the details below.
+                </p>
+              </div>
+
+              {isSuccess ? (
+                <SuccessState />
+              ) : (
+                <>
+                  {/* Quick Service Buttons */}
+                  <div className="space-y-2.5">
+                    <p className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+                      Quick Start
+                    </p>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {QUICK_SERVICES.map((service) => (
+                        <button
+                          key={service.value}
+                          type="button"
+                          onClick={() =>
+                            handleQuickService(service.value)
+                          }
+                          className={cn(
+                            "contact-quick-btn inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all",
+                            form.serviceNeed === service.value
+                              ? "border-forge-accent bg-forge-accent/5 text-forge-accent shadow-[0_0_12px_rgba(255,106,0,0.08)]"
+                              : "border-forge-border bg-forge-bg text-forge-text-secondary hover:border-forge-accent/30 hover:text-forge-text"
+                          )}
+                        >
+                          <service.icon className="size-4" />
+                          {service.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <AuthSeparator />
+
+                  {/* Form */}
+                  <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                    <p className="text-muted-foreground text-xs">
+                      Fill in your details and we&apos;ll get back to you
+                      within 12 hours.
+                    </p>
+
+                    {/* Row 1: Name + Contact */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="name"
+                          className="block text-xs font-medium uppercase tracking-wider text-forge-text-secondary/60"
+                        >
+                          Full Name
+                        </label>
+                        <div className="relative">
+                          <input
+                            ref={nameRef}
+                            id="name"
+                            type="text"
+                            value={form.name}
+                            onChange={(e) =>
+                              handleChange("name", e.target.value)
+                            }
+                            onBlur={() => handleBlur("name")}
+                            placeholder="John Doe"
+                            autoComplete="name"
+                            className={cn(
+                              "contact-input peer ps-9",
+                              touched.name &&
+                                errors.name &&
+                                "has-error"
+                            )}
+                          />
+                          <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground peer-disabled:opacity-50">
+                            <UserIcon
+                              className="size-4"
+                              aria-hidden="true"
+                            />
+                          </div>
+                        </div>
+                        {touched.name && errors.name && (
+                          <p className="pl-1 text-[11px] leading-none text-red-400/80">
+                            {errors.name}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="contactEmail"
+                          className="block text-xs font-medium uppercase tracking-wider text-forge-text-secondary/60"
+                        >
+                          Email / WhatsApp
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="contactEmail"
+                            type="text"
+                            value={form.contact}
+                            onChange={(e) =>
+                              handleChange("contact", e.target.value)
+                            }
+                            onBlur={() => handleBlur("contact")}
+                            placeholder="Email or WhatsApp"
+                            autoComplete="email"
+                            className={cn(
+                              "contact-input peer ps-9",
+                              touched.contact &&
+                                errors.contact &&
+                                "has-error"
+                            )}
+                          />
+                          <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground peer-disabled:opacity-50">
+                            <AtSignIcon
+                              className="size-4"
+                              aria-hidden="true"
+                            />
+                          </div>
+                        </div>
+                        {touched.contact && errors.contact && (
+                          <p className="pl-1 text-[11px] leading-none text-red-400/80">
+                            {errors.contact}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Row 2: Business Type + Service */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="businessType"
+                          className="block text-xs font-medium uppercase tracking-wider text-forge-text-secondary/60"
+                        >
+                          Business Type
+                        </label>
+                        <select
+                          id="businessType"
+                          value={form.businessType}
+                          onChange={(e) =>
+                            handleChange(
+                              "businessType",
+                              e.target.value
+                            )
+                          }
+                          className="contact-select"
+                        >
+                          {buildOptions(
+                            SELECT_OPTIONS,
+                            "Select type"
+                          )}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="serviceNeed"
+                          className="block text-xs font-medium uppercase tracking-wider text-forge-text-secondary/60"
+                        >
+                          Service
+                        </label>
+                        <select
+                          id="serviceNeed"
+                          value={form.serviceNeed}
+                          onChange={(e) =>
+                            handleChange(
+                              "serviceNeed",
+                              e.target.value
+                            )
+                          }
+                          className="contact-select"
+                        >
+                          {buildOptions(
+                            SERVICE_SELECT_OPTIONS,
+                            "Select service"
+                          )}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Row 3: Budget + Timeline */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="budget"
+                          className="block text-xs font-medium uppercase tracking-wider text-forge-text-secondary/60"
+                        >
+                          Budget Range
+                        </label>
+                        <select
+                          id="budget"
+                          value={form.budget}
+                          onChange={(e) =>
+                            handleChange("budget", e.target.value)
+                          }
+                          className="contact-select"
+                        >
+                          {buildOptions(
+                            BUDGET_SELECT_OPTIONS,
+                            "Select budget"
+                          )}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="timeline"
+                          className="block text-xs font-medium uppercase tracking-wider text-forge-text-secondary/60"
+                        >
+                          Timeline
+                        </label>
+                        <select
+                          id="timeline"
+                          value={form.timeline}
+                          onChange={(e) =>
+                            handleChange(
+                              "timeline",
+                              e.target.value
+                            )
+                          }
+                          className="contact-select"
+                        >
+                          {buildOptions(
+                            TIMELINE_SELECT_OPTIONS,
+                            "Select timeline"
+                          )}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Row 4: Details */}
+                    <div className="space-y-1.5">
+                      <label
+                        htmlFor="details"
+                        className="block text-xs font-medium uppercase tracking-wider text-forge-text-secondary/60"
+                      >
+                        Project Details{" "}
+                        <span className="normal-case tracking-normal font-normal opacity-40">
+                          (optional)
+                        </span>
+                      </label>
+                      <textarea
+                        id="details"
+                        value={form.details}
+                        onChange={(e) =>
+                          handleChange("details", e.target.value)
+                        }
+                        placeholder="Briefly describe what you're looking for..."
+                        rows={3}
+                        className="contact-textarea"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={!isValid || isSubmitting}
+                      className="btn-forge-submit"
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center justify-center gap-2.5">
+                          <svg
+                            className="h-[18px] w-[18px] animate-spin"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          Sending...
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-2.5">
+                          <SendIcon className="size-4" />
+                          Get My Website
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Trust badges */}
+                    <div className="flex flex-col items-center gap-3 pt-1">
+                      <div className="flex items-center gap-2 text-muted-foreground/60">
+                        <ShieldCheck className="size-3.5 text-forge-accent/40" />
+                        <p className="text-xs leading-relaxed">
+                          No spam. We&apos;ll contact you within 12 hours.
+                        </p>
+                      </div>
+
+                      {/* Submit Error */}
+                      {submitError && (
+                        <div className="flex w-full items-start gap-2.5 rounded-lg border border-red-500/10 bg-red-500/5 p-3">
+                          <HelpCircle className="mt-0.5 size-4 flex-shrink-0 text-red-400/70" />
+                          <p className="text-[13px] leading-relaxed text-red-400/80">
+                            {submitError}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -466,13 +724,13 @@ export function Contact() {
 /* ── Success State ── */
 function SuccessState() {
   return (
-    <div className="animate-success-enter text-center py-10 md:py-14">
+    <div className="animate-success-enter py-8 text-center sm:py-12">
       {/* Checkmark */}
-      <div className="flex justify-center mb-8">
-        <div className="relative w-20 h-20">
-          <div className="animate-check-circle absolute inset-0 rounded-full bg-forge-accent/10 border border-forge-accent/20" />
+      <div className="mb-8 flex justify-center">
+        <div className="relative h-20 w-20">
+          <div className="animate-check-circle absolute inset-0 rounded-full border border-forge-accent/20 bg-forge-accent/10" />
           <svg
-            className="absolute inset-0 w-20 h-20"
+            className="absolute inset-0 h-20 w-20"
             viewBox="0 0 80 80"
             fill="none"
           >
@@ -492,7 +750,7 @@ function SuccessState() {
         You&apos;re in.
       </h3>
 
-      <p className="mt-4 text-fluid-body-lg text-forge-text-secondary max-w-[340px] mx-auto">
+      <p className="mx-auto mt-4 max-w-[340px] text-fluid-body-lg text-forge-text-secondary">
         We&apos;ll reach out within 12 hours to discuss your project.
       </p>
     </div>
