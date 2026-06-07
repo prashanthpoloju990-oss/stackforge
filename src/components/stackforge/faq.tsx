@@ -8,32 +8,32 @@ const faqs = [
   {
     question: "How long does a typical project take?",
     answer:
-      "Most projects are delivered in 2–6 weeks depending on scope. A simple landing page can be ready in 5–7 business days, while a full web application typically takes 4–8 weeks.",
+      "Most projects ship in 2–6 weeks. A simple landing page can be ready in 5–7 business days. A full web application typically takes 4–8 weeks depending on scope.",
   },
   {
     question: "What's included in the pricing?",
     answer:
-      "Every project includes design, development, responsive optimization, basic SEO, and deployment. Post-launch support and maintenance are available as add-ons.",
+      "Design, development, responsive optimization, basic SEO, and deployment. Post-launch support and maintenance packages are available separately.",
   },
   {
     question: "Do you work with existing designs?",
     answer:
-      "Absolutely. We can build from your Figma/Sketch designs or create the design from scratch based on your brand guidelines and preferences.",
+      "Yes. We build from your Figma/Sketch designs, or create everything from scratch based on your brand guidelines and preferences.",
   },
   {
     question: "What technologies do you use?",
     answer:
-      "We primarily work with React, Next.js, TypeScript, and Tailwind CSS. For backend integrations, we use Node.js, Prisma, and PostgreSQL.",
+      "React, Next.js, TypeScript, Tailwind CSS for the frontend. Node.js, Prisma, PostgreSQL, or Supabase for backend and database. Hosted on Vercel.",
   },
   {
     question: "Do you offer ongoing support?",
     answer:
-      "Yes. We offer monthly maintenance packages that include bug fixes, performance monitoring, content updates, and feature enhancements.",
+      "Yes. Monthly maintenance packages covering bug fixes, performance monitoring, content updates, and feature enhancements.",
   },
   {
     question: "How do we get started?",
     answer:
-      "Simply fill out the contact form below or reach out via email. We'll schedule a free 30-minute consultation to understand your needs and provide a tailored proposal.",
+      "Fill out the contact form or email us. We schedule a free 30-minute call to understand your needs and provide a tailored proposal within 48 hours.",
   },
 ];
 
@@ -46,7 +46,7 @@ export function FAQ() {
   };
 
   return (
-    <section className="py-24 md:py-32 lg:py-[120px]">
+    <section className="py-24 md:py-32 lg:py-[110px]">
       <div
         ref={ref}
         className={cn(
@@ -54,18 +54,23 @@ export function FAQ() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         )}
       >
-        {/* Centered Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-mono">
-            FAQ
-          </span>
-          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text font-playfair">
-            Common Questions
-          </h2>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 md:mb-16">
+          <div>
+            <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
+              FAQ
+            </span>
+            <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[500px] font-playfair">
+              Common questions
+            </h2>
+          </div>
+          <p className="text-[14px] text-forge-text-secondary/40 max-w-[320px] md:text-right">
+            Can&apos;t find what you&apos;re looking for? Reach out directly — we&apos;re happy to help.
+          </p>
         </div>
 
         {/* FAQ List */}
-        <div className="max-w-[800px] mx-auto">
+        <div className="max-w-[780px]">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
             const isLast = index === faqs.length - 1;
@@ -74,7 +79,7 @@ export function FAQ() {
               <div
                 key={index}
                 className={cn(
-                  "border-b border-forge-divider",
+                  "border-b border-forge-divider/60",
                   isLast && "border-b-0"
                 )}
               >
@@ -83,26 +88,30 @@ export function FAQ() {
                   className="w-full flex items-center justify-between py-5 md:py-6 text-left group cursor-pointer"
                   aria-expanded={isOpen}
                 >
-                  <span
-                    className={cn(
-                      "text-[16px] md:text-[17px] font-medium transition-colors duration-200 pr-4",
-                      isOpen
-                        ? "text-forge-text"
-                        : "text-forge-text group-hover:text-forge-text/90"
-                    )}
-                  >
-                    {faq.question}
+                  <span className="flex items-center gap-4">
+                    <span className="text-[12px] text-forge-text-secondary/20 font-mono shrink-0 w-5 text-right">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[15px] md:text-[16px] font-medium transition-colors duration-200 pr-4",
+                        isOpen
+                          ? "text-forge-text"
+                          : "text-forge-text-secondary/70 group-hover:text-forge-text/90"
+                      )}
+                    >
+                      {faq.question}
+                    </span>
                   </span>
 
-                  {/* Chevron */}
                   <svg
-                    width="18"
-                    height="18"
+                    width="16"
+                    height="16"
                     viewBox="0 0 18 18"
                     fill="none"
                     className={cn(
-                      "shrink-0 text-forge-text-secondary transition-transform duration-300",
-                      isOpen && "rotate-180"
+                      "shrink-0 text-forge-text-secondary/30 transition-transform duration-300",
+                      isOpen && "rotate-180 text-forge-accent/60"
                     )}
                   >
                     <path
@@ -115,7 +124,6 @@ export function FAQ() {
                   </svg>
                 </button>
 
-                {/* Collapsible Answer using grid-rows trick */}
                 <div
                   className={cn(
                     "grid transition-all duration-300 ease-out",
@@ -125,7 +133,7 @@ export function FAQ() {
                   )}
                 >
                   <div className="overflow-hidden">
-                    <p className="pb-5 md:pb-6 text-[15px] text-forge-text-secondary leading-[1.7]">
+                    <p className="pb-5 md:pb-6 text-[14px] text-forge-text-secondary/60 leading-[1.7] pl-9">
                       {faq.answer}
                     </p>
                   </div>

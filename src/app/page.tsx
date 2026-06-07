@@ -15,6 +15,9 @@ import { StickyCta } from "@/components/stackforge/sticky-cta";
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-forge-bg">
+      {/* Grain texture overlay */}
+      <div className="grain-overlay" aria-hidden="true" />
+
       <Navbar />
 
       {/* Skip to content — accessibility */}
@@ -29,11 +32,11 @@ export default function Home() {
         <Hero />
         <SectionDivider />
         <Services />
-        <SectionDivider />
         <Work />
         <SectionDivider />
         <Process />
         <Testimonials />
+        <SectionDivider />
         <TechStack />
         <FAQ />
         <CtaBanner />

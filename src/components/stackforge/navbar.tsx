@@ -10,7 +10,6 @@ const NAV_LINKS = [
   { label: "Work", href: "#work" },
   { label: "Process", href: "#process" },
   { label: "Contact", href: "#contact" },
-  { label: "FAQ", href: "#faq" },
 ];
 
 export function Navbar() {
@@ -25,7 +24,6 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -42,7 +40,7 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-forge-bg/80 backdrop-blur-md border-b border-forge-divider"
+          ? "bg-forge-bg/80 backdrop-blur-xl border-b border-forge-divider/60"
           : "bg-transparent"
       )}
     >
@@ -62,35 +60,42 @@ export function Navbar() {
               <a
                 key={link.href}
                 href={link.href}
-                className="relative text-[14px] text-forge-text-secondary font-medium transition-colors duration-200 hover:text-forge-text group"
+                className="relative text-[13px] text-forge-text-secondary/60 font-medium transition-colors duration-200 hover:text-forge-text link-underline"
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 h-px bg-forge-accent w-0 transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </div>
 
+          {/* Desktop CTA */}
+          <a
+            href="#contact"
+            className="hidden md:inline-flex items-center justify-center h-9 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-md transition-all duration-200 hover:bg-[#e55f00] active:scale-[0.98]"
+          >
+            Get in Touch
+          </a>
+
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden flex flex-col items-center justify-center w-11 h-11 gap-[5px] text-forge-text -mr-2"
+            className="md:hidden flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-forge-text -mr-1"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
             <span
               className={cn(
-                "block w-[20px] h-[1.5px] bg-current transition-all duration-300 origin-center",
+                "block w-[18px] h-[1.5px] bg-current transition-all duration-300 origin-center",
                 mobileOpen && "rotate-45 translate-y-[3.25px]"
               )}
             />
             <span
               className={cn(
-                "block w-[20px] h-[1.5px] bg-current transition-all duration-300",
+                "block w-[18px] h-[1.5px] bg-current transition-all duration-300",
                 mobileOpen && "opacity-0 scale-0"
               )}
             />
             <span
               className={cn(
-                "block w-[20px] h-[1.5px] bg-current transition-all duration-300 origin-center",
+                "block w-[18px] h-[1.5px] bg-current transition-all duration-300 origin-center",
                 mobileOpen && "-rotate-45 -translate-y-[3.25px]"
               )}
             />
@@ -101,24 +106,30 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       <div
         className={cn(
-          "md:hidden fixed inset-0 top-16 bg-forge-bg/95 backdrop-blur-md transition-all duration-300",
+          "md:hidden fixed inset-0 top-16 bg-forge-bg/95 backdrop-blur-xl transition-all duration-300",
           mobileOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         )}
       >
-        <div className="flex flex-col items-center justify-center gap-8 pt-12 sm:pt-16">
+        <div className="flex flex-col items-center justify-center gap-6 pt-12 sm:pt-16">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="relative text-[16px] text-forge-text-secondary font-medium tracking-widest transition-colors duration-200 hover:text-forge-text group py-2"
+              className="text-[18px] text-forge-text-secondary/60 font-medium tracking-[0.08em] transition-colors duration-200 hover:text-forge-text py-1"
             >
               {link.label}
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-px bg-forge-accent w-0 transition-all duration-300 group-hover:w-6" />
             </a>
           ))}
+          <a
+            href="#contact"
+            onClick={() => setMobileOpen(false)}
+            className="mt-4 inline-flex items-center justify-center h-11 px-7 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg"
+          >
+            Start a Project
+          </a>
         </div>
       </div>
     </header>

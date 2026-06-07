@@ -7,25 +7,26 @@ const steps = [
   {
     number: "01",
     title: "Discovery",
-    description: "Understanding your business, goals, and requirements.",
+    description:
+      "We dig into your business, users, and goals. No templates — every project starts with a blank canvas and honest questions.",
   },
   {
     number: "02",
     title: "Design",
     description:
-      "Crafting a clean, modern interface with strong user experience.",
+      "Clean, purposeful interfaces. We design in Figma, iterate fast, and don't move forward until you love it.",
   },
   {
     number: "03",
     title: "Build",
     description:
-      "Developing a fast, scalable, and production-ready system.",
+      "Production-grade code with React, Next.js, and TypeScript. Fast, accessible, SEO-ready from the first commit.",
   },
   {
     number: "04",
     title: "Launch",
     description:
-      "Testing, refining, and deploying your product with confidence.",
+      "We test everything, deploy to production, and stick around. Post-launch support is never an afterthought.",
   },
 ];
 
@@ -34,72 +35,76 @@ export function Process() {
   const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal({ threshold: 0.05 });
 
   return (
-    <section id="process" className="py-24 md:py-32 lg:py-[120px]">
+    <section id="process" className="py-24 md:py-32 lg:py-[110px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
-        {/* Section Header — Center Aligned */}
+        {/* Section Header */}
         <div
           ref={headerRef}
           className={cn(
-            "text-center mb-16 md:mb-24 transition-all duration-700 ease-out",
+            "mb-16 md:mb-20 transition-all duration-700 ease-out",
             headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-dancing">
+          <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
             Process
           </span>
-          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text mx-auto max-w-[600px] font-playfair">
-            How We Work
+          <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[550px] font-playfair">
+            Simple process.
+            <br />
+            <span className="font-curvy text-forge-accent/70 text-[0.88em]"> Serious results.</span>
           </h2>
-          <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed mx-auto max-w-[480px]">
-            A clear and structured process to take your idea from concept to
-            launch.
-          </p>
         </div>
 
-        {/* Steps — Horizontal Flow */}
+        {/* Steps */}
         <div ref={stepsRef} className="relative">
-          {/* Connecting line — desktop only */}
-          <div className="hidden lg:block absolute top-[38px] left-[12.5%] right-[12.5%] h-px bg-forge-divider" />
+          {/* Desktop connecting line */}
+          <div className="hidden lg:block absolute top-[36px] left-[60px] right-[60px] h-px bg-forge-divider" />
 
-          {/* Mobile: vertical line */}
-          <div className="lg:hidden absolute top-0 bottom-0 left-[19px] w-px bg-forge-divider" />
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-0 relative">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-0 relative">
             {steps.map((step, index) => (
               <div
                 key={step.number}
                 className={cn(
-                  "relative flex flex-col items-center text-center transition-all duration-700 ease-out",
-                  stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                  "relative transition-all duration-700 ease-out",
+                  stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
                 )}
-                style={{ transitionDelay: stepsVisible ? `${index * 150}ms` : "0ms" }}
+                style={{ transitionDelay: stepsVisible ? `${index * 120}ms` : "0ms" }}
               >
-                {/* Step number circle — desktop */}
-                <div className="hidden lg:flex items-center justify-center w-[76px] h-[76px] rounded-full border-2 border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/40 group">
-                  <span className="text-[24px] font-bold text-forge-text tracking-tight transition-colors duration-300 group-hover:text-forge-accent font-syne">
-                    {step.number}
-                  </span>
+                {/* Mobile layout */}
+                <div className="lg:hidden flex items-start gap-5">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-forge-divider bg-forge-bg shrink-0 relative z-10">
+                    <span className="text-[14px] font-bold text-forge-text tracking-tight font-syne">
+                      {step.number}
+                    </span>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className="absolute top-10 left-[19px] w-px h-[calc(100%+8px)] bg-forge-divider" />
+                  )}
+                  <div className="pb-10">
+                    <h3 className="text-[17px] font-semibold text-forge-text tracking-[-0.01em] font-syne">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-[14px] text-forge-text-secondary/60 leading-[1.65] max-w-[380px]">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Step number circle — mobile */}
-                <div className="lg:hidden flex items-center justify-center w-[40px] h-[40px] rounded-full border-2 border-forge-divider bg-forge-bg relative z-10 flex-shrink-0 mb-4">
-                  <span className="text-[15px] font-bold text-forge-text tracking-tight font-syne">
-                    {step.number}
-                  </span>
-                </div>
+                {/* Desktop layout */}
+                <div className="hidden lg:flex flex-col items-center text-center px-4">
+                  <div className="flex items-center justify-center w-[72px] h-[72px] rounded-full border border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/30 group">
+                    <span className="text-[22px] font-bold text-forge-text tracking-tight transition-colors duration-300 group-hover:text-forge-accent font-syne">
+                      {step.number}
+                    </span>
+                  </div>
 
-                {/* Text content */}
-                <div className="lg:mt-6 lg:px-2">
-                  {/* Mobile: left-aligned text */}
-                  <div className="lg:text-center flex lg:flex-col flex-row items-start lg:items-center gap-4 lg:gap-0 pl-14 lg:pl-0">
-                    <div>
-                      <h3 className="text-[18px] md:text-[20px] font-semibold text-forge-text tracking-[-0.01em] font-syne">
-                        {step.title}
-                      </h3>
-                      <p className="mt-2 text-[14px] md:text-[15px] text-forge-text-secondary leading-relaxed lg:max-w-[220px]">
-                        {step.description}
-                      </p>
-                    </div>
+                  <div className="mt-5">
+                    <h3 className="text-[17px] font-semibold text-forge-text tracking-[-0.01em] font-syne">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-[14px] text-forge-text-secondary/60 leading-[1.65] max-w-[210px]">
+                      {step.description}
+                    </p>
                   </div>
                 </div>
               </div>

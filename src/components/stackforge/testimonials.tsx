@@ -6,24 +6,24 @@ import { cn } from "@/lib/utils";
 const testimonials = [
   {
     quote:
-      "StackForge delivered our site in record time. The performance is incredible — our Core Web Vitals score jumped to 98.",
+      "StackForge delivered our fintech platform in 6 weeks flat. The performance is incredible — our Core Web Vitals jumped to 98, and our conversion rate increased 3.2× within the first month.",
     name: "Arjun Mehta",
-    role: "Founder at NovaPay",
-    stars: 5,
+    role: "Founder, NovaPay",
+    featured: true,
   },
   {
     quote:
-      "They understood our vision from day one. Clean design, zero bugs, and the team was responsive throughout.",
+      "They understood our vision from the first call. Clean code, zero bugs, and they actually hit every deadline. Rare find.",
     name: "Priya Sharma",
-    role: "CTO at ElevateHR",
-    stars: 5,
+    role: "CTO, ElevateHR",
+    featured: false,
   },
   {
     quote:
-      "Our conversion rate increased 2.4x after the redesign. Best investment we made this year.",
+      "After the redesign, our table reservations went up 140%. The ROI was obvious within weeks. Best investment this year.",
     name: "Rahul Verma",
-    role: "CEO at DineFine",
-    stars: 5,
+    role: "CEO, DineFine",
+    featured: false,
   },
 ];
 
@@ -33,83 +33,98 @@ export function Testimonials() {
     threshold: 0.05,
   });
 
+  const featured = testimonials[0];
+  const rest = testimonials.slice(1);
+
   return (
-    <section className="py-24 md:py-32 lg:py-[120px]">
+    <section className="py-24 md:py-32 lg:py-[110px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* Section Header */}
         <div
           ref={headerRef}
           className={cn(
-            "mb-16 md:mb-20 transition-all duration-700 ease-out text-center",
-            headerVisible
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-6"
+            "mb-14 md:mb-20 transition-all duration-700 ease-out",
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-dancing">
-            Testimonials
+          <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-curvy">
+            Client Words
           </span>
-          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text font-playfair">
-            What Clients Say
+          <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[500px] font-playfair">
+            Don&apos;t take our word
+            <br className="hidden md:block" />
+            <span className="font-curvy text-forge-accent/70 text-[0.88em]"> for it.</span>
           </h2>
-          <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed max-w-[480px] mx-auto">
-            Trusted by founders and teams who demand quality, speed, and
-            reliability.
-          </p>
         </div>
 
-        {/* Testimonial Cards */}
+        {/* Featured Testimonial */}
         <div
           ref={cardsRef}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className={cn(
+            "mb-6 md:mb-8 transition-all duration-700 ease-out",
+            cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}
         >
-          {testimonials.map((testimonial, index) => (
+          <div className="border border-forge-accent/15 bg-forge-accent/[0.02] rounded-xl p-8 md:p-12 lg:p-14 relative">
+            {/* Large quote */}
+            <span className="absolute top-6 left-8 md:left-12 text-forge-accent/10 text-[80px] md:text-[100px] leading-none font-curvy block select-none pointer-events-none">
+              &ldquo;
+            </span>
+
+            <div className="relative">
+              <blockquote className="text-[18px] md:text-[22px] lg:text-[26px] text-forge-text/90 leading-[1.6] font-playfair max-w-[800px]">
+                {featured.quote}
+              </blockquote>
+              <div className="mt-8 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-forge-accent/10 flex items-center justify-center">
+                  <span className="text-[14px] font-bold text-forge-accent/80">
+                    {featured.name.split(" ").map(n => n[0]).join("")}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[15px] text-forge-text font-semibold">
+                    {featured.name}
+                  </p>
+                  <p className="text-[13px] text-forge-text-secondary/50">
+                    {featured.role}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Smaller testimonial cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+          {rest.map((testimonial, index) => (
             <div
               key={testimonial.name}
               className={cn(
-                "bg-forge-surface border border-forge-divider rounded-xl p-6 md:p-8 transition-all duration-700 ease-out hover:border-forge-border",
-                cardsVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6"
+                "bg-forge-surface/30 border border-forge-divider rounded-xl p-6 md:p-8 card-hover",
+                cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
               )}
               style={{
-                transitionDelay: cardsVisible ? `${index * 120}ms` : "0ms",
+                transitionDelay: cardsVisible ? `${(index + 1) * 120}ms` : "0ms",
               }}
             >
-              {/* Large Quote Mark */}
-              <span className="text-forge-accent/25 text-7xl leading-none font-curvy block select-none">
-                &ldquo;
-              </span>
+              <blockquote className="text-[15px] md:text-[16px] text-forge-text-secondary/70 leading-[1.7]">
+                &ldquo;{testimonial.quote}&rdquo;
+              </blockquote>
 
-              {/* Quote Text */}
-              <p className="mt-3 text-[15px] md:text-[16px] text-forge-text-secondary leading-[1.7] italic">
-                {testimonial.quote}
-              </p>
-
-              {/* Star Rating */}
-              <div className="mt-6 flex items-center gap-1">
-                {Array.from({ length: testimonial.stars }).map((_, i) => (
-                  <svg
-                    key={i}
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="currentColor"
-                    className="text-forge-accent"
-                  >
-                    <path d="M7 0.5L8.89 4.78L13.5 5.27L10.08 8.52L10.97 13.08L7 10.97L3.03 13.08L3.92 8.52L0.5 5.27L5.11 4.78L7 0.5Z" />
-                  </svg>
-                ))}
-              </div>
-
-              {/* Author */}
-              <div className="mt-4 pt-4 border-t border-forge-divider">
-                <p className="text-[15px] text-forge-text font-semibold">
-                  {testimonial.name}
-                </p>
-                <p className="mt-0.5 text-[13px] text-forge-text-secondary">
-                  {testimonial.role}
-                </p>
+              <div className="mt-5 pt-4 border-t border-forge-divider/50 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-forge-surface flex items-center justify-center">
+                  <span className="text-[12px] font-bold text-forge-text-secondary/40">
+                    {testimonial.name.split(" ").map(n => n[0]).join("")}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[14px] text-forge-text font-medium">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-[12px] text-forge-text-secondary/40">
+                    {testimonial.role}
+                  </p>
+                </div>
               </div>
             </div>
           ))}

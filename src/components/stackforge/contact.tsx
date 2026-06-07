@@ -104,16 +104,16 @@ export function Contact() {
   };
 
   const inputBase =
-    "w-full h-12 bg-forge-bg border rounded-lg px-4 text-[15px] text-forge-text placeholder:text-forge-text-secondary/25 transition-all duration-200 outline-none focus:ring-1 appearance-none";
+    "w-full h-11 bg-forge-bg border rounded-lg px-4 text-[14px] text-forge-text placeholder:text-forge-text-secondary/20 transition-all duration-200 outline-none focus:ring-1 appearance-none";
   const inputNormal =
-    "border-forge-border focus:border-forge-accent/50 focus:ring-forge-accent/20";
+    "border-forge-border focus:border-forge-accent/40 focus:ring-forge-accent/15";
   const inputError =
-    "border-red-500/70 focus:border-red-500 focus:ring-red-500/20";
+    "border-red-500/60 focus:border-red-500 focus:ring-red-500/15";
   const selectBase =
-    "w-full h-12 bg-forge-bg border rounded-lg px-4 text-[15px] text-forge-text transition-all duration-200 outline-none focus:ring-1 appearance-none cursor-pointer";
+    "w-full h-11 bg-forge-bg border rounded-lg px-4 text-[14px] text-forge-text transition-all duration-200 outline-none focus:ring-1 appearance-none cursor-pointer";
 
   return (
-    <section id="contact" className="py-24 md:py-32 lg:py-40">
+    <section id="contact" className="py-24 md:py-32 lg:py-36">
       <div
         ref={ref}
         className={cn(
@@ -121,49 +121,49 @@ export function Contact() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         )}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-12 lg:gap-20">
           {/* Left Column */}
           <div>
-            <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-mono">
+            <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
               Contact
             </span>
 
-            <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text max-w-[500px] font-playfair">
-              Let&apos;s build
+            <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[440px] font-playfair">
+              Let&apos;s build something
               <br />
-              <span className="font-curvy text-forge-accent/80 text-[0.85em]">something great.</span>
+              <span className="font-curvy text-forge-accent/70 text-[0.88em]"> worth talking about.</span>
             </h2>
 
-            <p className="mt-6 text-[16px] text-forge-text-secondary leading-relaxed max-w-[420px]">
-              Have a project in mind? We&apos;d love to hear about it. Reach out
-              and let&apos;s explore how we can work together.
+            <p className="mt-5 text-[15px] text-forge-text-secondary/60 leading-[1.7] max-w-[380px]">
+              Tell us about your project. We respond within 24 hours — no spam,
+              no sales funnel, just a real conversation.
             </p>
 
             <div className="mt-10 space-y-4">
               <div className="flex items-center gap-3">
-                <span className="text-[13px] text-forge-text-secondary/50 font-mono w-20 shrink-0">
+                <span className="text-[12px] text-forge-text-secondary/30 font-mono w-[72px] shrink-0 tracking-[0.06em] uppercase">
                   Email
                 </span>
                 <a
                   href="mailto:hello@stackforge.dev"
-                  className="text-[15px] text-forge-text-secondary hover:text-forge-text transition-colors duration-200"
+                  className="text-[14px] text-forge-text-secondary/70 hover:text-forge-text transition-colors duration-200"
                 >
                   hello@stackforge.dev
                 </a>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[13px] text-forge-text-secondary/50 font-mono w-20 shrink-0">
+                <span className="text-[12px] text-forge-text-secondary/30 font-mono w-[72px] shrink-0 tracking-[0.06em] uppercase">
                   Location
                 </span>
-                <span className="text-[15px] text-forge-text-secondary">
+                <span className="text-[14px] text-forge-text-secondary/70">
                   Hyderabad, India
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[13px] text-forge-text-secondary/50 font-mono w-20 shrink-0">
+                <span className="text-[12px] text-forge-text-secondary/30 font-mono w-[72px] shrink-0 tracking-[0.06em] uppercase">
                   Response
                 </span>
-                <span className="text-[15px] text-forge-text-secondary">
+                <span className="text-[14px] text-forge-text-secondary/70">
                   Within 24 hours
                 </span>
               </div>
@@ -171,12 +171,12 @@ export function Contact() {
           </div>
 
           {/* Right Column — Form */}
-          <div className="border border-forge-divider bg-forge-surface/50 p-6 sm:p-8 md:p-10 rounded-xl relative">
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <div className="border border-forge-divider bg-forge-surface/30 p-6 sm:p-8 md:p-9 rounded-xl">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {/* Name + Email Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="name" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                  <label htmlFor="name" className="block text-[12px] text-forge-text-secondary/40 font-medium tracking-[0.06em] uppercase mb-1.5">
                     Name
                   </label>
                   <input
@@ -190,11 +190,11 @@ export function Contact() {
                     className={cn(inputBase, touched.name && errors.name ? inputError : inputNormal)}
                   />
                   {touched.name && errors.name && (
-                    <p className="mt-1.5 text-[12px] text-red-400/80">{errors.name}</p>
+                    <p className="mt-1 text-[11px] text-red-400/70">{errors.name}</p>
                   )}
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                  <label htmlFor="email" className="block text-[12px] text-forge-text-secondary/40 font-medium tracking-[0.06em] uppercase mb-1.5">
                     Email
                   </label>
                   <input
@@ -208,15 +208,15 @@ export function Contact() {
                     className={cn(inputBase, touched.email && errors.email ? inputError : inputNormal)}
                   />
                   {touched.email && errors.email && (
-                    <p className="mt-1.5 text-[12px] text-red-400/80">{errors.email}</p>
+                    <p className="mt-1 text-[11px] text-red-400/70">{errors.email}</p>
                   )}
                 </div>
               </div>
 
               {/* Project Type + Budget Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="projectType" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                  <label htmlFor="projectType" className="block text-[12px] text-forge-text-secondary/40 font-medium tracking-[0.06em] uppercase mb-1.5">
                     Project Type
                   </label>
                   <div className="relative">
@@ -233,13 +233,13 @@ export function Contact() {
                       <option value="redesign">Redesign</option>
                       <option value="other">Other</option>
                     </select>
-                    <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-forge-text-secondary/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-forge-text-secondary/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="budget" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                  <label htmlFor="budget" className="block text-[12px] text-forge-text-secondary/40 font-medium tracking-[0.06em] uppercase mb-1.5">
                     Budget
                   </label>
                   <div className="relative">
@@ -255,7 +255,7 @@ export function Contact() {
                       <option value="1.5l-3l">₹1.5L – ₹3L</option>
                       <option value="3l+">₹3L+</option>
                     </select>
-                    <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-forge-text-secondary/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-forge-text-secondary/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -264,7 +264,7 @@ export function Contact() {
 
               {/* Timeline */}
               <div>
-                <label htmlFor="timeline" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                <label htmlFor="timeline" className="block text-[12px] text-forge-text-secondary/40 font-medium tracking-[0.06em] uppercase mb-1.5">
                   Timeline
                 </label>
                 <div className="relative">
@@ -280,7 +280,7 @@ export function Contact() {
                     <option value="1-3-months">1–3 Months</option>
                     <option value="flexible">Flexible</option>
                   </select>
-                  <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-forge-text-secondary/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="absolute right-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-forge-text-secondary/30 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
@@ -288,7 +288,7 @@ export function Contact() {
 
               {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                <label htmlFor="message" className="block text-[12px] text-forge-text-secondary/40 font-medium tracking-[0.06em] uppercase mb-1.5">
                   Message
                 </label>
                 <textarea
@@ -299,12 +299,12 @@ export function Contact() {
                   placeholder="Tell us about your project..."
                   rows={4}
                   className={cn(
-                    "w-full bg-forge-bg border rounded-lg px-4 py-3 text-[15px] text-forge-text placeholder:text-forge-text-secondary/25 transition-all duration-200 outline-none resize-none focus:ring-1",
+                    "w-full bg-forge-bg border rounded-lg px-4 py-3 text-[14px] text-forge-text placeholder:text-forge-text-secondary/20 transition-all duration-200 outline-none resize-none focus:ring-1",
                     touched.message && errors.message ? inputError : inputNormal
                   )}
                 />
                 {touched.message && errors.message && (
-                  <p className="mt-1.5 text-[12px] text-red-400/80">{errors.message}</p>
+                  <p className="mt-1 text-[11px] text-red-400/70">{errors.message}</p>
                 )}
               </div>
 
@@ -314,10 +314,10 @@ export function Contact() {
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    "inline-flex items-center justify-center h-12 px-8 bg-forge-accent text-white text-[14px] font-semibold tracking-[0.04em] uppercase rounded-lg transition-all duration-200",
+                    "inline-flex items-center justify-center h-11 px-7 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200",
                     isSubmitting
-                      ? "opacity-70 cursor-wait"
-                      : "hover:bg-[#e55f00] hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
+                      ? "opacity-60 cursor-wait"
+                      : "hover:bg-[#e55f00] hover:shadow-lg hover:shadow-forge-accent/10 active:scale-[0.98] cursor-pointer"
                   )}
                 >
                   {isSubmitting ? (
@@ -337,11 +337,11 @@ export function Contact() {
 
             {toast && (
               <div className={cn(
-                "mt-6 flex items-start gap-3 p-4 rounded-lg border transition-all duration-300",
-                toast.type === "success" ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20"
+                "mt-5 flex items-start gap-3 p-3.5 rounded-lg border transition-all duration-300",
+                toast.type === "success" ? "bg-green-500/5 border-green-500/15" : "bg-red-500/5 border-red-500/15"
               )}>
-                <div className={cn("mt-0.5 w-2 h-2 rounded-full flex-shrink-0", toast.type === "success" ? "bg-green-400" : "bg-red-400")} />
-                <p className={cn("text-[14px] leading-relaxed", toast.type === "success" ? "text-green-300/80" : "text-red-300/80")}>
+                <div className={cn("mt-0.5 w-1.5 h-1.5 rounded-full flex-shrink-0", toast.type === "success" ? "bg-green-400/70" : "bg-red-400/70")} />
+                <p className={cn("text-[13px] leading-relaxed", toast.type === "success" ? "text-green-300/70" : "text-red-300/70")}>
                   {toast.message}
                 </p>
               </div>

@@ -27,28 +27,22 @@ export function StickyCta() {
   return (
     <div
       className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 pointer-events-none",
+        "fixed bottom-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-400 pointer-events-none",
         visible
           ? "opacity-100 translate-y-0 pointer-events-auto"
-          : "opacity-0 translate-y-full"
+          : "opacity-0 translate-y-4"
       )}
     >
       <button
         onClick={handleClick}
         className={cn(
-          "inline-flex items-center gap-2 h-12 px-6 bg-forge-accent text-white text-[14px] font-semibold tracking-[0.04em] uppercase rounded-full shadow-lg shadow-black/40 transition-all duration-200 cursor-pointer font-syne",
-          "hover:bg-[#e55f00] hover:scale-105",
+          "inline-flex items-center gap-2 h-10 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-full shadow-lg shadow-black/50 transition-all duration-200 cursor-pointer font-syne",
+          "hover:bg-[#e55f00] hover:scale-[1.03] hover:shadow-forge-accent/15",
           "active:scale-[0.97]"
         )}
       >
         Start a Project
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 16 16"
-          fill="none"
-          className="shrink-0"
-        >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0">
           <path
             d="M3 8H13M13 8L8.5 3.5M13 8L8.5 12.5"
             stroke="currentColor"

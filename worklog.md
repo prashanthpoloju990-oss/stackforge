@@ -1,80 +1,28 @@
 ---
-Task ID: 1-12
-Agent: Main Agent
-Task: Redesign StackForge into modern storytelling scroll-reveal website (Instagram Reels style)
+Task ID: 1
+Agent: main
+Task: Improve StackForge landing page from AI-made to professional quality
 
 Work Log:
-- Read all existing project files: globals.css, page.tsx, layout.tsx, all stackforge components, hooks
-- Ran fullstack init script successfully
-- Rewrote src/app/globals.css:
-  - Kept existing theme variables, font utilities, scrollbar styles, selection color, hero-dots
-  - Removed old smooth scroll behavior and hero entrance animation classes
-  - Added `overflow: hidden` to both `html` and `body`
-  - Added `.scroll-snap-container`: 100dvh, overflow-y auto, scroll-snap-type y mandatory (mobile) / proximity (desktop)
-  - Added `.story-slide`: min-height 100dvh, scroll-snap-align start, scroll-snap-stop always, centered flex
-  - Added 8 animation keyframes: story-fade-up, story-fade-in, story-scale-in, story-clip-up, story-slide-left, story-slide-right, scroll-bounce, line-grow
-  - Added utility animation classes: animate-story-fade-up, animate-story-fade-in, animate-story-scale-in, animate-story-clip-up, animate-story-slide-left, animate-story-slide-right, animate-line-grow, animate-scroll-bounce
-- Created src/hooks/use-slide-reveal.ts:
-  - IntersectionObserver-based hook with configurable threshold (default 0.3), rootMargin, and once flag
-  - Returns { ref, isVisible } for triggering animations on scroll intersection
-- Created src/components/stackforge/slide-nav.tsx:
-  - Fixed right-side dot navigation with 7 dots (Home/About/Services/Work/Stats/Review/Contact)
-  - Active dot scales up with forge-accent color
-  - Tooltip labels appear on hover
-  - Click scrolls to target slide smoothly
-  - Scroll event listener tracks active slide via scrollTop / clientHeight ratio
-- Created src/components/stackforge/slide-hero.tsx:
-  - Full-screen hero with centered content (max-w-900px)
-  - Logo image (12x12 rounded-xl), massive Syne headline (up to 72px), Dancing Script accent subtitle
-  - Tagline paragraph, dot grid background, subtle radial gradient
-  - Animated scroll indicator at bottom (bouncing chevron with "Scroll" label)
-  - Staggered story-fade-up animations (0ms → 400ms delays)
-- Created src/components/stackforge/slide-statement.tsx:
-  - Two-column layout: left has big Playfair statement with accent "we don't just build websites" + orange line-grow animation
-  - Right has supporting text (story-slide-left) + 8 tech stack pills (React, Next.js, TypeScript, etc.)
-- Created src/components/stackforge/slide-services.tsx:
-  - 3-column grid (1-col mobile) with Kit/Pack/Bag tier cards
-  - Pack card highlighted with accent border + orange dot
-  - Cards are clickable buttons that scroll to CTA slide
-  - Staggered 150ms delay per card reveal
-- Created src/components/stackforge/slide-work.tsx:
-  - Featured project (Vertex Startup) with large 21:9 aspect ratio image
-  - story-clip-up animation on image reveal
-  - Gradient overlay with project info (title, description, tags) slides up from bottom
-  - Image hover zoom effect
-- Created src/components/stackforge/slide-stats.tsx:
-  - 3-column layout (stacked on mobile) with dividers
-  - 50+ / 99.9% / 24h animated counters with useCountUp (ease-out cubic)
-  - Counters trigger on slide visibility
-  - Massive Syne numbers (up to 72px) with orange suffixes
-  - Font-mono labels, muted descriptions
-- Created src/components/stackforge/slide-testimonial.tsx:
-  - Immersive centered layout (max-w-800px)
-  - Massive Dancing Script quote mark (up to text-9xl, 20% opacity orange)
-  - Playfair italic quote text (up to 24px)
-  - Syne author name, mono role, 5-star rating
-  - Staggered scale-in, fade-up, fade-in animations
-- Created src/components/stackforge/slide-cta.tsx:
-  - Two-column layout: left has Playfair heading + contact details (email, location, response time in mono)
-  - Right has inline form (name, email, message, submit) with full validation
-  - Form validation, loading state, inline toast notifications
-  - Bottom copyright line with fade-in animation
-- Rewrote src/app/page.tsx:
-  - Replaced all old section imports with 7 new slide components + SlideNav
-  - Skip-to-content accessibility link
-  - Single scroll-snap-container wrapping all 7 slides
-  - No navbar, no footer, no sticky CTA — pure storytelling scroll
-- ESLint passed clean (zero errors)
-- Dev server compiled successfully (GET / 200 in 16ms)
+- Analyzed all 14 component files to identify AI-made patterns (generic copy, uniform spacing, star ratings, template-y structure)
+- Rewrote globals.css: added grain texture overlay, refined animations with cubic-bezier easing, improved scrollbar, added .section-rule with center accent, .card-hover, .link-underline utility classes
+- Rewrote Hero.tsx: tighter direct copy ("We ship websites that convert."), added "Trusted by" logos strip at bottom, refined counter stats, improved animation delays with cubic-bezier
+- Rewrote Services.tsx: added 01/02/03 numbering, taglines per tier ("Launch fast, look sharp."), improved price display with "starting at" note, refined card hover states
+- Rewrote Work.tsx: added project subtitles (Fintech · SaaS Platform), metric badges on hover (3.2× conversion lift), tech stack tags, arrow icon on hover, better card treatment
+- Rewrote Testimonials.tsx: removed star ratings, created featured/hero testimonial (large quote block with initials avatar) + 2 smaller cards, more authentic copy
+- Rewrote Process.tsx: more editorial descriptions, improved mobile layout with vertical connecting line, refined circle sizes
+- Rewrote CtaBanner.tsx: bolder copy, added eyebrow "Ready?", removed extra background color for cleaner look
+- Rewrote Contact.tsx: refined form field sizes (h-11), smaller labels, cleaner spacing, better error states
+- Rewrote Footer.tsx: added social link placeholders (X, Li, Gh), "Built with Next.js" bottom-right, dynamic year, refined column headers
+- Rewrote FAQ.tsx: added numbering (01-06), side-by-side header layout, indented answers, refined chevron animation
+- Rewrote Navbar.tsx: added desktop "Get in Touch" CTA button, removed FAQ from nav, refined blur to backdrop-blur-xl
+- Rewrote TechStack.tsx: added divider line, refined marquee labels, added dot separators
+- Updated SectionDivider.tsx: center accent line using .section-rule class
+- Updated page.tsx: added grain-overlay div, removed redundant SectionDivider between some sections for better rhythm
 
 Stage Summary:
-- Complete redesign from traditional multi-section landing page to Instagram Reels-style scroll-reveal storytelling website
-- 7 full-screen snap slides: Hero → Statement → Services → Work → Stats → Testimonial → CTA
-- Floating side dots navigation (no traditional navbar)
-- Cinematic scroll-triggered animations: clip-path reveals, scale-in, blur-fade-up, line-grow, slide-left/right
-- Dark theme preserved with all existing color tokens (forge-bg, forge-surface, forge-text, forge-accent, etc.)
-- All 5 font families used strategically (Syne, Playfair, Dancing Script, Space Mono, Inter)
-- Fully responsive (mobile-first, mandatory snap on mobile, proximity snap on desktop)
-- Contact form with validation, loading states, and inline toast notifications
-- Files modified: globals.css, page.tsx
-- Files created: use-slide-reveal.ts, slide-nav.tsx, slide-hero.tsx, slide-statement.tsx, slide-services.tsx, slide-work.tsx, slide-stats.tsx, slide-testimonial.tsx, slide-cta.tsx
+- All 14 components rewritten with professional polish
+- ESLint passes clean
+- Zero browser errors
+- Site loads correctly on desktop and mobile viewports
+- Key improvements: tighter copy, varied section layouts, removed template-y elements (star ratings), added grain texture, better hover states, featured testimonial layout

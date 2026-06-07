@@ -14,12 +14,13 @@ const techStack = [
   "Framer Motion",
   "Vercel",
   "Stripe",
+  "Supabase",
+  "Figma",
 ];
 
 export function TechStack() {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.1 });
 
-  // Duplicate for seamless infinite loop
   const duplicated = [...techStack, ...techStack];
 
   return (
@@ -32,20 +33,17 @@ export function TechStack() {
         )}
       >
         {/* Section Header */}
-        <div className="mb-10 md:mb-12">
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-mono">
+        <div className="mb-8 md:mb-10 flex items-center gap-4">
+          <span className="text-[12px] text-forge-text-secondary/30 tracking-[0.16em] uppercase font-mono">
             Tech Stack
           </span>
-          <h2 className="text-[32px] md:text-[44px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text font-syne">
-            Tools We Work With
-          </h2>
+          <div className="flex-1 h-px bg-forge-divider" />
         </div>
 
-        {/* Marquee Container */}
+        {/* Marquee */}
         <div className="overflow-hidden relative">
-          {/* Fade edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-forge-bg to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-forge-bg to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-forge-bg to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-forge-bg to-transparent z-10 pointer-events-none" />
 
           <div className="flex animate-marquee-scroll">
             {duplicated.map((tech, index) => (
@@ -53,12 +51,11 @@ export function TechStack() {
                 key={`${tech}-${index}`}
                 className="flex items-center shrink-0"
               >
-                <span className="text-forge-text-secondary/40 text-[14px] font-medium tracking-wide uppercase whitespace-nowrap px-6 md:px-8 font-mono">
+                <span className="text-forge-text-secondary/30 text-[13px] font-medium tracking-[0.06em] uppercase whitespace-nowrap px-5 md:px-7 font-mono">
                   {tech}
                 </span>
-                {/* Separator dot */}
-                <span className="text-forge-text-secondary/15 text-[6px] shrink-0">
-                  ●
+                <span className="text-forge-text-secondary/10 text-[5px] shrink-0">
+                  ·
                 </span>
               </div>
             ))}
