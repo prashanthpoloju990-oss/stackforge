@@ -10,6 +10,7 @@ import { FAQ } from "@/components/stackforge/faq";
 import { Pricing } from "@/components/stackforge/pricing";
 import { CtaBanner } from "@/components/stackforge/cta-banner";
 import { Contact } from "@/components/stackforge/contact";
+import { About } from "@/components/stackforge/about";
 import { Footer } from "@/components/stackforge/footer";
 import { StickyCta } from "@/components/stackforge/sticky-cta";
 
@@ -37,6 +38,8 @@ export default function Home() {
         <SectionDivider />
         <Process />
         <Testimonials />
+        <SectionDivider />
+        <About />
         <SectionDivider />
         <TechStack />
         <FAQ />
