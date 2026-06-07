@@ -167,3 +167,13 @@
 .hero-text-animate-delay-3 {
   animation: hero-text-enter 0.8s ease-out 0.3s both;
 }
+
+/* Tech Stack marquee */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-scroll {
+  animation: marquee-scroll 30s linear infinite;
+}

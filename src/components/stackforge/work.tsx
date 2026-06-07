@@ -61,35 +61,14 @@ export function Work() {
               A look at some of the systems we&apos;ve designed and built.
             </p>
           </div>
-          <a
-            href="#"
-            className="hidden md:inline-flex items-center gap-2 text-[14px] text-forge-text-secondary font-medium tracking-[0.06em] uppercase hover:text-forge-text transition-colors duration-200"
-          >
-            View All
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              className="mt-px"
-            >
-              <path
-                d="M1 7H13M13 7L8 2M13 7L8 12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a>
+
         </div>
 
         {/* Project Cards Grid */}
         <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {projects.map((project, index) => (
-            <a
+            <div
               key={project.title}
-              href="#"
               className={cn(
                 "group block rounded-[14px] border border-forge-divider bg-forge-surface overflow-hidden transition-all duration-500 ease-out hover:-translate-y-1 hover:border-forge-accent/20",
                 gridVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -129,7 +108,7 @@ export function Work() {
                   ))}
                 </div>
               </div>
-            </a>
+            </div>
           ))}
         </div>
       </div>

@@ -51,7 +51,7 @@ export function CtaBanner() {
               href="#contact"
               className="inline-flex items-center justify-center h-12 px-8 border border-forge-border text-forge-text text-[14px] font-medium tracking-[0.04em] uppercase rounded-lg transition-all duration-200 hover:border-forge-text-secondary/50 hover:bg-forge-surface/40 hover:-translate-y-0.5 active:scale-[0.98]"
             >
-              Schedule a Call
+              Book a Consultation
             </a>
           </div>
         </div>

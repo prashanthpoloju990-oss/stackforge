@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Footer() {
   const navLinks = [
     { label: "Home", href: "#home" },
@@ -7,9 +9,9 @@ export function Footer() {
   ];
 
   const serviceLinks = [
-    { label: "Launch Kit", href: "#services" },
-    { label: "Growth System", href: "#services" },
-    { label: "Forge Elite", href: "#services" },
+    { label: "Kit", href: "#services" },
+    { label: "Pack", href: "#services" },
+    { label: "Bag", href: "#services" },
   ];
 
   return (
@@ -23,8 +25,7 @@ export function Footer() {
               href="#home"
               className="inline-flex items-center gap-2 text-forge-text font-semibold text-[18px] tracking-tight"
             >
-              <span className="text-forge-accent font-bold text-xl">S</span>
-              <span>StackForge</span>
+              <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" />
             </a>
             <p className="mt-4 text-[14px] text-forge-text-secondary/70 leading-relaxed max-w-[260px]">
               We Build. You Grow.
@@ -90,7 +91,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 sm:mt-14 md:mt-16 pt-5 border-t border-forge-divider/60">
           <span className="text-[12px] sm:text-[13px] text-forge-text-secondary/30">
-            © 2026 StackForge. All rights reserved.
+            © 2025 StackForge. All rights reserved.
           </span>
         </div>
       </div>

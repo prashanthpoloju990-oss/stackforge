@@ -5,10 +5,10 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const services = [
   {
-    title: "Launch Kit",
+    title: "Kit",
     description:
-      "A fast, clean, and modern website designed to get your business online with confidence.",
-    price: "₹20K – ₹60K",
+      "A fast, clean website to get your business online with confidence and speed.",
+    price: "Starting at ₹20K",
     features: [
       "1–5 Page Website",
       "Responsive Design",
@@ -16,14 +16,14 @@ const services = [
       "Fast Performance",
       "Basic SEO Setup",
     ],
-    cta: "Get Started",
+    cta: "Get Started →",
     highlighted: false,
   },
   {
-    title: "Growth System",
+    title: "Pack",
     description:
-      "A scalable website with powerful features designed to support growing businesses.",
-    price: "₹80K – ₹2L",
+      "A scalable website with powerful features designed for growing businesses.",
+    price: "Starting at ₹80K",
     features: [
       "Custom UI/UX Design",
       "Backend Integration",
@@ -31,14 +31,14 @@ const services = [
       "API Integrations",
       "Performance Optimization",
     ],
-    cta: "Start Project",
+    cta: "Start Building →",
     highlighted: true,
   },
   {
-    title: "Forge Elite",
+    title: "Bag",
     description:
       "End-to-end product development for brands that demand precision and performance.",
-    price: "₹2L+",
+    price: "Custom Pricing",
     features: [
       "Full Product Development",
       "Strategy + Design + Development",
@@ -46,7 +46,7 @@ const services = [
       "Long-Term Support",
       "Priority Delivery",
     ],
-    cta: "Work With Us",
+    cta: "Let's Talk →",
     highlighted: false,
   },
 ];

@@ -7,21 +7,24 @@ import { cn } from "@/lib/utils";
 interface FormData {
   name: string;
   email: string;
-  subject: string;
+  projectType: string;
+  budget: string;
+  timeline: string;
   message: string;
 }
 
 interface FormErrors {
   name?: string;
   email?: string;
-  subject?: string;
   message?: string;
 }
 
 const INITIAL_FORM: FormData = {
   name: "",
   email: "",
-  subject: "",
+  projectType: "",
+  budget: "",
+  timeline: "",
   message: "",
 };
 
@@ -37,7 +40,6 @@ export function Contact() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
-  // Auto-dismiss toast after 5s
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 5000);
@@ -50,7 +52,6 @@ export function Contact() {
     if (!form.name.trim()) newErrors.name = "Name is required";
     if (!form.email.trim()) newErrors.email = "Email is required";
     else if (!validateEmail(form.email)) newErrors.email = "Enter a valid email";
-    if (!form.subject.trim()) newErrors.subject = "Subject is required";
     if (!form.message.trim()) newErrors.message = "Message is required";
     else if (form.message.trim().length < 10)
       newErrors.message = "Message must be at least 10 characters";
@@ -80,7 +81,7 @@ export function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ name: true, email: true, subject: true, message: true });
+    setTouched({ name: true, email: true, message: true });
     setToast(null);
     const newErrors = validate();
     setErrors(newErrors);
@@ -91,10 +92,7 @@ export function Contact() {
     }
 
     setIsSubmitting(true);
-
-    // Simulate send
     await new Promise((resolve) => setTimeout(resolve, 1500));
-
     setIsSubmitting(false);
     setForm(INITIAL_FORM);
     setTouched({});
@@ -106,11 +104,13 @@ export function Contact() {
   };
 
   const inputBase =
-    "w-full h-12 bg-forge-bg border rounded-lg px-4 text-[15px] text-forge-text placeholder:text-forge-text-secondary/25 transition-all duration-200 outline-none focus:ring-1";
+    "w-full h-12 bg-forge-bg border rounded-lg px-4 text-[15px] text-forge-text placeholder:text-forge-text-secondary/25 transition-all duration-200 outline-none focus:ring-1 appearance-none";
   const inputNormal =
     "border-forge-border focus:border-forge-accent/50 focus:ring-forge-accent/20";
   const inputError =
     "border-red-500/70 focus:border-red-500 focus:ring-red-500/20";
+  const selectBase =
+    "w-full h-12 bg-forge-bg border rounded-lg px-4 text-[15px] text-forge-text transition-all duration-200 outline-none focus:ring-1 appearance-none cursor-pointer";
 
   return (
     <section id="contact" className="py-24 md:py-32 lg:py-40">
@@ -139,7 +139,6 @@ export function Contact() {
               and let&apos;s explore how we can work together.
             </p>
 
-            {/* Contact Info */}
             <div className="mt-10 space-y-4">
               <div className="flex items-center gap-3">
                 <span className="text-[13px] text-forge-text-secondary/50 font-mono w-20 shrink-0">
@@ -177,10 +176,7 @@ export function Contact() {
               {/* Name + Email Row */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2"
-                  >
+                  <label htmlFor="name" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
                     Name
                   </label>
                   <input
@@ -191,22 +187,14 @@ export function Contact() {
                     onBlur={() => handleBlur("name")}
                     placeholder="Your name"
                     autoComplete="name"
-                    className={cn(
-                      inputBase,
-                      touched.name && errors.name ? inputError : inputNormal
-                    )}
+                    className={cn(inputBase, touched.name && errors.name ? inputError : inputNormal)}
                   />
                   {touched.name && errors.name && (
-                    <p className="mt-1.5 text-[12px] text-red-400/80">
-                      {errors.name}
-                    </p>
+                    <p className="mt-1.5 text-[12px] text-red-400/80">{errors.name}</p>
                   )}
                 </div>
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2"
-                  >
+                  <label htmlFor="email" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
                     Email
                   </label>
                   <input
@@ -217,52 +205,90 @@ export function Contact() {
                     onBlur={() => handleBlur("email")}
                     placeholder="your@email.com"
                     autoComplete="email"
-                    className={cn(
-                      inputBase,
-                      touched.email && errors.email ? inputError : inputNormal
-                    )}
+                    className={cn(inputBase, touched.email && errors.email ? inputError : inputNormal)}
                   />
                   {touched.email && errors.email && (
-                    <p className="mt-1.5 text-[12px] text-red-400/80">
-                      {errors.email}
-                    </p>
+                    <p className="mt-1.5 text-[12px] text-red-400/80">{errors.email}</p>
                   )}
                 </div>
               </div>
 
-              {/* Subject */}
+              {/* Project Type + Budget Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label htmlFor="projectType" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                    Project Type
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="projectType"
+                      value={form.projectType}
+                      onChange={(e) => handleChange("projectType", e.target.value)}
+                      className={cn(selectBase, inputNormal)}
+                    >
+                      <option value="">Select type</option>
+                      <option value="website">Website</option>
+                      <option value="web-app">Web Application</option>
+                      <option value="ecommerce">E-commerce</option>
+                      <option value="redesign">Redesign</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-forge-text-secondary/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="budget" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                    Budget
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="budget"
+                      value={form.budget}
+                      onChange={(e) => handleChange("budget", e.target.value)}
+                      className={cn(selectBase, inputNormal)}
+                    >
+                      <option value="">Select budget</option>
+                      <option value="20k-60k">₹20K – ₹60K</option>
+                      <option value="60k-1.5l">₹60K – ₹1.5L</option>
+                      <option value="1.5l-3l">₹1.5L – ₹3L</option>
+                      <option value="3l+">₹3L+</option>
+                    </select>
+                    <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-forge-text-secondary/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline */}
               <div>
-                <label
-                  htmlFor="subject"
-                  className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2"
-                >
-                  Subject
+                <label htmlFor="timeline" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
+                  Timeline
                 </label>
-                <input
-                  id="subject"
-                  type="text"
-                  value={form.subject}
-                  onChange={(e) => handleChange("subject", e.target.value)}
-                  onBlur={() => handleBlur("subject")}
-                  placeholder="Project inquiry"
-                  className={cn(
-                    inputBase,
-                    touched.subject && errors.subject ? inputError : inputNormal
-                  )}
-                />
-                {touched.subject && errors.subject && (
-                  <p className="mt-1.5 text-[12px] text-red-400/80">
-                    {errors.subject}
-                  </p>
-                )}
+                <div className="relative">
+                  <select
+                    id="timeline"
+                    value={form.timeline}
+                    onChange={(e) => handleChange("timeline", e.target.value)}
+                    className={cn(selectBase, inputNormal)}
+                  >
+                    <option value="">Select timeline</option>
+                    <option value="asap">ASAP</option>
+                    <option value="1-2-weeks">1–2 Weeks</option>
+                    <option value="1-3-months">1–3 Months</option>
+                    <option value="flexible">Flexible</option>
+                  </select>
+                  <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-forge-text-secondary/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
 
               {/* Message */}
               <div>
-                <label
-                  htmlFor="message"
-                  className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2"
-                >
+                <label htmlFor="message" className="block text-[13px] text-forge-text-secondary font-medium tracking-[0.05em] uppercase mb-2">
                   Message
                 </label>
                 <textarea
@@ -271,20 +297,18 @@ export function Contact() {
                   onChange={(e) => handleChange("message", e.target.value)}
                   onBlur={() => handleBlur("message")}
                   placeholder="Tell us about your project..."
-                  rows={5}
+                  rows={4}
                   className={cn(
                     "w-full bg-forge-bg border rounded-lg px-4 py-3 text-[15px] text-forge-text placeholder:text-forge-text-secondary/25 transition-all duration-200 outline-none resize-none focus:ring-1",
                     touched.message && errors.message ? inputError : inputNormal
                   )}
                 />
                 {touched.message && errors.message && (
-                  <p className="mt-1.5 text-[12px] text-red-400/80">
-                    {errors.message}
-                  </p>
+                  <p className="mt-1.5 text-[12px] text-red-400/80">{errors.message}</p>
                 )}
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <div className="pt-2">
                 <button
                   type="submit"
@@ -298,24 +322,9 @@ export function Contact() {
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
-                      <svg
-                        className="animate-spin h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
                       Sending...
                     </span>
@@ -326,30 +335,13 @@ export function Contact() {
               </div>
             </form>
 
-            {/* Inline Toast */}
             {toast && (
-              <div
-                className={cn(
-                  "mt-6 flex items-start gap-3 p-4 rounded-lg border transition-all duration-300",
-                  toast.type === "success"
-                    ? "bg-green-500/5 border-green-500/20"
-                    : "bg-red-500/5 border-red-500/20"
-                )}
-              >
-                <div
-                  className={cn(
-                    "mt-0.5 w-2 h-2 rounded-full flex-shrink-0",
-                    toast.type === "success" ? "bg-green-400" : "bg-red-400"
-                  )}
-                />
-                <p
-                  className={cn(
-                    "text-[14px] leading-relaxed",
-                    toast.type === "success"
-                      ? "text-green-300/80"
-                      : "text-red-300/80"
-                  )}
-                >
+              <div className={cn(
+                "mt-6 flex items-start gap-3 p-4 rounded-lg border transition-all duration-300",
+                toast.type === "success" ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20"
+              )}>
+                <div className={cn("mt-0.5 w-2 h-2 rounded-full flex-shrink-0", toast.type === "success" ? "bg-green-400" : "bg-red-400")} />
+                <p className={cn("text-[14px] leading-relaxed", toast.type === "success" ? "text-green-300/80" : "text-red-300/80")}>
                   {toast.message}
                 </p>
               </div>

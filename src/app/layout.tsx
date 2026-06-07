@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "StackForge" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/favicon.jpg",
   },
   openGraph: {
     title: "StackForge — Engineering Digital Experiences",
@@ -31,12 +31,19 @@ export const metadata: Metadata = {
       "Premium web development studio. We build fast, beautiful, scalable digital products.",
     siteName: "StackForge",
     type: "website",
+    images: [{
+      url: "/logo.jpg",
+      width: 1254,
+      height: 1254,
+      alt: "StackForge — Engineering Digital Experiences",
+    }],
   },
   twitter: {
     card: "summary_large_image",
     title: "StackForge — Engineering Digital Experiences",
     description:
       "Premium web development studio. We build fast, beautiful, scalable digital products.",
+    images: ["/logo.jpg"],
   },
 };
 
@@ -56,6 +63,31 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "StackForge",
+              url: "https://stackforge.dev",
+              logo: "https://stackforge.dev/logo.jpg",
+              description: "Premium web development studio crafting high-performance digital experiences.",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Hyderabad",
+                addressCountry: "IN",
+              },
+              contactPoint: {
+                "@type": "ContactPoint",
+                email: "hello@stackforge.dev",
+                contactType: "customer service",
+              },
+              sameAs: [],
+            }),
+          }}
+        />
       </body>
     </html>
   );

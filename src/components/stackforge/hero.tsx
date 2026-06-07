@@ -1,7 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { HeroVisual } from "./hero-visual";
+
+function useCountUp(end: number, duration: number = 2000, startOnMount: boolean = true) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  const start = useCallback(() => {
+    if (started) return;
+    setStarted(true);
+    const startTime = performance.now();
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * end));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, [end, duration, started]);
+
+  useEffect(() => {
+    if (startOnMount && !started) {
+      const timer = setTimeout(start, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [startOnMount, start, started]);
+
+  return { count, ref, start };
+}
+
+function CounterStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+  const { count, ref } = useCountUp(value);
+
+  return (
+    <div className="flex flex-col">
+      <span ref={ref} className="text-[20px] sm:text-[22px] font-bold text-forge-text tracking-tight font-tabular-nums">
+        {count}{suffix}
+      </span>
+      <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/60 tracking-wide">
+        {label}
+      </span>
+    </div>
+  );
+}
 
 export function Hero() {
   const [mounted, setMounted] = useState(false);
@@ -39,7 +84,7 @@ export function Hero() {
             >
               <span className="w-2 h-2 rounded-full bg-forge-accent" />
               <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase">
-                Engineering Digital Experiences
+                Web Development Studio — Hyderabad
               </span>
             </div>
 
@@ -51,10 +96,10 @@ export function Hero() {
                   : "opacity-0 translate-y-6"
               }`}
             >
-              Built for Performance.
+              High-performance websites
               <br />
               <span className="text-forge-text-secondary">
-                Designed for Growth.
+                for ambitious brands.
               </span>
             </h1>
 
@@ -66,8 +111,9 @@ export function Hero() {
                   : "opacity-0 translate-y-6"
               }`}
             >
-              We craft modern, high-performance websites that help businesses
-              scale with clarity and confidence.
+              We design and build fast, scalable websites using React,
+              Next.js, and modern tooling — so you can focus on growing
+              your business.
             </p>
 
             {/* CTA Buttons */}
@@ -78,7 +124,6 @@ export function Hero() {
                   : "opacity-0 translate-y-6"
               }`}
             >
-              {/* Primary Button */}
               <a
                 href="#contact"
                 className="inline-flex items-center justify-center h-12 px-7 bg-forge-accent text-white text-[14px] font-semibold tracking-[0.04em] uppercase rounded-lg transition-all duration-200 hover:bg-[#e55f00] active:scale-[0.98]"
@@ -86,7 +131,6 @@ export function Hero() {
                 Start a Project
               </a>
 
-              {/* Secondary Button */}
               <a
                 href="#work"
                 className="inline-flex items-center justify-center h-12 px-7 border border-forge-border text-forge-text text-[14px] font-medium tracking-[0.04em] uppercase rounded-lg transition-all duration-200 hover:border-forge-text-secondary/50 hover:bg-forge-surface/50 active:scale-[0.98]"
@@ -95,7 +139,7 @@ export function Hero() {
               </a>
             </div>
 
-            {/* Trust indicators */}
+            {/* Trust indicators with animated counters */}
             <div
               className={`flex items-center gap-4 sm:gap-6 mt-10 transition-all duration-700 ease-out delay-[350ms] ${
                 mounted
@@ -103,32 +147,11 @@ export function Hero() {
                   : "opacity-0 translate-y-4"
               }`}
             >
-              <div className="flex flex-col">
-                <span className="text-[20px] sm:text-[22px] font-bold text-forge-text tracking-tight">
-                  50+
-                </span>
-                <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/60 tracking-wide">
-                  Projects Shipped
-                </span>
-              </div>
+              <CounterStat value={50} suffix="+" label="Projects Shipped" />
               <div className="w-px h-8 sm:h-10 bg-forge-divider" />
-              <div className="flex flex-col">
-                <span className="text-[20px] sm:text-[22px] font-bold text-forge-text tracking-tight">
-                  99.9%
-                </span>
-                <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/60 tracking-wide">
-                  Uptime SLA
-                </span>
-              </div>
+              <CounterStat value={99} suffix=".9%" label="Uptime SLA" />
               <div className="w-px h-8 sm:h-10 bg-forge-divider" />
-              <div className="flex flex-col">
-                <span className="text-[20px] sm:text-[22px] font-bold text-forge-text tracking-tight">
-                  24h
-                </span>
-                <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/60 tracking-wide">
-                  Response Time
-                </span>
-              </div>
+              <CounterStat value={24} suffix="h" label="Response Time" />
             </div>
           </div>
 
