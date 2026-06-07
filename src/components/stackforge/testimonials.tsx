@@ -77,7 +77,7 @@ export function Testimonials() {
               }}
             >
               {/* Large Quote Mark */}
-              <span className="text-forge-accent/20 text-6xl leading-none font-dancing block select-none">
+              <span className="text-forge-accent/25 text-7xl leading-none font-curvy block select-none">
                 &ldquo;
               </span>
 

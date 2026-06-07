@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Syne, Playfair_Display, Dancing_Script, Space_Mono } from "next/font/google";
+import { Inter, Syne, Playfair_Display, Dancing_Script, Great_Vibes, Space_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
@@ -27,6 +27,13 @@ const dancing = Dancing_Script({
   variable: "--font-dancing",
   subsets: ["latin"],
   weight: ["400", "700"],
+  display: "swap",
+});
+
+const greatVibes = Great_Vibes({
+  variable: "--font-curvy",
+  subsets: ["latin"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -82,7 +89,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${syne.variable} ${playfair.variable} ${dancing.variable} ${spaceMono.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${syne.variable} ${playfair.variable} ${dancing.variable} ${greatVibes.variable} ${spaceMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

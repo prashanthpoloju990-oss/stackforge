@@ -27,7 +27,7 @@ export function Footer() {
             >
               <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" />
             </a>
-            <p className="mt-4 text-[14px] text-forge-text-secondary/70 leading-relaxed max-w-[260px] font-dancing text-[15px]">
+            <p className="mt-4 text-[18px] text-forge-accent/60 leading-relaxed max-w-[260px] font-curvy">
               We Build. You Grow.
             </p>
             <p className="mt-2 text-[13px] text-forge-text-secondary/40 leading-relaxed max-w-[280px]">

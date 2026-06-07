@@ -27,7 +27,7 @@ export function CtaBanner() {
             <br className="hidden sm:block" />
             {" "}
             That{" "}
-            <span className="text-forge-text-secondary">Actually Works?</span>
+            <span className="font-curvy text-forge-accent/80 text-[0.9em]">Actually Works?</span>
           </h2>
 
           {/* Subtext */}

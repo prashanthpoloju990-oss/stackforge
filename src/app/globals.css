@@ -107,6 +107,7 @@
 .font-syne { font-family: var(--font-syne); }
 .font-playfair { font-family: var(--font-playfair); }
 .font-dancing { font-family: var(--font-dancing); }
+.font-curvy { font-family: var(--font-curvy); }
 
 /* StackForge scrollbar */
 ::-webkit-scrollbar {

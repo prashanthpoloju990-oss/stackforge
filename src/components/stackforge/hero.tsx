@@ -98,14 +98,23 @@ export function Hero() {
             >
               High-performance websites
               <br />
-              <span className="text-forge-text-secondary">
+              <span className="text-forge-accent font-curvy text-[0.85em]">
                 for ambitious brands.
               </span>
             </h1>
 
+            {/* Curvy signature tagline */}
+            <p className={`mt-4 text-[20px] md:text-[24px] text-forge-accent/60 font-curvy leading-[1.3] transition-all duration-700 ease-out delay-[180ms] ${
+              mounted
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-6"
+            }`}>
+              Fast. Scalable. Beautiful.
+            </p>
+
             {/* Subtext */}
             <p
-              className={`mt-5 text-[16px] md:text-[17px] text-forge-text-secondary leading-[1.7] max-w-[480px] transition-all duration-700 ease-out delay-200 ${
+              className={`mt-3 text-[16px] md:text-[17px] text-forge-text-secondary leading-[1.7] max-w-[480px] transition-all duration-700 ease-out delay-[220ms] ${
                 mounted
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-6"

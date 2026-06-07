@@ -131,7 +131,7 @@ export function Contact() {
             <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text max-w-[500px] font-playfair">
               Let&apos;s build
               <br />
-              something great.
+              <span className="font-curvy text-forge-accent/80 text-[0.85em]">something great.</span>
             </h2>
 
             <p className="mt-6 text-[16px] text-forge-text-secondary leading-relaxed max-w-[420px]">
