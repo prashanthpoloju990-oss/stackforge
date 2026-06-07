@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { cn } from "@/lib/utils";
+import { BorderGlow } from "@/components/ui/border-glow";
 
 const testimonials = [
   {
@@ -67,37 +68,46 @@ export function Testimonials() {
             cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
           )}
         >
-          <div className="border border-forge-accent/15 bg-forge-accent/[0.02] rounded-xl p-8 md:p-12 lg:p-14 relative">
-            {/* Large quote */}
-            <span className="absolute top-6 left-8 md:left-12 text-forge-accent/8 text-fluid-display font-playfair block select-none pointer-events-none">
-              &ldquo;
-            </span>
+          <BorderGlow
+            animated
+            backgroundColor="var(--forge-bg)"
+            borderRadius={12}
+            glowRadius={35}
+            glowIntensity={1.2}
+            className="rounded-xl"
+          >
+            <div className="p-8 md:p-12 lg:p-14 relative">
+              {/* Large quote */}
+              <span className="absolute top-6 left-8 md:left-12 text-forge-accent/8 text-fluid-display font-playfair block select-none pointer-events-none">
+                &ldquo;
+              </span>
 
-            <div className="relative">
-              <blockquote className="text-fluid-h2 text-forge-text/90 font-playfair max-w-[800px]">
-                {featured.quote}
-              </blockquote>
-              <div className="mt-8 flex items-center gap-4">
-                <div className="w-11 h-11 rounded-full overflow-hidden border border-forge-accent/20 shrink-0">
-                  <Image
-                    src={featured.avatar}
-                    alt={featured.name}
-                    width={44}
-                    height={44}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="text-fluid-body-lg text-forge-text font-semibold">
-                    {featured.name}
-                  </p>
-                  <p className="text-[13px] text-forge-text-secondary/50">
-                    {featured.role}
-                  </p>
+              <div className="relative">
+                <blockquote className="text-fluid-h2 text-forge-text/90 font-playfair max-w-[800px]">
+                  {featured.quote}
+                </blockquote>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-full overflow-hidden border border-forge-accent/20 shrink-0">
+                    <Image
+                      src={featured.avatar}
+                      alt={featured.name}
+                      width={44}
+                      height={44}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-fluid-body-lg text-forge-text font-semibold">
+                      {featured.name}
+                    </p>
+                    <p className="text-[13px] text-forge-text-secondary/50">
+                      {featured.role}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </BorderGlow>
         </div>
 
         {/* Smaller testimonial cards */}
@@ -106,36 +116,46 @@ export function Testimonials() {
             <div
               key={testimonial.name}
               className={cn(
-                "bg-forge-surface/30 border border-forge-divider rounded-xl p-6 md:p-8 card-hover",
+                "transition-all duration-600 ease-out",
                 cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               )}
               style={{
                 transitionDelay: cardsVisible ? `${(index + 1) * 100}ms` : "0ms",
               }}
             >
-              <blockquote className="text-fluid-body-lg text-forge-text-secondary/70">
-                &ldquo;{testimonial.quote}&rdquo;
-              </blockquote>
+              <BorderGlow
+                backgroundColor="var(--forge-bg)"
+                borderRadius={12}
+                glowRadius={30}
+                glowIntensity={1.0}
+                className="rounded-xl h-full"
+              >
+                <div className="p-6 md:p-8">
+                  <blockquote className="text-fluid-body-lg text-forge-text-secondary/70">
+                    &ldquo;{testimonial.quote}&rdquo;
+                  </blockquote>
 
-              <div className="mt-5 pt-4 border-t border-forge-divider/50 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full overflow-hidden border border-forge-divider/40 shrink-0">
-                  <Image
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    width={36}
-                    height={36}
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="mt-5 pt-4 border-t border-forge-divider/50 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full overflow-hidden border border-forge-divider/40 shrink-0">
+                      <Image
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        width={36}
+                        height={36}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-fluid-body text-forge-text font-medium">
+                        {testimonial.name}
+                      </p>
+                      <p className="text-[12px] text-forge-text-secondary/40">
+                        {testimonial.role}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-fluid-body text-forge-text font-medium">
-                    {testimonial.name}
-                  </p>
-                  <p className="text-[12px] text-forge-text-secondary/40">
-                    {testimonial.role}
-                  </p>
-                </div>
-              </div>
+              </BorderGlow>
             </div>
           ))}
         </div>

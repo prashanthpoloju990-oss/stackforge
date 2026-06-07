@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import { BorderGlow } from "@/components/ui/border-glow";
 
 const values = [
   {
@@ -212,22 +213,32 @@ export function About() {
               <div
                 key={value.number}
                 className={cn(
-                  "border border-forge-divider bg-forge-surface/30 rounded-xl p-6 md:p-8 card-hover",
+                  "transition-all duration-600 ease-out",
                   valuesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
                 )}
                 style={{
                   transitionDelay: valuesVisible ? `${index * 100}ms` : "0ms",
                 }}
               >
-                <span className="text-[13px] font-mono text-forge-accent/40 tracking-wider block mb-4">
-                  {value.number}
-                </span>
-                <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne mb-3">
-                  {value.title}
-                </h3>
-                <p className="text-fluid-body text-forge-text-secondary/60">
-                  {value.description}
-                </p>
+                <BorderGlow
+                  backgroundColor="var(--forge-bg)"
+                  borderRadius={12}
+                  glowRadius={28}
+                  glowIntensity={0.9}
+                  className="rounded-xl h-full"
+                >
+                  <div className="p-6 md:p-8">
+                    <span className="text-[13px] font-mono text-forge-accent/40 tracking-wider block mb-4">
+                      {value.number}
+                    </span>
+                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne mb-3">
+                      {value.title}
+                    </h3>
+                    <p className="text-fluid-body text-forge-text-secondary/60">
+                      {value.description}
+                    </p>
+                  </div>
+                </BorderGlow>
               </div>
             ))}
           </div>
@@ -286,35 +297,44 @@ export function About() {
               teamVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
             )}
           >
-            <div className="border border-forge-accent/15 bg-forge-accent/[0.02] rounded-xl p-8 md:p-10 relative overflow-hidden">
-              <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center">
-                <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-forge-accent/20 shrink-0 mx-auto md:mx-0">
-                  <Image
-                    src={team[0].avatar}
-                    alt={team[0].name}
-                    width={112}
-                    height={112}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="text-center md:text-left">
-                  <div className="flex items-center justify-center md:justify-start gap-3 mb-1">
-                    <h3 className="text-fluid-h3 font-bold text-forge-text font-syne">
-                      {team[0].name}
-                    </h3>
-                    <span className="text-fluid-micro text-forge-accent bg-forge-accent/10 border border-forge-accent/20 rounded-full px-2.5 py-0.5 uppercase tracking-wider font-medium">
-                      Founder
-                    </span>
+            <BorderGlow
+              animated
+              backgroundColor="var(--forge-bg)"
+              borderRadius={12}
+              glowRadius={35}
+              glowIntensity={1.2}
+              className="rounded-xl"
+            >
+              <div className="p-8 md:p-10 relative overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center">
+                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden border-2 border-forge-accent/20 shrink-0 mx-auto md:mx-0">
+                    <Image
+                      src={team[0].avatar}
+                      alt={team[0].name}
+                      width={112}
+                      height={112}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <p className="text-fluid-label text-forge-accent/60 uppercase tracking-wider mb-3">
-                    {team[0].role}
-                  </p>
-                  <p className="text-fluid-body-lg text-forge-text-secondary/70 max-w-[500px]">
-                    {team[0].bio}
-                  </p>
+                  <div className="text-center md:text-left">
+                    <div className="flex items-center justify-center md:justify-start gap-3 mb-1">
+                      <h3 className="text-fluid-h3 font-bold text-forge-text font-syne">
+                        {team[0].name}
+                      </h3>
+                      <span className="text-fluid-micro text-forge-accent bg-forge-accent/10 border border-forge-accent/20 rounded-full px-2.5 py-0.5 uppercase tracking-wider font-medium">
+                        Founder
+                      </span>
+                    </div>
+                    <p className="text-fluid-label text-forge-accent/60 uppercase tracking-wider mb-3">
+                      {team[0].role}
+                    </p>
+                    <p className="text-fluid-body-lg text-forge-text-secondary/70 max-w-[500px]">
+                      {team[0].bio}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </BorderGlow>
           </div>
 
           {/* Rest of the team — Grid */}
@@ -323,31 +343,41 @@ export function About() {
               <div
                 key={member.name}
                 className={cn(
-                  "group border border-forge-divider bg-forge-surface/30 rounded-xl p-6 card-hover text-center",
+                  "transition-all duration-600 ease-out",
                   teamVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
                 )}
                 style={{
                   transitionDelay: teamVisible ? `${(index + 1) * 100}ms` : "0ms",
                 }}
               >
-                <div className="w-16 h-16 md:w-18 md:h-18 mx-auto rounded-full overflow-hidden border border-forge-divider group-hover:border-forge-accent/20 transition-colors duration-300 mb-4">
-                  <Image
-                    src={member.avatar}
-                    alt={member.name}
-                    width={72}
-                    height={72}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-fluid-h4 font-bold text-forge-text font-syne">
-                  {member.name}
-                </h3>
-                <p className="text-fluid-label text-forge-accent/60 uppercase tracking-wider mt-1 mb-3">
-                  {member.role}
-                </p>
-                <p className="text-fluid-body text-forge-text-secondary/60">
-                  {member.bio}
-                </p>
+                <BorderGlow
+                  backgroundColor="var(--forge-bg)"
+                  borderRadius={12}
+                  glowRadius={28}
+                  glowIntensity={0.9}
+                  className="rounded-xl h-full"
+                >
+                  <div className="p-6 text-center">
+                    <div className="w-16 h-16 md:w-18 md:h-18 mx-auto rounded-full overflow-hidden border border-forge-divider mb-4">
+                      <Image
+                        src={member.avatar}
+                        alt={member.name}
+                        width={72}
+                        height={72}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <h3 className="text-fluid-h4 font-bold text-forge-text font-syne">
+                      {member.name}
+                    </h3>
+                    <p className="text-fluid-label text-forge-accent/60 uppercase tracking-wider mt-1 mb-3">
+                      {member.role}
+                    </p>
+                    <p className="text-fluid-body text-forge-text-secondary/60">
+                      {member.bio}
+                    </p>
+                  </div>
+                </BorderGlow>
               </div>
             ))}
           </div>

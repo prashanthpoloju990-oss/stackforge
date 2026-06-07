@@ -189,3 +189,43 @@ Stage Summary:
 - Modified files: page.tsx (added Pricing import + section)
 - Pricing section fully functional with animated toggle, price flow, scroll reveals, and particle effects
 - All lint clean, no compilation errors
+
+---
+Task ID: 10
+Agent: main
+Task: Add About Us section and navbar link, redesign submit button with neumorphic gradient, add BorderGlow effect
+
+Work Log:
+- Added "About" link to Navbar NAV_LINKS array (between Work and Process)
+- Created neumorphic gradient-reveal submit button (.btn-forge-submit) in globals.css:
+  - Pill shape (border-radius: 30em), dual neumorphic shadows (light/dark)
+  - Gradient sweep (::before pseudo, #FF6A00 → #FFB347) expands on hover (0.5s)
+  - Theme-aware shadow tokens (--forge-shadow-dark/light) for both light/dark modes
+  - Disabled state: reduced opacity, no gradient sweep, cursor-not-allowed
+  - Active state: compressed shadows for press feel
+- Updated contact.tsx submit button to use single .btn-forge-submit class
+- Created BorderGlow component (src/components/ui/border-glow.tsx):
+  - TypeScript port of React Bits BorderGlow with HSL parsing, gradient builders
+  - Mouse-tracking edge glow with cone mask, mesh gradient border, outer glow layer
+  - StackForge-themed defaults: orange glow (HSL 25 100 55), orange mesh colors
+  - animated prop for intro sweep animation
+- Added BorderGlow CSS to globals.css (~170 lines):
+  - .border-glow-card base styles with layered shadows
+  - ::before (mesh gradient border) with conic mask
+  - ::after (edge fill) with mask-composite subtract
+  - .edge-light (outer glow) with plus-lighter blend
+  - Light theme overrides for white backgrounds
+- Integrated BorderGlow into Testimonials section:
+  - Featured card: BorderGlow with animated=true, borderRadius=12, glowIntensity=1.2
+  - 2 smaller cards: BorderGlow with borderRadius=12, glowIntensity=1.0
+- Integrated BorderGlow into About section:
+  - 3 values/principles cards: BorderGlow with borderRadius=12, glowIntensity=0.9
+  - Founder featured card: BorderGlow with animated=true, borderRadius=12, glowIntensity=1.2
+  - 4 team member cards: BorderGlow with borderRadius=12, glowIntensity=0.9
+- Total: 11 BorderGlow cards across the site
+- Verified: ESLint clean, server compiles, VLM confirms glowing borders + orange edge effects in dark theme
+
+Stage Summary:
+- New files: border-glow.tsx
+- Modified files: navbar.tsx (About link), contact.tsx (submit button), testimonials.tsx (BorderGlow), about.tsx (BorderGlow), globals.css (neumorphic button + BorderGlow CSS)
+- About section accessible from navbar, neumorphic gradient button on contact form, BorderGlow reactive edge glow on 11 cards
