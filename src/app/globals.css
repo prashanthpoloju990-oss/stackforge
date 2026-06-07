@@ -578,3 +578,114 @@
   stroke-dashoffset: 40;
   animation: check-draw 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
 }
+
+/* ══════════════════════════════════════════════════
+   SUBMIT BUTTON — Neumorphic Gradient Reveal
+   (inspired by xueyuantan @ Uiverse.io)
+   ══════════════════════════════════════════════════
+
+   Pill-shaped neumorphic button with a gradient
+   sweep that fills from left on hover.
+   ══════════════════════════════════════════════════ */
+
+.btn-forge-submit {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  width: 100%;
+  height: clamp(3rem, 2.75rem + 1.25vw, 3.5rem);
+  border-radius: 30em;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--forge-text);
+  font-weight: 600;
+  font-size: clamp(0.71875rem, 0.5625rem + 0.75vw, 0.8125rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--forge-bg);
+  box-shadow:
+    6px 6px 14px var(--forge-shadow-dark, #d4d4d4),
+    -6px -6px 14px var(--forge-shadow-light, #ffffff);
+  transition:
+    color 0.45s ease,
+    box-shadow 0.35s ease;
+}
+.dark .btn-forge-submit {
+  color: var(--forge-text);
+  box-shadow:
+    6px 6px 14px var(--forge-shadow-dark, #0f0f0f),
+    -6px -6px 14px var(--forge-shadow-light, #1a1a1a);
+}
+.btn-forge-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  border-radius: 30em;
+  background-image: linear-gradient(
+    to right,
+    #FF6A00 0%,
+    #FFB347 100%
+  );
+  z-index: -1;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-forge-submit:hover::before {
+  width: 100%;
+}
+.btn-forge-submit:hover {
+  color: #ffffff;
+  box-shadow:
+    4px 4px 10px var(--forge-shadow-dark, #d4d4d4),
+    -4px -4px 10px var(--forge-shadow-light, #ffffff);
+}
+.dark .btn-forge-submit:hover {
+  box-shadow:
+    4px 4px 10px var(--forge-shadow-dark, #0f0f0f),
+    -4px -4px 10px var(--forge-shadow-light, #1a1a1a);
+}
+.btn-forge-submit:active {
+  box-shadow:
+    2px 2px 6px var(--forge-shadow-dark, #d4d4d4),
+    -2px -2px 6px var(--forge-shadow-light, #ffffff);
+}
+.dark .btn-forge-submit:active {
+  box-shadow:
+    2px 2px 6px var(--forge-shadow-dark, #0f0f0f),
+    -2px -2px 6px var(--forge-shadow-light, #1a1a1a);
+}
+
+/* ── Disabled state ── */
+.btn-forge-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow:
+    3px 3px 8px var(--forge-shadow-dark, #d4d4d4),
+    -3px -3px 8px var(--forge-shadow-light, #ffffff);
+}
+.dark .btn-forge-submit:disabled {
+  box-shadow:
+    3px 3px 8px var(--forge-shadow-dark, #0f0f0f),
+    -3px -3px 8px var(--forge-shadow-light, #1a1a1a);
+}
+.btn-forge-submit:disabled::before {
+  width: 0 !important;
+}
+.btn-forge-submit:disabled:hover {
+  color: var(--forge-text);
+}
+
+/* ── Light theme shadow tokens ── */
+:root {
+  --forge-shadow-dark: #d4d4d4;
+  --forge-shadow-light: #ffffff;
+}
+
+/* ── Dark theme shadow tokens ── */
+.dark {
+  --forge-shadow-dark: #0f0f0f;
+  --forge-shadow-light: #1a1a1a;
+}

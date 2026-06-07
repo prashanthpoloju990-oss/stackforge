@@ -379,17 +379,12 @@ export function Contact() {
               />
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button — Neumorphic gradient reveal */}
             <div className="pt-2">
               <button
                 type="submit"
                 disabled={!isValid || isSubmitting}
-                className={cn(
-                  "btn-primary w-full h-fluid-btn-lg rounded-xl text-fluid-btn font-semibold uppercase transition-all duration-[250ms]",
-                  isValid
-                    ? "bg-forge-accent text-white cursor-pointer hover:bg-[#e55f00]"
-                    : "bg-forge-accent/30 text-white/40 cursor-not-allowed"
-                )}
+                className="btn-forge-submit"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2.5">
