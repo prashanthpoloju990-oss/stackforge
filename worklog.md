@@ -1,30 +1,38 @@
 ---
-Task ID: 1
+Task ID: 2
 Agent: Main Agent
-Task: Create premium StackForge website layout foundation
+Task: Build premium hero section with two-column layout
 
 Work Log:
-- Read existing project structure, package.json, layout.tsx, globals.css, page.tsx
-- Updated globals.css with StackForge custom color system (#0F1115, #1A1D23, #EAEAEA, #9CA3AF, #FF6A00) and custom scrollbar styling
-- Updated layout.tsx with Inter font from next/font/google, dark class on html, updated metadata
-- Created src/components/stackforge/navbar.tsx — sticky navbar with transparent→blur on scroll, desktop nav links with orange underline hover, mobile hamburger menu with animated bars
-- Created src/components/stackforge/section-divider.tsx — thin 1px divider using forge-divider color
-- Created src/components/stackforge/hero.tsx — full-viewport hero with eyebrow badge, large headline, subheadline, two CTA buttons
-- Created src/components/stackforge/services.tsx — 2x2 grid with gap-px divider effect, numbered services
-- Created src/components/stackforge/work.tsx — 2x2 project card grid with placeholder areas, metadata
-- Created src/components/stackforge/process.tsx — 4-column process steps with numbered phases
-- Created src/components/stackforge/contact.tsx — two-column layout with contact info + form placeholder
-- Created src/components/stackforge/footer.tsx — 3-column footer with brand, nav, social links, bottom copyright bar
-- Assembled page.tsx with all components and section dividers
+- Read existing hero.tsx, globals.css, page.tsx
+- Created src/components/stackforge/hero-visual.tsx — client component with layered UI panels:
+  - Back panel (browser-style with dots, faux content rows, grid cards)
+  - Middle panel (overlapping, chart bars with one orange highlight, stats footer)
+  - Floating accent line (orange, subtle)
+  - Status card (bottom-left, green indicator)
+  - Deploy version card (top-right, orange accent border)
+  - Subtle dot grid background overlay
+  - hero-float-1 (vertical, 6-9s cycles) and hero-float-2 (multi-axis, 8-9s cycles) animations
+- Added CSS keyframe animations to globals.css:
+  - hero-float-1, hero-float-2 for panel floating
+  - hero-text-enter for staggered text entrance
+  - hero-text-animate class variants with delays
+  - .hero-dots class for dot grid pattern
+- Updated hero.tsx with two-column layout:
+  - Left column: eyebrow badge, new headline "Built for Performance. Designed for Growth.", subtext, two CTA buttons, trust indicators (50+ Projects, 99.9% Uptime, 24h Response)
+  - Right column: HeroVisual (hidden on mobile)
+  - Subtle radial gradient background (barely visible orange glow at 60% 50%)
+  - min-height 90dvh, responsive grid (stacks on mobile, gap-16 on lg)
+  - Staggered entrance animations (eyebrow → headline → subtext → buttons → stats)
+  - Primary button: rounded-lg, #FF6A00 bg, darken on hover, scale on active
+  - Secondary button: rounded-lg, #2A2F36 border, bg fill on hover
 - ESLint passed clean
-- Dev server running on port 3000, confirmed 200 response with full rendered HTML
+- Browser verified: hero section renders, two-column grid confirmed, CTA buttons present, layered panels render with chart/dot grid, zero console errors
 
 Stage Summary:
-- Complete StackForge premium website layout with 7 custom components
-- Dark theme with matte finish color system (#0F1115 base)
-- Inter font, 1200px max-width container, 80px desktop / 24px mobile padding
-- Sticky navbar with scroll-triggered blur backdrop
-- Orange (#FF6A00) accent used sparingly on CTA buttons, section numbers, and hover underlines
-- All sections separated by thin #22262E dividers
-- Responsive design with mobile hamburger menu
-- Files created: globals.css, layout.tsx, navbar.tsx, section-divider.tsx, hero.tsx, services.tsx, work.tsx, process.tsx, contact.tsx, footer.tsx, page.tsx
+- Premium two-column hero with abstract layered UI visual on right
+- All text, buttons, animations, and trust indicators rendering correctly
+- Subtle radial gradient background, dot grid, floating panels
+- Fully responsive (stacks on mobile, visual hidden on small screens)
+- Files modified: hero.tsx, globals.css
+- Files created: hero-visual.tsx
