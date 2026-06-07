@@ -40,14 +40,14 @@ export function CtaBanner() {
             Ready?
           </span>
 
-          <h2 className="text-[28px] sm:text-[36px] md:text-[44px] lg:text-[50px] font-bold leading-[1.08] tracking-[-0.035em] text-forge-text font-playfair">
+          <h2 className="text-fluid-hero font-bold text-forge-text font-playfair">
             Your next website should
             <br className="hidden sm:block" />
             {" "}
             <span className="text-forge-accent/80">actually work.</span>
           </h2>
 
-          <p className="mt-5 text-[16px] text-forge-text-secondary/60 leading-[1.7] max-w-[480px]">
+          <p className="mt-5 text-fluid-body-lg text-forge-text-secondary/60 max-w-[480px]">
             Stop settling for slow, generic websites. Let&apos;s build something
             that performs, converts, and grows with your business.
           </p>

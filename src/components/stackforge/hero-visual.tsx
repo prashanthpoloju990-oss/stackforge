@@ -106,7 +106,7 @@ export function HeroVisual() {
             {/* Stats */}
             <div className="flex items-center justify-between pt-3 border-t border-forge-divider/30">
               <div>
-                <div className="text-[10px] text-forge-text-secondary/30 mb-0.5">
+                <div className="text-fluid-micro text-forge-text-secondary/30 mb-0.5">
                   Performance
                 </div>
                 <div className="text-[13px] text-forge-text font-semibold font-tabular-nums">
@@ -114,7 +114,7 @@ export function HeroVisual() {
                 </div>
               </div>
               <div>
-                <div className="text-[10px] text-forge-text-secondary/30 mb-0.5">
+                <div className="text-fluid-micro text-forge-text-secondary/30 mb-0.5">
                   Score
                 </div>
                 <div className="text-[13px] text-forge-accent/70 font-semibold">
@@ -164,14 +164,14 @@ export function HeroVisual() {
           <div className="rounded-lg border border-forge-border/30 bg-forge-bg/60 backdrop-blur-sm p-3">
             <div className="flex items-center gap-2 mb-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
-              <span className="text-[10px] text-forge-text-secondary/40 font-mono">
+              <span className="text-fluid-micro text-forge-text-secondary/40 font-mono">
                 Status
               </span>
             </div>
             <div className="text-[13px] text-forge-text font-semibold tracking-tight">
               Live
             </div>
-            <div className="text-[10px] text-forge-text-secondary/30 mt-0.5">
+            <div className="text-fluid-micro text-forge-text-secondary/30 mt-0.5">
               All systems go
             </div>
           </div>
@@ -194,13 +194,13 @@ export function HeroVisual() {
           }}
         >
           <div className="rounded-lg border border-forge-accent/10 bg-forge-bg/50 backdrop-blur-sm p-2.5">
-            <div className="text-[10px] text-forge-accent/50 font-mono mb-0.5">
+            <div className="text-fluid-micro text-forge-accent/50 font-mono mb-0.5">
               v2.0
             </div>
-            <div className="text-[10px] text-forge-text-secondary/40">
+            <div className="text-fluid-micro text-forge-text-secondary/40">
               Latest deploy
             </div>
-            <div className="text-[11px] text-forge-text/60 font-medium mt-0.5">
+            <div className="text-fluid-micro text-forge-text/60 font-medium mt-0.5">
               2s ago
             </div>
           </div>

@@ -60,11 +60,11 @@ export function FAQ() {
             <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
               FAQ
             </span>
-            <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[500px] font-playfair">
+            <h2 className="text-fluid-h1 font-bold text-forge-text max-w-[500px] font-playfair">
               Common questions
             </h2>
           </div>
-          <p className="text-[14px] text-forge-text-secondary/40 max-w-[320px] md:text-right">
+          <p className="text-fluid-body text-forge-text-secondary/40 max-w-[320px] md:text-right">
             Can&apos;t find what you&apos;re looking for? Reach out directly — we&apos;re happy to help.
           </p>
         </div>
@@ -94,7 +94,7 @@ export function FAQ() {
                     </span>
                     <span
                       className={cn(
-                        "text-[15px] md:text-[16px] font-medium transition-colors duration-200 pr-4",
+                        "text-fluid-body-lg font-medium transition-colors duration-200 pr-4",
                         isOpen
                           ? "text-forge-text"
                           : "text-forge-text-secondary/70 group-hover:text-forge-text/90"
@@ -133,7 +133,7 @@ export function FAQ() {
                   )}
                 >
                   <div className="overflow-hidden">
-                    <p className="pb-5 md:pb-6 text-[14px] text-forge-text-secondary/60 leading-[1.7] pl-9">
+                    <p className="pb-5 md:pb-6 text-fluid-body text-forge-text-secondary/60 pl-9">
                       {faq.answer}
                     </p>
                   </div>

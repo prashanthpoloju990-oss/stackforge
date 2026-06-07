@@ -212,10 +212,10 @@ export function Contact() {
       >
         {/* ── Section Header ── */}
         <div className="text-center mb-10 md:mb-12">
-          <h2 className="text-[32px] md:text-[40px] lg:text-[44px] font-bold leading-[1.1] tracking-[-0.035em] text-forge-text font-playfair">
+          <h2 className="text-fluid-hero font-bold text-forge-text font-playfair">
             Start Your Project
           </h2>
-          <p className="mt-4 text-[15px] md:text-[16px] text-forge-text-secondary leading-[1.65] max-w-[400px] mx-auto">
+          <p className="mt-4 text-fluid-body-lg text-forge-text-secondary max-w-[400px] mx-auto">
             Tell us what you need — we&apos;ll handle the rest.
           </p>
         </div>
@@ -493,11 +493,11 @@ function SuccessState() {
         </div>
       </div>
 
-      <h3 className="text-[28px] md:text-[34px] font-bold leading-[1.15] tracking-[-0.03em] text-forge-text font-playfair">
+      <h3 className="text-fluid-hero font-bold text-forge-text font-playfair">
         You&apos;re in.
       </h3>
 
-      <p className="mt-4 text-[15px] text-forge-text-secondary leading-[1.65] max-w-[340px] mx-auto">
+      <p className="mt-4 text-fluid-body-lg text-forge-text-secondary max-w-[340px] mx-auto">
         We&apos;ll reach out within 12 hours to discuss your project.
       </p>
     </div>

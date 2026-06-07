@@ -66,13 +66,13 @@ export function Work() {
             <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
               Selected Work
             </span>
-            <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[500px] font-playfair">
+            <h2 className="text-fluid-h1 font-bold text-forge-text max-w-[500px] font-playfair">
               Results, not just
               <br className="hidden md:block" />
               <span className="text-forge-accent/70"> pretty screens.</span>
             </h2>
           </div>
-          <p className="text-[15px] text-forge-text-secondary/60 leading-relaxed max-w-[360px] md:text-right">
+          <p className="text-fluid-body-lg text-forge-text-secondary/60 max-w-[360px] md:text-right">
             Every project is measured by the impact it creates — not just how it looks.
           </p>
         </div>
@@ -105,7 +105,7 @@ export function Work() {
                     <span className="text-[16px] font-bold text-forge-accent font-tabular-nums">
                       {project.metric}
                     </span>
-                    <span className="text-[11px] text-white/60">{project.metricLabel}</span>
+                    <span className="text-fluid-micro text-white/60">{project.metricLabel}</span>
                   </div>
                 </div>
               </div>
@@ -117,7 +117,7 @@ export function Work() {
                     <p className="text-[12px] text-forge-text-secondary/40 tracking-[0.08em] uppercase font-mono mb-1.5">
                       {project.subtitle}
                     </p>
-                    <h3 className="text-[18px] md:text-[20px] font-semibold text-forge-text tracking-[-0.01em] font-syne">
+                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
                       {project.title}
                     </h3>
                   </div>
@@ -128,7 +128,7 @@ export function Work() {
                   </div>
                 </div>
 
-                <p className="mt-2.5 text-[14px] text-forge-text-secondary/60 leading-[1.65]">
+                <p className="mt-2.5 text-fluid-body text-forge-text-secondary/60">
                   {project.description}
                 </p>
 
@@ -137,7 +137,7 @@ export function Work() {
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-medium tracking-wide text-forge-text-secondary/40 bg-forge-bg/80 border border-forge-divider/40"
+                      className="inline-flex items-center px-2.5 py-0.5 rounded text-fluid-micro font-medium tracking-wide text-forge-text-secondary/40 bg-forge-bg/80 border border-forge-divider/40"
                     >
                       {tag}
                     </span>

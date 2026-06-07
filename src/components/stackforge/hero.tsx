@@ -37,10 +37,10 @@ function CounterStat({ value, suffix, label }: { value: number; suffix: string; 
 
   return (
     <div className="flex flex-col">
-      <span className="text-[22px] sm:text-[24px] font-bold text-forge-text tracking-tight font-tabular-nums">
+      <span className="text-fluid-h2 font-bold text-forge-text tracking-tight font-tabular-nums">
         {count}{suffix}
       </span>
-      <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/50 tracking-[0.06em] mt-0.5">
+      <span className="text-fluid-label text-forge-text-secondary/50 tracking-[0.06em] mt-0.5">
         {label}
       </span>
     </div>
@@ -103,7 +103,7 @@ export function Hero() {
 
             {/* Headline */}
             <h1
-              className={`text-[34px] sm:text-[42px] md:text-[54px] lg:text-[60px] font-extrabold leading-[1.04] tracking-[-0.035em] text-forge-text font-syne transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-100 ${
+              className={`text-fluid-display font-extrabold text-forge-text font-syne transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-100 ${
                 mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
@@ -116,7 +116,7 @@ export function Hero() {
 
             {/* Subline */}
             <p
-              className={`mt-5 text-[16px] md:text-[17px] text-forge-text-secondary/80 leading-[1.75] max-w-[440px] transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-200 ${
+              className={`mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[440px] transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-200 ${
                 mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
@@ -173,14 +173,14 @@ export function Hero() {
         }`}
       >
         <div className="mx-auto max-w-[1200px] px-6 md:px-20 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <span className="text-[11px] text-forge-text-secondary/30 tracking-[0.1em] uppercase font-mono">
+          <span className="text-fluid-micro text-forge-text-secondary/30 tracking-[0.1em] uppercase font-mono">
             Trusted by
           </span>
           <div className="flex items-center gap-8 sm:gap-10">
             {TRUST_LOGOS.map((name) => (
               <span
                 key={name}
-                className="text-[12px] sm:text-[13px] text-forge-text-secondary/25 tracking-[0.04em] font-medium"
+                className="text-fluid-label text-forge-text-secondary/25 tracking-[0.04em] font-medium"
               >
                 {name}
               </span>

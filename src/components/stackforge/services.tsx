@@ -78,7 +78,7 @@ export function Services() {
           <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
             Services
           </span>
-          <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[550px] font-playfair">
+          <h2 className="text-fluid-h1 font-bold text-forge-text max-w-[550px] font-playfair">
             Structured for every
             <br className="hidden md:block" />
             <span className="text-forge-accent/70"> stage of growth.</span>
@@ -107,7 +107,7 @@ export function Services() {
                     <span className="text-[13px] font-mono text-forge-text-secondary/30 tracking-wider">
                       {service.number}
                     </span>
-                    <h3 className="text-[22px] md:text-[26px] font-bold text-forge-text tracking-[-0.02em] font-syne">
+                    <h3 className="text-fluid-h4 font-bold text-forge-text font-syne">
                       {service.title}
                     </h3>
                   </div>
@@ -116,7 +116,7 @@ export function Services() {
                     {service.tagline}
                   </p>
 
-                  <p className="text-[15px] text-forge-text-secondary/80 leading-[1.7] max-w-[420px]">
+                  <p className="text-fluid-body-lg text-forge-text-secondary/80 max-w-[420px]">
                     {service.description}
                   </p>
 
@@ -141,7 +141,7 @@ export function Services() {
                     {service.features.map((feature) => (
                       <li
                         key={feature}
-                        className="flex items-center gap-3 text-[14px] text-forge-text-secondary/70"
+                        className="flex items-center gap-3 text-fluid-body text-forge-text-secondary/70"
                       >
                         <span
                           className={cn(

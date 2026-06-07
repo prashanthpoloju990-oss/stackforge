@@ -48,7 +48,7 @@ export function Process() {
           <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
             Process
           </span>
-          <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[550px] font-playfair">
+          <h2 className="text-fluid-h1 font-bold text-forge-text max-w-[550px] font-playfair">
             Simple process.
             <br />
             <span className="text-forge-accent/70"> Serious results.</span>
@@ -81,10 +81,10 @@ export function Process() {
                     <div className="absolute top-10 left-[19px] w-px h-[calc(100%+8px)] bg-forge-divider" />
                   )}
                   <div className="pb-10">
-                    <h3 className="text-[17px] font-semibold text-forge-text tracking-[-0.01em] font-syne">
+                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
                       {step.title}
                     </h3>
-                    <p className="mt-2 text-[14px] text-forge-text-secondary/60 leading-[1.65] max-w-[380px]">
+                    <p className="mt-2 text-fluid-body text-forge-text-secondary/60 max-w-[380px]">
                       {step.description}
                     </p>
                   </div>
@@ -99,10 +99,10 @@ export function Process() {
                   </div>
 
                   <div className="mt-5">
-                    <h3 className="text-[17px] font-semibold text-forge-text tracking-[-0.01em] font-syne">
+                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
                       {step.title}
                     </h3>
-                    <p className="mt-2 text-[14px] text-forge-text-secondary/60 leading-[1.65] max-w-[210px]">
+                    <p className="mt-2 text-fluid-body text-forge-text-secondary/60 max-w-[210px]">
                       {step.description}
                     </p>
                   </div>

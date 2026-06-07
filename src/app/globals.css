@@ -154,6 +154,76 @@
 .font-curvy { font-family: var(--font-curvy); }
 
 /* ══════════════════════════════════════════════════
+   FLUID TYPE SCALE — StackForge Liquid Display
+   ══════════════════════════════════════════════════
+
+   All sizes use clamp(min, preferred, max) for
+   buttery-smooth scaling across every viewport.
+   No breakpoint jumps — pure liquid typography.
+
+   Scale (mobile → desktop):
+     display  34px → 60px    Hero headline
+     hero     28px → 50px    CTA / Success headings
+     h1       30px → 48px    Section headings
+     h2       18px → 26px    Featured quotes, sub-headings
+     h3       17px → 22px    Card titles, step names
+     h4       22px → 26px    Service tier names
+     body-lg  15px → 17px    Descriptions, body large
+     body     14px → 15px    Card text, features
+     label    11px → 13px    Eyebrows, labels, counters
+     micro    10px → 11px    Tiny UI labels
+   ══════════════════════════════════════════════════ */
+
+@layer utilities {
+  .text-fluid-display {
+    font-size: clamp(2.125rem, 0.625rem + 4vw, 3.75rem);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+  .text-fluid-hero {
+    font-size: clamp(1.75rem, 0.625rem + 3.5vw, 3.125rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+  .text-fluid-h1 {
+    font-size: clamp(1.875rem, 0.5rem + 3vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.035em;
+  }
+  .text-fluid-h2 {
+    font-size: clamp(1.125rem, 0.5rem + 1.75vw, 1.625rem);
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+  }
+  .text-fluid-h3 {
+    font-size: clamp(1.0625rem, 0.75rem + 1vw, 1.375rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+  .text-fluid-h4 {
+    font-size: clamp(1.375rem, 0.875rem + 1.5vw, 1.625rem);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+  .text-fluid-body-lg {
+    font-size: clamp(0.9375rem, 0.8125rem + 0.5vw, 1.0625rem);
+    line-height: 1.72;
+  }
+  .text-fluid-body {
+    font-size: clamp(0.875rem, 0.8125rem + 0.25vw, 0.9375rem);
+    line-height: 1.65;
+  }
+  .text-fluid-label {
+    font-size: clamp(0.6875rem, 0.5625rem + 0.5vw, 0.8125rem);
+    line-height: 1.4;
+  }
+  .text-fluid-micro {
+    font-size: clamp(0.625rem, 0.5625rem + 0.25vw, 0.6875rem);
+    line-height: 1.3;
+  }
+}
+
+/* ══════════════════════════════════════════════════
    MOTION SYSTEM — StackForge Premium Motion Design
    ══════════════════════════════════════════════════
 

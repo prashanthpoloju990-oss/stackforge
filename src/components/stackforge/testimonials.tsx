@@ -54,7 +54,7 @@ export function Testimonials() {
           <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
             Client Words
           </span>
-          <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[500px] font-playfair">
+          <h2 className="text-fluid-h1 font-bold text-forge-text max-w-[500px] font-playfair">
             Don&apos;t take our word for it.
           </h2>
         </div>
@@ -69,12 +69,12 @@ export function Testimonials() {
         >
           <div className="border border-forge-accent/15 bg-forge-accent/[0.02] rounded-xl p-8 md:p-12 lg:p-14 relative">
             {/* Large quote */}
-            <span className="absolute top-6 left-8 md:left-12 text-forge-accent/8 text-[80px] md:text-[100px] leading-none font-playfair block select-none pointer-events-none">
+            <span className="absolute top-6 left-8 md:left-12 text-forge-accent/8 text-fluid-display font-playfair block select-none pointer-events-none">
               &ldquo;
             </span>
 
             <div className="relative">
-              <blockquote className="text-[18px] md:text-[22px] lg:text-[26px] text-forge-text/90 leading-[1.6] font-playfair max-w-[800px]">
+              <blockquote className="text-fluid-h2 text-forge-text/90 font-playfair max-w-[800px]">
                 {featured.quote}
               </blockquote>
               <div className="mt-8 flex items-center gap-4">
@@ -88,7 +88,7 @@ export function Testimonials() {
                   />
                 </div>
                 <div>
-                  <p className="text-[15px] text-forge-text font-semibold">
+                  <p className="text-fluid-body-lg text-forge-text font-semibold">
                     {featured.name}
                   </p>
                   <p className="text-[13px] text-forge-text-secondary/50">
@@ -113,7 +113,7 @@ export function Testimonials() {
                 transitionDelay: cardsVisible ? `${(index + 1) * 100}ms` : "0ms",
               }}
             >
-              <blockquote className="text-[15px] md:text-[16px] text-forge-text-secondary/70 leading-[1.7]">
+              <blockquote className="text-fluid-body-lg text-forge-text-secondary/70">
                 &ldquo;{testimonial.quote}&rdquo;
               </blockquote>
 
@@ -128,7 +128,7 @@ export function Testimonials() {
                   />
                 </div>
                 <div>
-                  <p className="text-[14px] text-forge-text font-medium">
+                  <p className="text-fluid-body text-forge-text font-medium">
                     {testimonial.name}
                   </p>
                   <p className="text-[12px] text-forge-text-secondary/40">

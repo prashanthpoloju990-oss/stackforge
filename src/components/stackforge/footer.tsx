@@ -25,7 +25,7 @@ export function Footer() {
               {["X", "Li", "Gh"].map((label) => (
                 <span
                   key={label}
-                  className="w-8 h-8 rounded-md border border-forge-divider flex items-center justify-center text-[11px] text-forge-text-secondary/30 hover:text-forge-text/60 hover:border-forge-border transition-all duration-200 cursor-pointer"
+                  className="w-8 h-8 rounded-md border border-forge-divider flex items-center justify-center text-fluid-micro text-forge-text-secondary/30 hover:text-forge-text/60 hover:border-forge-border transition-all duration-200 cursor-pointer"
                 >
                   {label}
                 </span>
@@ -36,7 +36,7 @@ export function Footer() {
           {/* Right — 3 Columns */}
           <div className="grid grid-cols-3 gap-8 sm:gap-10">
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
+              <span className="text-fluid-micro text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
                 Pages
               </span>
               {[
@@ -57,7 +57,7 @@ export function Footer() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
+              <span className="text-fluid-micro text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
                 Services
               </span>
               {[
@@ -76,7 +76,7 @@ export function Footer() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <span className="text-[11px] text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
+              <span className="text-fluid-micro text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
                 Contact
               </span>
               <a
@@ -97,7 +97,7 @@ export function Footer() {
           <span className="text-[12px] text-forge-text-secondary/20">
             © {currentYear} StackForge. All rights reserved.
           </span>
-          <span className="text-[11px] text-forge-text-secondary/15 font-mono">
+          <span className="text-fluid-micro text-forge-text-secondary/15 font-mono">
             Built with Next.js & Tailwind
           </span>
         </div>
