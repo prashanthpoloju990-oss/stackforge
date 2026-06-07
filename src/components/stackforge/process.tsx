@@ -1,56 +1,108 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+const steps = [
+  {
+    number: "01",
+    title: "Discovery",
+    description: "Understanding your business, goals, and requirements.",
+  },
+  {
+    number: "02",
+    title: "Design",
+    description:
+      "Crafting a clean, modern interface with strong user experience.",
+  },
+  {
+    number: "03",
+    title: "Build",
+    description:
+      "Developing a fast, scalable, and production-ready system.",
+  },
+  {
+    number: "04",
+    title: "Launch",
+    description:
+      "Testing, refining, and deploying your product with confidence.",
+  },
+];
+
 export function Process() {
-  const steps = [
-    {
-      phase: "Discovery",
-      description:
-        "Deep-dive into your business goals, user needs, and technical requirements to define a clear project roadmap.",
-    },
-    {
-      phase: "Design",
-      description:
-        "Wireframes, prototypes, and visual design systems crafted with precision and aligned to your brand identity.",
-    },
-    {
-      phase: "Development",
-      description:
-        "Clean, scalable code built with modern frameworks. Every component tested, reviewed, and optimized.",
-    },
-    {
-      phase: "Launch",
-      description:
-        "Performance auditing, deployment, and monitoring. We ensure a smooth, confident launch every time.",
-    },
-  ];
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setMounted(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <section id="process" className="py-24 md:py-32 lg:py-40">
+    <section id="process" className="py-24 md:py-32 lg:py-[120px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
-        {/* Section Label */}
-        <div className="flex items-center gap-3 mb-6">
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.1em] uppercase">
+        {/* Section Header — Center Aligned */}
+        <div className="text-center mb-16 md:mb-24">
+          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
             Process
           </span>
+          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text mx-auto max-w-[600px]">
+            How We Work
+          </h2>
+          <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed mx-auto max-w-[480px]">
+            A clear and structured process to take your idea from concept to
+            launch.
+          </p>
         </div>
 
-        <h2 className="text-[32px] md:text-[48px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.03em] text-forge-text max-w-[700px] mb-16 md:mb-24">
-          How we work
-        </h2>
+        {/* Steps — Horizontal Flow */}
+        <div className="relative">
+          {/* Connecting line — desktop only */}
+          <div className="hidden lg:block absolute top-[38px] left-[12.5%] right-[12.5%] h-px bg-forge-divider" />
 
-        {/* Process Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-forge-divider">
-          {steps.map((step, index) => (
-            <div key={step.phase} className="bg-forge-bg p-8 md:p-10">
-              <span className="text-[13px] text-forge-accent font-mono tracking-wider">
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mt-3 text-[20px] md:text-[22px] font-semibold text-forge-text tracking-[-0.02em]">
-                {step.phase}
-              </h3>
-              <p className="mt-3 text-[15px] text-forge-text-secondary leading-relaxed">
-                {step.description}
-              </p>
-            </div>
-          ))}
+          {/* Mobile: vertical line */}
+          <div className="lg:hidden absolute top-0 bottom-0 left-[19px] w-px bg-forge-divider" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-0 relative">
+            {steps.map((step, index) => (
+              <div
+                key={step.number}
+                className={`relative flex flex-col items-center text-center transition-all duration-700 ease-out ${
+                  mounted
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-6"
+                }`}
+                style={{ transitionDelay: `${index * 120}ms` }}
+              >
+                {/* Step number circle — desktop */}
+                <div className="hidden lg:flex items-center justify-center w-[76px] h-[76px] rounded-full border-2 border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/40 group">
+                  <span className="text-[24px] font-bold text-forge-text tracking-tight transition-colors duration-300 group-hover:text-forge-accent">
+                    {step.number}
+                  </span>
+                </div>
+
+                {/* Step number circle — mobile */}
+                <div className="lg:hidden flex items-center justify-center w-[40px] h-[40px] rounded-full border-2 border-forge-divider bg-forge-bg relative z-10 flex-shrink-0 mb-4">
+                  <span className="text-[15px] font-bold text-forge-text tracking-tight">
+                    {step.number}
+                  </span>
+                </div>
+
+                {/* Text content */}
+                <div className="lg:mt-6 lg:px-2">
+                  {/* Mobile: left-aligned text */}
+                  <div className="lg:text-center flex lg:flex-col flex-row items-start lg:items-center gap-4 lg:gap-0 pl-14 lg:pl-0">
+                    <div>
+                      <h3 className="text-[18px] md:text-[20px] font-semibold text-forge-text tracking-[-0.01em]">
+                        {step.title}
+                      </h3>
+                      <p className="mt-2 text-[14px] md:text-[15px] text-forge-text-secondary leading-relaxed lg:max-w-[220px]">
+                        {step.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

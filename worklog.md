@@ -65,3 +65,31 @@ Stage Summary:
 - Hover effects: lift, border highlight, image zoom
 - Files created: public/work/*.png (4 images)
 - Files modified: work.tsx
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Build premium How We Work section with horizontal step flow
+
+Work Log:
+- Read existing process.tsx
+- Rewrote src/components/stackforge/process.tsx as client component with:
+  - Center-aligned section header ("How We Work" + subtitle)
+  - 4-column horizontal step flow on desktop (lg:grid-cols-4)
+  - Vertical stacked layout on mobile with left-aligned timeline
+  - 76px circular step number indicators (desktop), 40px (mobile)
+  - Thin horizontal connecting line (#22262E) spanning 12.5%–87.5% on desktop
+  - Vertical connecting line on mobile
+  - Staggered entrance animation (120ms delay per step)
+  - Hover: border turns orange accent, number turns orange
+  - No cards, no shadows — clean pipeline feel
+- ESLint passed clean
+- Browser verified: 4 steps, correct titles (Discovery/Design/Build/Launch), connecting lines present, header centered, zero console errors
+
+Stage Summary:
+- Premium How We Work section with horizontal pipeline layout
+- Desktop: 4 steps connected by horizontal line with circle indicators
+- Mobile: vertical timeline with left-aligned content
+- Hover effects: orange border + orange number on circles
+- Staggered entrance animations
+- Files modified: process.tsx
