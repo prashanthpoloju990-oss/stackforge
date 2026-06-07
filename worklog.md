@@ -291,3 +291,93 @@ Stage Summary:
 - Orange accent (#FF6A00) used consistently
 - Zero browser console errors
 - One minor issue: duplicate id="contact" on section and input (non-critical)
+
+---
+Task ID: 12
+Agent: browser-verify
+Task: Browser verify redesigned contact form (shadcn AuthPage structure)
+
+Work Log:
+- Read worklog.md (tasks 1–11) to understand full project history
+- Read contact.tsx source (478 lines) — confirmed complete rewrite to AuthPage split layout with FloatingPaths, 4 stacked service buttons, OR separator, shadcn Input fields, shadcn Button submit
+- Launched agent-browser, set viewport 1440×900 (desktop)
+- Took desktop screenshot: /home/z/my-project/contact-desktop-1440.png
+- Ran accessibility tree snapshot + JavaScript DOM verification queries
+- Checked browser console: zero errors
+- Switched to 375×812 (iPhone X) viewport for mobile testing
+- Took mobile screenshot: /home/z/my-project/contact-mobile-375.png
+- Ran same verification queries at mobile width
+- Checked browser console on mobile: zero errors
+
+Desktop Verification Results (1440×900):
+
+1. ✅ Split layout: main is display:grid with gridTemplateCols "720px 720px" (2 equal columns). Left decorative panel is display:flex, right form panel is display:flex.
+
+2. ✅ Left panel elements:
+   - "StackForge" branding with Sparkles icon: confirmed (p text = "StackForge", Sparkles SVG present)
+   - Testimonial quote at bottom: confirmed — "StackForge delivered our site in 3 days. The quality blew our expectations — best decision we made." with footer "~ Priya Sharma, Hyderabad"
+   - Animated floating SVG paths: 3 SVGs found, 77 animated <path> elements total (FloatingPaths position=1 and position=-1), using currentColor stroke with pathLength/opacity animations, duration 20–30s infinite loop
+   - Gradient overlay: bg-gradient-to-t from-background to-transparent confirmed present
+
+3. ✅ Right form panel:
+   - "Home" ghost button at top-left: confirmed (Button variant="ghost" with ChevronUpIcon + "Home" text)
+   - Mobile branding (lg:hidden): confirmed present (hidden on desktop via lg:hidden class)
+   - Heading: "Start Your Project" with text-fluid-hero, font-bold, font-playfair, tracking-wide classes
+   - Font-family confirmed as "Playfair Display" via getComputedStyle
+   - Subtitle: "Tell us what you need — we'll get it done." with text-muted-foreground text-base
+
+4. ✅ 4 full-width stacked service buttons (shadcn Button component):
+   - "New Website" (Globe icon)
+   - "Website Redesign" (RefreshCw icon)
+   - "Landing Page" (LayoutGrid icon)
+   - "UI/UX Design" (Palette icon)
+   - All confirmed as shadcn Button (inline-flex items-center gap-2 whitespace-nowrap text-sm font-medium transition-all classes)
+   - All confirmed w-full (full width), justify-start, size="lg"
+   - Active state: bg-primary text-primary-foreground when selected
+
+5. ✅ "OR" separator: confirmed present — flex container with 2 bg-border h-px line divs and centered "OR" text span (text-muted-foreground text-xs)
+
+6. ✅ Form fields using shadcn Input:
+   - Name input: placeholder "Your full name", ps-9 class confirmed, UserIcon prefix in absolutely-positioned div
+   - Email/WhatsApp input: placeholder "Email or WhatsApp number", ps-9 class confirmed, AtSignIcon prefix in absolutely-positioned div
+   - Both inputs use shadcn Input component
+
+7. ✅ Submit button: "Get Free Consultation" with SendIcon, shadcn Button component (inline-flex items-center justify-center gap-2), w-full confirmed, size="lg", disabled when form invalid
+
+8. ✅ Trust text: "No spam. We'll contact you within 12 hours." confirmed present (ShieldCheck icon via accessibility tree)
+
+9. ✅ Radial gradient decorations: 3 radial-gradient divs confirmed on right panel (exact AuthPage values)
+
+10. ✅ Form description text: "Enter your details to get a free consultation" present
+
+Mobile Verification Results (375×812):
+- ✅ Left panel: display:none (hidden via lg:flex class)
+- ✅ Main layout: display:block, gridTemplateCols: none (no grid)
+- ✅ Mobile branding (lg:hidden): found and visible with "StackForge" text
+- ✅ All 6 buttons present: Home, New Website, Website Redesign, Landing Page, UI/UX Design, Get Free Consultation
+- ✅ Both input fields present with correct placeholders
+- ✅ OR separator visible
+- ✅ Trust text visible
+- ✅ Heading "Start Your Project" visible
+- ✅ Subtitle "Tell us what you need — we'll get it done." visible
+- ✅ Zero browser console errors
+
+Issues Found:
+- ⚠️ Name input shows validation error "Please enter your name" on mobile at page load without user interaction (touched state may be incorrectly initialized from previous interaction session). This is a minor UX issue — the error appears before the user has touched the field.
+- No visual bugs, no console errors, no missing elements, no layout problems.
+- No duplicate ID issue (the previous id="contact" on input has been removed in this rewrite).
+
+Screenshots saved:
+- Desktop (1440×900): /home/z/my-project/contact-desktop-1440.png
+- Mobile (375×812): /home/z/my-project/contact-mobile-375.png
+
+Stage Summary:
+- All 7 requirement categories verified ✅ (split layout, left panel elements, right form panel, service buttons, OR separator, form fields, trust text + mobile)
+- Contact form successfully rewritten to match shadcn AuthPage structure
+- 77 animated SVG floating paths rendering in left panel
+- All 4 service buttons use shadcn Button component (not custom CSS)
+- Form uses shadcn Input with icon prefix (ps-9) pattern
+- Submit uses shadcn Button with w-full and SendIcon
+- Mobile: left panel correctly hidden, mobile branding visible, single-column stack
+- Zero console errors on both viewports
+- One minor UX note: name validation error pre-visible on mobile (non-blocking)
