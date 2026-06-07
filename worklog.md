@@ -79,3 +79,26 @@ Stage Summary:
 - Entire site now uses one consistent motion language
 - All animations are transform/opacity only (GPU-composited, no jank)
 - Motion is felt, not seen — calm, precise, engineered
+
+---
+Task ID: 5
+Agent: main
+Task: Redesign contact form as premium, minimal, high-conversion inquiry form
+
+Work Log:
+- Updated prisma/schema.prisma: added ContactSubmission model (name, contact, businessType, serviceNeed, budget, timeline, details, createdAt)
+- Ran db:push to sync schema
+- Created /api/contact/route.ts: POST endpoint with validation, sanitization, Prisma create
+- Added form-specific CSS to globals.css: field-enter stagger animation (80ms per item), .form-input base style (48px height, 10px radius, focus orange ring), .form-textarea, .form-select with custom chevron, success checkmark animations (circle-fill + draw)
+- Completely rewrote contact.tsx: centered single-column layout (max-w-560px), Playfair "Start Your Project" header, 7 ordered fields (Full Name, Email/WhatsApp, Business Type, What do you need?, Budget Range, Timeline, Project Details), "Get My Website" CTA button (disabled until name+contact valid), shield icon trust text, success state with animated checkmark
+- Inline validation: email regex + WhatsApp pattern detection, blur-triggered per-field errors, clean non-aggressive error styling
+- Micro UX: autofocus on first field after scroll-reveal, smooth tab navigation, button disables until required fields filled
+- Success state: "You're in." heading + checkmark circle animation + "We'll reach out within 12 hours"
+- Verified: form renders correctly on desktop and mobile, submit saves to DB (POST 201), success state displays, ESLint clean
+
+Stage Summary:
+- Premium centered form with staggered field animations
+- 7 fields in correct order with validation and trust elements
+- Full API backend with database storage
+- Success state with animated checkmark
+- Tested end-to-end: form fill → submit → DB insert → success display
