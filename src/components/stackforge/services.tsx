@@ -71,7 +71,7 @@ export function Services() {
         <div
           ref={headerRef}
           className={cn(
-            "mb-16 md:mb-20 transition-all duration-700 ease-out",
+            "mb-16 md:mb-20 transition-all duration-600 ease-out",
             headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
@@ -92,8 +92,8 @@ export function Services() {
               key={service.title}
               href="#contact"
               className={cn(
-                "group block rounded-xl border p-6 sm:p-8 md:p-10 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                blocksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
+                "group block rounded-xl border p-6 sm:p-8 md:p-10 transition-all duration-600 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                blocksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]",
                 service.highlighted
                   ? "border-forge-accent/20 bg-forge-accent/[0.03] hover:border-forge-accent/35 hover:bg-forge-accent/[0.05]"
                   : "border-forge-divider bg-forge-surface/40 hover:border-forge-border hover:bg-forge-surface/70"

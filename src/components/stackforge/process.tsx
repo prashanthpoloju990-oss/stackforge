@@ -41,8 +41,8 @@ export function Process() {
         <div
           ref={headerRef}
           className={cn(
-            "mb-16 md:mb-20 transition-all duration-700 ease-out",
-            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            "mb-16 md:mb-20 transition-all duration-600 ease-out",
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
           )}
         >
           <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
@@ -65,10 +65,10 @@ export function Process() {
               <div
                 key={step.number}
                 className={cn(
-                  "relative transition-all duration-700 ease-out",
-                  stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                  "relative transition-all duration-600 ease-out",
+                  stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
                 )}
-                style={{ transitionDelay: stepsVisible ? `${index * 120}ms` : "0ms" }}
+                style={{ transitionDelay: stepsVisible ? `${index * 100}ms` : "0ms" }}
               >
                 {/* Mobile layout */}
                 <div className="lg:hidden flex items-start gap-5">

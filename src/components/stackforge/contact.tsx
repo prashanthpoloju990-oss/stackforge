@@ -117,8 +117,8 @@ export function Contact() {
       <div
         ref={ref}
         className={cn(
-          "mx-auto max-w-[1200px] px-6 md:px-20 transition-all duration-700 ease-out",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          "mx-auto max-w-[1200px] px-6 md:px-20 transition-all duration-600 ease-out",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
         )}
       >
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-12 lg:gap-20">
@@ -314,10 +314,10 @@ export function Contact() {
                   type="submit"
                   disabled={isSubmitting}
                   className={cn(
-                    "inline-flex items-center justify-center h-11 px-7 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200",
+                    "btn-primary inline-flex items-center justify-center h-11 px-7 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200",
                     isSubmitting
                       ? "opacity-60 cursor-wait"
-                      : "hover:bg-[#e55f00] hover:shadow-lg hover:shadow-forge-accent/10 active:scale-[0.98] cursor-pointer"
+                      : "active:scale-[0.98] cursor-pointer"
                   )}
                 >
                   {isSubmitting ? (

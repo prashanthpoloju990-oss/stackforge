@@ -50,8 +50,8 @@ export function FAQ() {
       <div
         ref={ref}
         className={cn(
-          "mx-auto max-w-[1200px] px-6 md:px-20 transition-all duration-700 ease-out",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          "mx-auto max-w-[1200px] px-6 md:px-20 transition-all duration-600 ease-out",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
         )}
       >
         {/* Header */}

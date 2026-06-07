@@ -58,7 +58,7 @@ export function Work() {
         <div
           ref={headerRef}
           className={cn(
-            "flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 md:mb-20 transition-all duration-700 ease-out",
+            "flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 md:mb-20 transition-all duration-600 ease-out",
             headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
@@ -84,7 +84,7 @@ export function Work() {
               key={project.title}
               className={cn(
                 "group block rounded-xl border border-forge-divider bg-forge-surface/30 overflow-hidden card-hover",
-                gridVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+                gridVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               )}
               style={{ transitionDelay: gridVisible ? `${index * 100}ms` : "0ms" }}
             >
@@ -94,7 +94,7 @@ export function Work() {
                   src={project.image}
                   alt={project.title}
                   fill
-                  className="object-cover transition-transform duration-600 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                  className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
                 {/* Hover overlay */}

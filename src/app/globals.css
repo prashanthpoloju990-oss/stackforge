@@ -147,13 +147,26 @@
   }
 }
 
-/* Custom font family utilities */
+/* ── CUSTOM FONTS ── */
 .font-syne { font-family: var(--font-syne); }
 .font-playfair { font-family: var(--font-playfair); }
 .font-dancing { font-family: var(--font-dancing); }
 .font-curvy { font-family: var(--font-curvy); }
 
-/* Subtle grain texture overlay — adds analog warmth */
+/* ══════════════════════════════════════════════════
+   MOTION SYSTEM — StackForge Premium Motion Design
+   ══════════════════════════════════════════════════
+
+   Core Easing: cubic-bezier(0.22, 1, 0.36, 1)
+   Reveal Duration: 0.6s
+   Stagger: 100ms per item
+   Card Hover: 0.3s ease, translateY(-4px)
+   Button Hover: 0.25s ease
+   Image Hover: 0.5s ease, scale(1.03)
+   Float: 6-10s loops, ≤8px movement
+   ══════════════════════════════════════════════════ */
+
+/* ── GRAIN OVERLAY ── */
 .grain-overlay {
   position: fixed;
   inset: 0;
@@ -164,139 +177,101 @@
   background-repeat: repeat;
   background-size: 128px 128px;
 }
+.dark .grain-overlay { opacity: 0.025; }
 
-.dark .grain-overlay {
-  opacity: 0.025;
-}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--forge-divider); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--forge-text-secondary); }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--forge-divider);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--forge-text-secondary);
-}
-
-/* Selection color */
+/* ── SELECTION ── */
 ::selection {
   background: rgba(255, 106, 0, 0.12);
   color: var(--forge-text);
 }
 
-/* Hero dot grid pattern */
+/* ── HERO DOT GRID ── */
 .hero-dots {
   background-image: radial-gradient(circle, var(--forge-text-secondary) 0.8px, transparent 0.8px);
   background-size: 20px 20px;
   opacity: 0.06;
 }
 
-/* Float animations */
-@keyframes hero-float-1 {
+/* ── FLOAT ANIMATIONS (hero visual parallax) ── */
+@keyframes float-slow {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-6px); }
 }
 
-@keyframes hero-float-2 {
+@keyframes float-drift {
   0%, 100% { transform: translateY(0px) translateX(0px); }
-  33% { transform: translateY(-5px) translateX(3px); }
-  66% { transform: translateY(3px) translateX(-2px); }
+  33% { transform: translateY(-4px) translateX(2px); }
+  66% { transform: translateY(2px) translateX(-2px); }
 }
 
-/* Hero text entrance */
-@keyframes hero-text-enter {
-  0% { opacity: 0; transform: translateY(12px); }
+/* ── SECTION REVEAL ──
+   opacity 0→1, translateY(20px)→0, 0.6s, premium easing */
+@keyframes reveal-up {
+  0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
-.hero-text-animate {
-  animation: hero-text-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.hero-text-animate-delay-1 {
-  animation: hero-text-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
-}
-
-.hero-text-animate-delay-2 {
-  animation: hero-text-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
-}
-
-.hero-text-animate-delay-3 {
-  animation: hero-text-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
-}
-
-/* Tech Stack marquee */
-@keyframes marquee-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee-scroll {
-  animation: marquee-scroll 35s linear infinite;
-}
-
-/* Subtle glow for accent elements */
-.accent-glow {
-  box-shadow: 0 0 20px rgba(255, 106, 0, 0.08), 0 0 60px rgba(255, 106, 0, 0.04);
-}
-
-/* Horizontal rule with center accent */
-.section-rule {
-  position: relative;
-  height: 1px;
-  background: transparent;
-}
-
-.section-rule::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--forge-divider);
-}
-
-.section-rule::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40px;
-  height: 1px;
-  background: rgba(255, 106, 0, 0.25);
-}
-
-/* Card hover lift */
+/* ── CARD HOVER ──
+   translateY(-4px), 0.3s ease, subtle border shift */
 .card-hover {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.35s ease,
-              box-shadow 0.35s ease;
+  transition: transform 0.3s ease,
+              border-color 0.3s ease;
+  will-change: transform;
 }
-
 .card-hover:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  border-color: rgba(255, 106, 0, 0.15);
 }
 
-.dark .card-hover:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+/* ── BUTTON HOVER SYSTEM ──
+   Primary: darken bg, scale 1.02, 0.25s
+   Secondary: subtle bg fill, clean border */
+.btn-primary {
+  transition: background-color 0.25s ease,
+              transform 0.25s ease,
+              box-shadow 0.25s ease;
+}
+.btn-primary:hover {
+  background-color: #e55f00;
+  transform: scale(1.02);
+}
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
-/* Smooth underline for nav links */
+.btn-secondary {
+  transition: background-color 0.25s ease,
+              border-color 0.25s ease,
+              color 0.25s ease;
+}
+.btn-secondary:hover {
+  background-color: var(--forge-surface);
+  border-color: var(--forge-text-secondary);
+  color: var(--forge-text);
+}
+
+/* ── IMAGE HOVER (portfolio) ──
+   scale 1→1.03, 0.5s ease, overflow hidden via parent */
+.img-hover-zoom {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.img-hover-zoom:hover,
+.group:hover .img-hover-zoom {
+  transform: scale(1.03);
+}
+
+/* ── LINK HOVER ──
+   Underline left→right, orange tint on hover */
 .link-underline {
   position: relative;
 }
-
 .link-underline::after {
   content: "";
   position: absolute;
@@ -304,15 +279,45 @@
   left: 0;
   width: 0;
   height: 1px;
-  background: currentColor;
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--forge-accent);
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
-
 .link-underline:hover::after {
   width: 100%;
 }
 
-/* Number tabular */
+/* ── SECTION RULE (dividers) ── */
+.section-rule {
+  position: relative;
+  height: 1px;
+  background: transparent;
+}
+.section-rule::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--forge-divider);
+}
+.section-rule::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px; height: 1px;
+  background: rgba(255, 106, 0, 0.2);
+}
+
+/* ── TECH MARQUEE ── */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee-scroll {
+  animation: marquee-scroll 35s linear infinite;
+}
+
+/* ── TABULAR NUMS ── */
 .font-tabular-nums {
   font-variant-numeric: tabular-nums;
 }

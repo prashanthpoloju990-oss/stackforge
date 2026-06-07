@@ -47,8 +47,8 @@ export function Testimonials() {
         <div
           ref={headerRef}
           className={cn(
-            "mb-14 md:mb-20 transition-all duration-700 ease-out",
-            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            "mb-14 md:mb-20 transition-all duration-600 ease-out",
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
           )}
         >
           <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
@@ -63,8 +63,8 @@ export function Testimonials() {
         <div
           ref={cardsRef}
           className={cn(
-            "mb-6 md:mb-8 transition-all duration-700 ease-out",
-            cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            "mb-6 md:mb-8 transition-all duration-600 ease-out",
+            cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
           )}
         >
           <div className="border border-forge-accent/15 bg-forge-accent/[0.02] rounded-xl p-8 md:p-12 lg:p-14 relative">
@@ -107,10 +107,10 @@ export function Testimonials() {
               key={testimonial.name}
               className={cn(
                 "bg-forge-surface/30 border border-forge-divider rounded-xl p-6 md:p-8 card-hover",
-                cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               )}
               style={{
-                transitionDelay: cardsVisible ? `${(index + 1) * 120}ms` : "0ms",
+                transitionDelay: cardsVisible ? `${(index + 1) * 100}ms` : "0ms",
               }}
             >
               <blockquote className="text-[15px] md:text-[16px] text-forge-text-secondary/70 leading-[1.7]">

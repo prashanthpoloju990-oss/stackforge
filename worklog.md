@@ -59,3 +59,23 @@ Stage Summary:
 - Toggle button in navbar on both desktop and mobile
 - All components use CSS variables so they adapt automatically
 - ESLint clean, zero browser errors, both themes verified
+
+---
+Task ID: 4
+Agent: main
+Task: Add premium, subtle motion system to entire StackForge website
+
+Work Log:
+- Defined motion system tokens in globals.css: core easing cubic-bezier(0.22,1,0.36,1), reveal 0.6s, stagger 100ms
+- Created CSS utility classes: .card-hover (translateY -4px, 0.3s ease, border orange tint), .btn-primary (darken bg, scale 1.02, 0.25s), .btn-secondary (subtle bg fill, 0.25s), .img-hover-zoom (scale 1.03, 0.5s), .link-underline (left→right, orange)
+- Replaced float keyframes: hero-float-1/2 → float-slow (6px, 6s) / float-drift (4px XY, 8s)
+- Updated useScrollReveal hook: rootMargin -40px, removed unused scrollRevealClass export
+- Standardized all 12 components: hero (5 stagger at 100ms), services, work (image scale 1.04→1.03), process (stagger 120→100ms), testimonials, cta-banner, contact, tech-stack, faq, sticky-cta, navbar
+- All buttons now use .btn-primary/.btn-secondary classes (removed 8+ inline hover style overrides)
+- Zero old cubic-bezier(0.16,1,0.3,1) references remain
+- Verified: ESLint clean, zero browser errors, both themes tested
+
+Stage Summary:
+- Entire site now uses one consistent motion language
+- All animations are transform/opacity only (GPU-composited, no jank)
+- Motion is felt, not seen — calm, precise, engineered

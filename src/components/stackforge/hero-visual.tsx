@@ -18,7 +18,7 @@ export function HeroVisual() {
       <div className="relative w-full h-full flex items-center justify-center">
         {/* Back panel — largest */}
         <div
-          className={`absolute transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`absolute transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             mounted
               ? "opacity-100 translate-y-0 translate-x-0"
               : "opacity-0 translate-y-8 translate-x-4"
@@ -55,7 +55,7 @@ export function HeroVisual() {
 
         {/* Middle panel — overlapping */}
         <div
-          className={`absolute transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] delay-150 ${
+          className={`absolute transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] delay-150 ${
             mounted
               ? "opacity-100 translate-y-0 translate-x-0"
               : "opacity-0 translate-y-6 translate-x-6"
@@ -68,7 +68,7 @@ export function HeroVisual() {
             right: "0%",
             left: "auto",
             animation: mounted
-              ? "hero-float-1 6s ease-in-out infinite"
+              ? "float-slow 6s ease-in-out infinite"
               : "none",
           }}
         >
@@ -139,7 +139,7 @@ export function HeroVisual() {
             right: "15%",
             backgroundColor: "rgba(255, 106, 0, 0.2)",
             animation: mounted
-              ? "hero-float-2 8s ease-in-out infinite"
+              ? "float-drift 8s ease-in-out infinite"
               : "none",
           }}
         />
@@ -157,7 +157,7 @@ export function HeroVisual() {
             bottom: "10%",
             left: "5%",
             animation: mounted
-              ? "hero-float-1 7s ease-in-out 1s infinite"
+              ? "float-slow 7s ease-in-out 1s infinite"
               : "none",
           }}
         >
@@ -189,7 +189,7 @@ export function HeroVisual() {
             top: "6%",
             right: "6%",
             animation: mounted
-              ? "hero-float-2 9s ease-in-out 0.5s infinite"
+              ? "float-drift 9s ease-in-out 0.5s infinite"
               : "none",
           }}
         >

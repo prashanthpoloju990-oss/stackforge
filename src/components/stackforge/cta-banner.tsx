@@ -24,8 +24,8 @@ export function CtaBanner() {
         <div
           ref={ref}
           className={cn(
-            "flex flex-col items-center text-center max-w-[640px] mx-auto transition-all duration-700 ease-out",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            "flex flex-col items-center text-center max-w-[640px] mx-auto transition-all duration-600 ease-out",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
           )}
         >
           <span className="text-[12px] text-forge-accent/50 font-medium tracking-[0.16em] uppercase mb-5 font-mono">
@@ -47,14 +47,14 @@ export function CtaBanner() {
           <div className="flex flex-col sm:flex-row items-center gap-3 mt-10">
             <a
               href="#contact"
-              className="inline-flex items-center justify-center h-11 px-8 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200 hover:bg-[#e55f00] hover:shadow-lg hover:shadow-forge-accent/10 active:scale-[0.98]"
+              className="btn-primary inline-flex items-center justify-center h-11 px-8 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
             >
               Start Your Project
             </a>
 
             <a
               href="#contact"
-              className="inline-flex items-center justify-center h-11 px-8 border border-forge-border text-forge-text-secondary text-[13px] font-medium tracking-[0.06em] uppercase rounded-lg transition-all duration-200 hover:border-forge-text-secondary/40 hover:text-forge-text active:scale-[0.98]"
+              className="btn-secondary inline-flex items-center justify-center h-11 px-8 border border-forge-border text-forge-text-secondary text-[13px] font-medium tracking-[0.06em] uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
             >
               Book a Free Call
             </a>

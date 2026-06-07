@@ -73,7 +73,7 @@ export function Navbar() {
             <ThemeToggle />
             <a
               href="#contact"
-              className="inline-flex items-center justify-center h-9 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-md transition-all duration-200 hover:bg-[#e55f00] active:scale-[0.98]"
+              className="btn-primary inline-flex items-center justify-center h-9 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-md transition-all duration-200"
             >
               Get in Touch
             </a>

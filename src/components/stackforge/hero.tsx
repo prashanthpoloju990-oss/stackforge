@@ -83,8 +83,8 @@ export function Hero() {
           <div className="flex flex-col items-start">
             {/* Eyebrow */}
             <div
-              className={`flex items-center gap-2.5 mb-7 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              className={`flex items-center gap-2.5 mb-7 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-forge-accent animate-pulse" />
@@ -95,8 +95,8 @@ export function Hero() {
 
             {/* Headline */}
             <h1
-              className={`text-[34px] sm:text-[42px] md:text-[54px] lg:text-[60px] font-extrabold leading-[1.04] tracking-[-0.035em] text-forge-text font-syne transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] delay-75 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              className={`text-[34px] sm:text-[42px] md:text-[54px] lg:text-[60px] font-extrabold leading-[1.04] tracking-[-0.035em] text-forge-text font-syne transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-100 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
               We ship websites
@@ -108,8 +108,8 @@ export function Hero() {
 
             {/* Subline */}
             <p
-              className={`mt-5 text-[16px] md:text-[17px] text-forge-text-secondary/80 leading-[1.75] max-w-[440px] transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] delay-150 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              className={`mt-5 text-[16px] md:text-[17px] text-forge-text-secondary/80 leading-[1.75] max-w-[440px] transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-200 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
               React &amp; Next.js specialists. We build fast, scalable, SEO-ready
@@ -118,20 +118,20 @@ export function Hero() {
 
             {/* CTA Buttons */}
             <div
-              className={`flex flex-col sm:flex-row items-start gap-3 mt-9 md:mt-10 transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] delay-225 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              className={`flex flex-col sm:flex-row items-start gap-3 mt-9 md:mt-10 transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-300 ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center h-11 px-7 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200 hover:bg-[#e55f00] hover:shadow-lg hover:shadow-forge-accent/10 active:scale-[0.98]"
+                className="btn-primary inline-flex items-center justify-center h-11 px-7 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
               >
                 Start a Project
               </a>
 
               <a
                 href="#work"
-                className="inline-flex items-center justify-center h-11 px-7 border border-forge-border text-forge-text-secondary text-[13px] font-medium tracking-[0.06em] uppercase rounded-lg transition-all duration-200 hover:border-forge-text-secondary/40 hover:text-forge-text active:scale-[0.98]"
+                className="btn-secondary inline-flex items-center justify-center h-11 px-7 border border-forge-border text-forge-text-secondary text-[13px] font-medium tracking-[0.06em] uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
               >
                 See Our Work
               </a>
@@ -139,8 +139,8 @@ export function Hero() {
 
             {/* Trust indicators */}
             <div
-              className={`flex items-center gap-5 sm:gap-7 mt-11 transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] delay-300 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              className={`flex items-center gap-5 sm:gap-7 mt-11 transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-[400ms] ${
+                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
               <CounterStat value={50} suffix="+" label="Projects Delivered" />
