@@ -51,7 +51,7 @@ export function Process() {
           <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[550px] font-playfair">
             Simple process.
             <br />
-            <span className="font-curvy text-forge-accent/70 text-[0.88em]"> Serious results.</span>
+            <span className="text-forge-accent/70"> Serious results.</span>
           </h2>
         </div>
 

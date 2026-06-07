@@ -88,7 +88,7 @@ export function Hero() {
               }`}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-forge-accent animate-pulse" />
-              <span className="text-[13px] text-forge-text-secondary/70 font-medium tracking-[0.14em] uppercase font-curvy">
+              <span className="text-[13px] text-forge-text-secondary/70 font-medium tracking-[0.14em] uppercase font-mono">
                 Web Dev Studio · Hyderabad
               </span>
             </div>

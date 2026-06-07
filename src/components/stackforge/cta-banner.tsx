@@ -28,7 +28,7 @@ export function CtaBanner() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
         >
-          <span className="text-[12px] text-forge-accent/50 font-medium tracking-[0.16em] uppercase mb-5 font-curvy">
+          <span className="text-[12px] text-forge-accent/50 font-medium tracking-[0.16em] uppercase mb-5 font-mono">
             Ready?
           </span>
 
@@ -36,7 +36,7 @@ export function CtaBanner() {
             Your next website should
             <br className="hidden sm:block" />
             {" "}
-            <span className="font-curvy text-forge-accent/80 text-[0.88em]">actually work.</span>
+            <span className="text-forge-accent/80">actually work.</span>
           </h2>
 
           <p className="mt-5 text-[16px] text-forge-text-secondary/60 leading-[1.7] max-w-[480px]">

@@ -69,7 +69,7 @@ export function Work() {
             <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[500px] font-playfair">
               Results, not just
               <br className="hidden md:block" />
-              <span className="font-curvy text-forge-accent/70 text-[0.88em]"> pretty screens.</span>
+              <span className="text-forge-accent/70"> pretty screens.</span>
             </h2>
           </div>
           <p className="text-[15px] text-forge-text-secondary/60 leading-relaxed max-w-[360px] md:text-right">

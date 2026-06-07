@@ -81,7 +81,7 @@ export function Services() {
           <h2 className="text-[30px] md:text-[42px] lg:text-[48px] font-bold leading-[1.06] tracking-[-0.035em] text-forge-text max-w-[550px] font-playfair">
             Structured for every
             <br className="hidden md:block" />
-            <span className="font-curvy text-forge-accent/70 text-[0.88em]"> stage of growth.</span>
+            <span className="text-forge-accent/70"> stage of growth.</span>
           </h2>
         </div>
 
@@ -112,7 +112,7 @@ export function Services() {
                     </h3>
                   </div>
 
-                  <p className="text-[15px] text-forge-accent/50 font-curvy text-[14px] mb-3">
+                  <p className="text-[13px] text-forge-text-secondary/40 tracking-[0.04em] mb-3">
                     {service.tagline}
                   </p>
 
