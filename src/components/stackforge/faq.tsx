@@ -56,10 +56,10 @@ export function FAQ() {
       >
         {/* Centered Header */}
         <div className="text-center mb-12 md:mb-16">
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
+          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-mono">
             FAQ
           </span>
-          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text">
+          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text font-playfair">
             Common Questions
           </h2>
         </div>

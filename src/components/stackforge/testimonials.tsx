@@ -46,10 +46,10 @@ export function Testimonials() {
               : "opacity-0 translate-y-6"
           )}
         >
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
+          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-dancing">
             Testimonials
           </span>
-          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text">
+          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text font-playfair">
             What Clients Say
           </h2>
           <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed max-w-[480px] mx-auto">
@@ -77,12 +77,12 @@ export function Testimonials() {
               }}
             >
               {/* Large Quote Mark */}
-              <span className="text-forge-accent/20 text-5xl leading-none font-serif block select-none">
+              <span className="text-forge-accent/20 text-6xl leading-none font-dancing block select-none">
                 &ldquo;
               </span>
 
               {/* Quote Text */}
-              <p className="mt-3 text-[15px] md:text-[16px] text-forge-text-secondary leading-[1.7]">
+              <p className="mt-3 text-[15px] md:text-[16px] text-forge-text-secondary leading-[1.7] italic">
                 {testimonial.quote}
               </p>
 

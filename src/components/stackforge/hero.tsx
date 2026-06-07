@@ -83,14 +83,14 @@ export function Hero() {
               }`}
             >
               <span className="w-2 h-2 rounded-full bg-forge-accent" />
-              <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase">
+              <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase font-dancing">
                 Web Development Studio — Hyderabad
               </span>
             </div>
 
             {/* Headline */}
             <h1
-              className={`text-[32px] sm:text-[40px] md:text-[52px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.03em] text-forge-text transition-all duration-700 ease-out delay-100 ${
+              className={`text-[32px] sm:text-[40px] md:text-[52px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.03em] text-forge-text font-syne transition-all duration-700 ease-out delay-100 ${
                 mounted
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-6"
@@ -111,9 +111,7 @@ export function Hero() {
                   : "opacity-0 translate-y-6"
               }`}
             >
-              We design and build fast, scalable websites using React,
-              Next.js, and modern tooling — so you can focus on growing
-              your business.
+              We engineer conversion-focused websites for startups, agencies, and SaaS brands — built with React and Next.js for speed, scale, and SEO.
             </p>
 
             {/* CTA Buttons */}

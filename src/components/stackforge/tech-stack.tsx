@@ -33,10 +33,10 @@ export function TechStack() {
       >
         {/* Section Header */}
         <div className="mb-10 md:mb-12">
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
+          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-mono">
             Tech Stack
           </span>
-          <h2 className="text-[32px] md:text-[44px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text">
+          <h2 className="text-[32px] md:text-[44px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text font-syne">
             Tools We Work With
           </h2>
         </div>
@@ -53,7 +53,7 @@ export function TechStack() {
                 key={`${tech}-${index}`}
                 className="flex items-center shrink-0"
               >
-                <span className="text-forge-text-secondary/40 text-[14px] font-medium tracking-wide uppercase whitespace-nowrap px-6 md:px-8">
+                <span className="text-forge-text-secondary/40 text-[14px] font-medium tracking-wide uppercase whitespace-nowrap px-6 md:px-8 font-mono">
                   {tech}
                 </span>
                 {/* Separator dot */}

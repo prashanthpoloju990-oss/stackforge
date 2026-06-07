@@ -27,7 +27,7 @@ export function Footer() {
             >
               <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" />
             </a>
-            <p className="mt-4 text-[14px] text-forge-text-secondary/70 leading-relaxed max-w-[260px]">
+            <p className="mt-4 text-[14px] text-forge-text-secondary/70 leading-relaxed max-w-[260px] font-dancing text-[15px]">
               We Build. You Grow.
             </p>
             <p className="mt-2 text-[13px] text-forge-text-secondary/40 leading-relaxed max-w-[280px]">
@@ -40,7 +40,7 @@ export function Footer() {
           <div className="grid grid-cols-3 gap-8 sm:gap-10">
             {/* Column 1: Navigation */}
             <div className="flex flex-col gap-3">
-              <span className="text-[12px] sm:text-[13px] text-forge-text font-medium tracking-[0.1em] uppercase">
+              <span className="text-[12px] sm:text-[13px] text-forge-text font-medium tracking-[0.1em] uppercase font-mono">
                 Navigation
               </span>
               {navLinks.map((link) => (
@@ -56,7 +56,7 @@ export function Footer() {
 
             {/* Column 2: Services */}
             <div className="flex flex-col gap-3">
-              <span className="text-[12px] sm:text-[13px] text-forge-text font-medium tracking-[0.1em] uppercase">
+              <span className="text-[12px] sm:text-[13px] text-forge-text font-medium tracking-[0.1em] uppercase font-mono">
                 Services
               </span>
               {serviceLinks.map((link) => (
@@ -72,7 +72,7 @@ export function Footer() {
 
             {/* Column 3: Contact */}
             <div className="flex flex-col gap-3">
-              <span className="text-[12px] sm:text-[13px] text-forge-text font-medium tracking-[0.1em] uppercase">
+              <span className="text-[12px] sm:text-[13px] text-forge-text font-medium tracking-[0.1em] uppercase font-mono">
                 Contact
               </span>
               <a

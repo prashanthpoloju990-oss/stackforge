@@ -66,10 +66,10 @@ export function Services() {
             headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
+          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-mono">
             Services
           </span>
-          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text max-w-[700px]">
+          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text max-w-[700px] font-playfair">
             What We Build
           </h2>
           <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed max-w-[560px]">
@@ -101,7 +101,7 @@ export function Services() {
                     <div className="w-8 h-0.5 bg-forge-accent/60 mb-5" />
                   )}
 
-                  <h3 className="text-[22px] md:text-[26px] font-semibold text-forge-text tracking-[-0.02em]">
+                  <h3 className="text-[22px] md:text-[26px] font-semibold text-forge-text tracking-[-0.02em] font-syne">
                     {service.title}
                   </h3>
 
@@ -112,7 +112,7 @@ export function Services() {
                   <div className="mt-6">
                     <span
                       className={cn(
-                        "text-[15px] font-semibold tracking-tight",
+                        "text-[15px] font-semibold tracking-tight font-mono",
                         service.highlighted
                           ? "text-forge-accent"
                           : "text-forge-text"

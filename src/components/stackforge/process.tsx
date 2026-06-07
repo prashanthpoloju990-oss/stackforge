@@ -44,10 +44,10 @@ export function Process() {
             headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}
         >
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
+          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4 font-dancing">
             Process
           </span>
-          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text mx-auto max-w-[600px]">
+          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text mx-auto max-w-[600px] font-playfair">
             How We Work
           </h2>
           <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed mx-auto max-w-[480px]">
@@ -76,14 +76,14 @@ export function Process() {
               >
                 {/* Step number circle — desktop */}
                 <div className="hidden lg:flex items-center justify-center w-[76px] h-[76px] rounded-full border-2 border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/40 group">
-                  <span className="text-[24px] font-bold text-forge-text tracking-tight transition-colors duration-300 group-hover:text-forge-accent">
+                  <span className="text-[24px] font-bold text-forge-text tracking-tight transition-colors duration-300 group-hover:text-forge-accent font-syne">
                     {step.number}
                   </span>
                 </div>
 
                 {/* Step number circle — mobile */}
                 <div className="lg:hidden flex items-center justify-center w-[40px] h-[40px] rounded-full border-2 border-forge-divider bg-forge-bg relative z-10 flex-shrink-0 mb-4">
-                  <span className="text-[15px] font-bold text-forge-text tracking-tight">
+                  <span className="text-[15px] font-bold text-forge-text tracking-tight font-syne">
                     {step.number}
                   </span>
                 </div>
@@ -93,7 +93,7 @@ export function Process() {
                   {/* Mobile: left-aligned text */}
                   <div className="lg:text-center flex lg:flex-col flex-row items-start lg:items-center gap-4 lg:gap-0 pl-14 lg:pl-0">
                     <div>
-                      <h3 className="text-[18px] md:text-[20px] font-semibold text-forge-text tracking-[-0.01em]">
+                      <h3 className="text-[18px] md:text-[20px] font-semibold text-forge-text tracking-[-0.01em] font-syne">
                         {step.title}
                       </h3>
                       <p className="mt-2 text-[14px] md:text-[15px] text-forge-text-secondary leading-relaxed lg:max-w-[220px]">

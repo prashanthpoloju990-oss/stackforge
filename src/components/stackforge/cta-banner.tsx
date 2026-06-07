@@ -22,7 +22,7 @@ export function CtaBanner() {
           )}
         >
           {/* Headline */}
-          <h2 className="text-[28px] sm:text-[34px] md:text-[44px] lg:text-[48px] font-bold leading-[1.1] tracking-[-0.03em] text-forge-text">
+          <h2 className="text-[28px] sm:text-[34px] md:text-[44px] lg:text-[48px] font-bold leading-[1.1] tracking-[-0.03em] text-forge-text font-playfair">
             Ready to Build Something
             <br className="hidden sm:block" />
             {" "}
