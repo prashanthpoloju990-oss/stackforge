@@ -1,62 +1,159 @@
-export function Services() {
-  const services = [
-    {
-      number: "01",
-      title: "Web Development",
-      description:
-        "Full-stack applications built with modern frameworks and scalable architecture patterns.",
-    },
-    {
-      number: "02",
-      title: "Design Systems",
-      description:
-        "Component libraries and design tokens that ensure visual consistency across every touchpoint.",
-    },
-    {
-      number: "03",
-      title: "Performance",
-      description:
-        "Optimization and core web vitals tuning for lightning-fast user experiences at any scale.",
-    },
-    {
-      number: "04",
-      title: "Infrastructure",
-      description:
-        "Cloud architecture, CI/CD pipelines, and deployment strategies for reliable production systems.",
-    },
-  ];
+import { cn } from "@/lib/utils";
 
+const services = [
+  {
+    title: "Launch Kit",
+    description:
+      "A fast, clean, and modern website designed to get your business online with confidence.",
+    price: "₹20K – ₹60K",
+    features: [
+      "1–5 Page Website",
+      "Responsive Design",
+      "Clean UI/UX",
+      "Fast Performance",
+      "Basic SEO Setup",
+    ],
+    cta: "Get Started",
+    highlighted: false,
+  },
+  {
+    title: "Growth System",
+    description:
+      "A scalable website with powerful features designed to support growing businesses.",
+    price: "₹80K – ₹2L",
+    features: [
+      "Custom UI/UX Design",
+      "Backend Integration",
+      "CMS / Dashboard",
+      "API Integrations",
+      "Performance Optimization",
+    ],
+    cta: "Start Project",
+    highlighted: true,
+  },
+  {
+    title: "Forge Elite",
+    description:
+      "End-to-end product development for brands that demand precision and performance.",
+    price: "₹2L+",
+    features: [
+      "Full Product Development",
+      "Strategy + Design + Development",
+      "Advanced Features",
+      "Long-Term Support",
+      "Priority Delivery",
+    ],
+    cta: "Work With Us",
+    highlighted: false,
+  },
+];
+
+export function Services() {
   return (
-    <section id="services" className="py-24 md:py-32 lg:py-40">
+    <section id="services" className="py-24 md:py-32 lg:py-[120px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
-        {/* Section Label */}
-        <div className="flex items-center gap-3 mb-6">
-          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.1em] uppercase">
+        {/* Section Header */}
+        <div className="mb-16 md:mb-24">
+          <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
             Services
           </span>
+          <h2 className="text-[32px] md:text-[44px] lg:text-[52px] font-bold leading-[1.08] tracking-[-0.03em] text-forge-text max-w-[700px]">
+            What We Build
+          </h2>
+          <p className="mt-4 text-[16px] md:text-[17px] text-forge-text-secondary leading-relaxed max-w-[560px]">
+            Structured solutions designed for different stages of business
+            growth.
+          </p>
         </div>
 
-        <h2 className="text-[32px] md:text-[48px] lg:text-[56px] font-bold leading-[1.05] tracking-[-0.03em] text-forge-text max-w-[700px] mb-16 md:mb-24">
-          What we do best
-        </h2>
-
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-forge-divider">
+        {/* Service Blocks */}
+        <div className="flex flex-col gap-8">
           {services.map((service) => (
-            <div
-              key={service.number}
-              className="bg-forge-bg p-8 md:p-10 lg:p-12 group"
+            <a
+              key={service.title}
+              href="#contact"
+              className={cn(
+                "group block rounded-xl border bg-forge-surface p-6 sm:p-8 md:p-10 transition-all duration-300",
+                service.highlighted
+                  ? "border-forge-accent/30 hover:border-forge-accent/50 hover:-translate-y-1"
+                  : "border-forge-divider hover:border-forge-border hover:-translate-y-1"
+              )}
             >
-              <span className="text-[13px] text-forge-text-secondary font-mono tracking-wider">
-                {service.number}
-              </span>
-              <h3 className="mt-3 text-[20px] md:text-[24px] font-semibold text-forge-text tracking-[-0.02em]">
-                {service.title}
-              </h3>
-              <p className="mt-3 text-[15px] text-forge-text-secondary leading-relaxed max-w-[320px]">
-                {service.description}
-              </p>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+                {/* Left Column — Info */}
+                <div className="flex flex-col">
+                  {/* Accent line for highlighted block */}
+                  {service.highlighted && (
+                    <div className="w-8 h-0.5 bg-forge-accent/60 mb-5" />
+                  )}
+
+                  <h3 className="text-[22px] md:text-[26px] font-semibold text-forge-text tracking-[-0.02em]">
+                    {service.title}
+                  </h3>
+
+                  <p className="mt-3 text-[15px] md:text-[16px] text-forge-text-secondary leading-[1.65] max-w-[400px]">
+                    {service.description}
+                  </p>
+
+                  <div className="mt-6">
+                    <span
+                      className={cn(
+                        "text-[15px] font-semibold tracking-tight",
+                        service.highlighted
+                          ? "text-forge-accent"
+                          : "text-forge-text"
+                      )}
+                    >
+                      {service.price}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Column — Features */}
+                <div className="flex flex-col">
+                  <ul className="space-y-3">
+                    {service.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="flex items-center gap-3 text-[15px] text-forge-text-secondary"
+                      >
+                        <span
+                          className={cn(
+                            "w-1 h-1 rounded-full flex-shrink-0",
+                            service.highlighted
+                              ? "bg-forge-accent/60"
+                              : "bg-forge-divider"
+                          )}
+                        />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA Link */}
+                  <div className="mt-8">
+                    <span className="inline-flex items-center gap-2 text-[14px] font-medium text-forge-text-secondary tracking-wide transition-colors duration-200 group-hover:text-forge-text">
+                      {service.cta}
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                        className="transition-transform duration-200 group-hover:translate-x-1"
+                      >
+                        <path
+                          d="M1 7H13M13 7L8 2M13 7L8 12"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </a>
           ))}
         </div>
       </div>
