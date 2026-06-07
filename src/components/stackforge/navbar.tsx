@@ -72,7 +72,7 @@ export function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-forge-text"
+            className="md:hidden flex flex-col items-center justify-center w-11 h-11 gap-[5px] text-forge-text -mr-2"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
           >
             <span
@@ -106,13 +106,13 @@ export function Navbar() {
             : "opacity-0 pointer-events-none"
         )}
       >
-        <div className="flex flex-col items-center justify-center gap-8 pt-16">
+        <div className="flex flex-col items-center justify-center gap-8 pt-12 sm:pt-16">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="relative text-[16px] text-forge-text-secondary font-medium tracking-widest uppercase transition-colors duration-200 hover:text-forge-text group"
+              className="relative text-[16px] text-forge-text-secondary font-medium tracking-widest uppercase transition-colors duration-200 hover:text-forge-text group py-2"
             >
               {link.label}
               <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-px bg-forge-accent w-0 transition-all duration-300 group-hover:w-6" />

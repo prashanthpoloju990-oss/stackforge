@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const services = [
   {
@@ -49,11 +52,20 @@ const services = [
 ];
 
 export function Services() {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
+  const { ref: blocksRef, isVisible: blocksVisible } = useScrollReveal({ threshold: 0.05 });
+
   return (
     <section id="services" className="py-24 md:py-32 lg:py-[120px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* Section Header */}
-        <div className="mb-16 md:mb-24">
+        <div
+          ref={headerRef}
+          className={cn(
+            "mb-16 md:mb-24 transition-all duration-700 ease-out",
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          )}
+        >
           <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
             Services
           </span>
@@ -67,17 +79,19 @@ export function Services() {
         </div>
 
         {/* Service Blocks */}
-        <div className="flex flex-col gap-8">
-          {services.map((service) => (
+        <div ref={blocksRef} className="flex flex-col gap-8">
+          {services.map((service, index) => (
             <a
               key={service.title}
               href="#contact"
               className={cn(
-                "group block rounded-xl border bg-forge-surface p-6 sm:p-8 md:p-10 transition-all duration-300",
+                "group block rounded-xl border bg-forge-surface p-6 sm:p-8 md:p-10 transition-all duration-700 ease-out",
+                blocksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6",
                 service.highlighted
                   ? "border-forge-accent/30 hover:border-forge-accent/50 hover:-translate-y-1"
                   : "border-forge-divider hover:border-forge-border hover:-translate-y-1"
               )}
+              style={{ transitionDelay: blocksVisible ? `${index * 100}ms` : "0ms" }}
             >
               <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] lg:grid-cols-2 gap-8 lg:gap-16 items-start">
                 {/* Left Column — Info */}

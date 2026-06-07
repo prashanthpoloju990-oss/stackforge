@@ -97,35 +97,35 @@ export function Hero() {
 
             {/* Trust indicators */}
             <div
-              className={`flex items-center gap-6 mt-10 transition-all duration-700 ease-out delay-[350ms] ${
+              className={`flex items-center gap-4 sm:gap-6 mt-10 transition-all duration-700 ease-out delay-[350ms] ${
                 mounted
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-4"
               }`}
             >
               <div className="flex flex-col">
-                <span className="text-[22px] font-bold text-forge-text tracking-tight">
+                <span className="text-[20px] sm:text-[22px] font-bold text-forge-text tracking-tight">
                   50+
                 </span>
-                <span className="text-[12px] text-forge-text-secondary/60 tracking-wide">
+                <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/60 tracking-wide">
                   Projects Shipped
                 </span>
               </div>
-              <div className="w-px h-10 bg-forge-divider" />
+              <div className="w-px h-8 sm:h-10 bg-forge-divider" />
               <div className="flex flex-col">
-                <span className="text-[22px] font-bold text-forge-text tracking-tight">
+                <span className="text-[20px] sm:text-[22px] font-bold text-forge-text tracking-tight">
                   99.9%
                 </span>
-                <span className="text-[12px] text-forge-text-secondary/60 tracking-wide">
+                <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/60 tracking-wide">
                   Uptime SLA
                 </span>
               </div>
-              <div className="w-px h-10 bg-forge-divider" />
+              <div className="w-px h-8 sm:h-10 bg-forge-divider" />
               <div className="flex flex-col">
-                <span className="text-[22px] font-bold text-forge-text tracking-tight">
+                <span className="text-[20px] sm:text-[22px] font-bold text-forge-text tracking-tight">
                   24h
                 </span>
-                <span className="text-[12px] text-forge-text-secondary/60 tracking-wide">
+                <span className="text-[11px] sm:text-[12px] text-forge-text-secondary/60 tracking-wide">
                   Response Time
                 </span>
               </div>

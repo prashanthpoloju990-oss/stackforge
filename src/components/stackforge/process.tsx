@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const steps = [
   {
@@ -29,18 +30,20 @@ const steps = [
 ];
 
 export function Process() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
+  const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal({ threshold: 0.05 });
 
   return (
     <section id="process" className="py-24 md:py-32 lg:py-[120px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* Section Header — Center Aligned */}
-        <div className="text-center mb-16 md:mb-24">
+        <div
+          ref={headerRef}
+          className={cn(
+            "text-center mb-16 md:mb-24 transition-all duration-700 ease-out",
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          )}
+        >
           <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
             Process
           </span>
@@ -54,7 +57,7 @@ export function Process() {
         </div>
 
         {/* Steps — Horizontal Flow */}
-        <div className="relative">
+        <div ref={stepsRef} className="relative">
           {/* Connecting line — desktop only */}
           <div className="hidden lg:block absolute top-[38px] left-[12.5%] right-[12.5%] h-px bg-forge-divider" />
 
@@ -65,12 +68,11 @@ export function Process() {
             {steps.map((step, index) => (
               <div
                 key={step.number}
-                className={`relative flex flex-col items-center text-center transition-all duration-700 ease-out ${
-                  mounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-6"
-                }`}
-                style={{ transitionDelay: `${index * 120}ms` }}
+                className={cn(
+                  "relative flex flex-col items-center text-center transition-all duration-700 ease-out",
+                  stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+                )}
+                style={{ transitionDelay: stepsVisible ? `${index * 150}ms` : "0ms" }}
               >
                 {/* Step number circle — desktop */}
                 <div className="hidden lg:flex items-center justify-center w-[76px] h-[76px] rounded-full border-2 border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/40 group">

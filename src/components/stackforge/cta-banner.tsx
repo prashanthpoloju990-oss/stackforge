@@ -1,4 +1,11 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+
 export function CtaBanner() {
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.15 });
+
   return (
     <section className="relative py-24 md:py-32 lg:py-[140px] bg-[#0A0A0A]">
       {/* Subtle top edge line */}
@@ -7,7 +14,13 @@ export function CtaBanner() {
       <div className="absolute bottom-0 left-0 right-0 h-px bg-forge-divider" />
 
       <div className="mx-auto max-w-[1200px] px-6 md:px-20 relative z-10">
-        <div className="flex flex-col items-center text-center max-w-[680px] mx-auto">
+        <div
+          ref={ref}
+          className={cn(
+            "flex flex-col items-center text-center max-w-[680px] mx-auto transition-all duration-700 ease-out",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}
+        >
           {/* Headline */}
           <h2 className="text-[28px] sm:text-[34px] md:text-[44px] lg:text-[48px] font-bold leading-[1.1] tracking-[-0.03em] text-forge-text">
             Ready to Build Something

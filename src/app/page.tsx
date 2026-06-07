@@ -21,7 +21,9 @@ export default function Home() {
         <Work />
         <SectionDivider />
         <Process />
+        <SectionDivider />
         <CtaBanner />
+        <SectionDivider />
         <Contact />
       </main>
 

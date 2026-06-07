@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 
 const projects = [
   {
@@ -32,11 +36,20 @@ const projects = [
 ];
 
 export function Work() {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
+  const { ref: gridRef, isVisible: gridVisible } = useScrollReveal({ threshold: 0.05 });
+
   return (
     <section id="work" className="py-24 md:py-32 lg:py-[120px]">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 md:mb-24">
+        <div
+          ref={headerRef}
+          className={cn(
+            "flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 md:mb-24 transition-all duration-700 ease-out",
+            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+          )}
+        >
           <div>
             <span className="text-[13px] text-forge-text-secondary font-medium tracking-[0.12em] uppercase block mb-4">
               Selected Work
@@ -72,12 +85,16 @@ export function Work() {
         </div>
 
         {/* Project Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((project) => (
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {projects.map((project, index) => (
             <a
               key={project.title}
               href="#"
-              className="group block rounded-[14px] border border-forge-divider bg-forge-surface overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-forge-accent/20"
+              className={cn(
+                "group block rounded-[14px] border border-forge-divider bg-forge-surface overflow-hidden transition-all duration-500 ease-out hover:-translate-y-1 hover:border-forge-accent/20",
+                gridVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: gridVisible ? `${index * 120}ms` : "0ms" }}
             >
               {/* Image */}
               <div className="relative w-full aspect-video overflow-hidden">
