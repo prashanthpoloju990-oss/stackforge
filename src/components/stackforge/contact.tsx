@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import * as React from "react";
 import { motion } from "framer-motion";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { cn } from "@/lib/utils";
+import { ImageSlider } from "@/components/ui/image-slider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Sparkles,
   Globe,
@@ -17,7 +19,6 @@ import {
   SendIcon,
   ShieldCheck,
   HelpCircle,
-  ChevronUpIcon,
 } from "lucide-react";
 
 /* ── Types ── */
@@ -54,6 +55,13 @@ const QUICK_SERVICES = [
   { label: "UI/UX Design", icon: Palette, value: "UI/UX Design" },
 ];
 
+const IMAGES = [
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900&auto=format&fit=crop&q=60",
+  "https://images.unsplash.com/photo-1504051771394-dd2e66b2e08f?w=900&auto=format&fit=crop&q=60",
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&auto=format&fit=crop&q=60",
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&auto=format&fit=crop&q=60",
+];
+
 /* ── Helpers ── */
 function isEmailLike(str: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
@@ -62,99 +70,63 @@ function isWhatsAppLike(str: string) {
   return /^\+?\d[\d\s-]{6,}$/.test(str.replace(/\s/g, ""));
 }
 
-/* ══════════════════════════════════════════════════
-   Floating Paths — exact AuthPage implementation
-   ══════════════════════════════════════════════════ */
-function FloatingPaths({ position }: { position: number }) {
-  const paths = Array.from({ length: 36 }, (_, i) => ({
-    id: i,
-    d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${
-      380 - i * 5 * position
-    } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${
-      152 - i * 5 * position
-    } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${
-      684 - i * 5 * position
-    } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
-    color: `rgba(15,23,42,${0.1 + i * 0.03})`,
-    width: 0.5 + i * 0.03,
-  }));
+/* ── Framer variants (exact from demo) ── */
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
 
-  return (
-    <div className="pointer-events-none absolute inset-0">
-      <svg
-        className="h-full w-full text-slate-950 dark:text-white"
-        viewBox="0 0 696 316"
-        fill="none"
-      >
-        <title>Background Paths</title>
-        {paths.map((path) => (
-          <motion.path
-            key={path.id}
-            d={path.d}
-            stroke="currentColor"
-            strokeWidth={path.width}
-            strokeOpacity={0.1 + path.id * 0.03}
-            initial={{ pathLength: 0.3, opacity: 0.6 }}
-            animate={{
-              pathLength: 1,
-              opacity: [0.3, 0.6, 0.3],
-              pathOffset: [0, 1, 0],
-            }}
-            transition={{
-              duration: 20 + Math.random() * 10,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-/* ── Separator ── */
-const ForgeSeparator = () => {
-  return (
-    <div className="flex w-full items-center justify-center">
-      <div className="bg-border h-px w-full" />
-      <span className="text-muted-foreground px-2 text-xs">OR</span>
-      <div className="bg-border h-px w-full" />
-    </div>
-  );
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 12,
+    },
+  },
 };
 
 /* ══════════════════════════════════════════════════
-   Main Contact Component
+   Main Contact Component — ImageSlider Login Demo layout
    ══════════════════════════════════════════════════ */
 export function Contact() {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.05 });
-  const nameRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState<FormData>(INITIAL_FORM);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const nameRef = React.useRef<HTMLInputElement>(null);
+  const [form, setForm] = React.useState<FormData>(INITIAL_FORM);
+  const [errors, setErrors] = React.useState<FormErrors>({});
+  const [touched, setTouched] = React.useState<Record<string, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSuccess, setIsSuccess] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isVisible && nameRef.current && !isSuccess) {
       const t = setTimeout(() => nameRef.current?.focus(), 600);
       return () => clearTimeout(t);
     }
   }, [isVisible, isSuccess]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (submitError) {
       const t = setTimeout(() => setSubmitError(null), 6000);
       return () => clearTimeout(t);
     }
   }, [submitError]);
 
-  const isValid = useMemo(() => {
+  const isValid = React.useMemo(() => {
     return form.name.trim().length >= 2 && form.contact.trim().length >= 5;
   }, [form.name, form.contact]);
 
-  const validate = useCallback((): FormErrors => {
+  const validate = React.useCallback((): FormErrors => {
     const e: FormErrors = {};
     if (!form.name.trim()) e.name = "Please enter your name";
     else if (form.name.trim().length < 2) e.name = "Name must be at least 2 characters";
@@ -230,124 +202,92 @@ export function Contact() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[30px]"
         )}
       >
-        {/* ═══════════════════════════════════════════
-            EXACT AuthPage structure — split 2-col layout
-            ═══════════════════════════════════════════ */}
-        <main className="relative md:h-screen md:overflow-hidden lg:grid lg:grid-cols-2">
-          {/* ── LEFT PANEL (decorative) ── */}
-          <div className="bg-muted/60 relative hidden h-full flex-col border-r p-10 lg:flex">
-            <div className="from-background absolute inset-0 z-10 bg-gradient-to-t to-transparent" />
-
-            {/* Brand */}
-            <div className="z-10 flex items-center gap-2">
-              <Sparkles className="size-6" />
-              <p className="text-xl font-semibold">StackForge</p>
+        {/* ═══════════════════════════════════════════════
+            EXACT ImageSlider Login Demo layout
+            Container: full-width, min-h-screen, centered
+            Card: max-w-5xl, h-[700px], 2-col grid, rounded-2xl
+            ═══════════════════════════════════════════════ */}
+        <div className="w-full min-h-screen min-h-[700px] flex items-center justify-center bg-background p-4">
+          <motion.div
+            className="w-full max-w-5xl h-[700px] grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          >
+            {/* ── LEFT: Image Slider ── */}
+            <div className="hidden lg:block">
+              <ImageSlider images={IMAGES} interval={4000} />
             </div>
 
-            {/* Testimonial */}
-            <div className="z-10 mt-auto">
-              <blockquote className="space-y-2">
-                <p className="text-xl font-playfair">
-                  &ldquo;StackForge delivered our site in 3 days. The quality
-                  blew our expectations — best decision we made.&rdquo;
-                </p>
-                <footer className="font-mono text-sm font-semibold">
-                  ~ Priya Sharma, Hyderabad
-                </footer>
-              </blockquote>
-            </div>
-
-            {/* Floating Paths */}
-            <div className="absolute inset-0">
-              <FloatingPaths position={1} />
-              <FloatingPaths position={-1} />
-            </div>
-          </div>
-
-          {/* ── RIGHT PANEL (form) ── */}
-          <div className="relative flex min-h-screen flex-col justify-center p-4">
-            {/* Radial gradient glow decorations — exact AuthPage values */}
-            <div
-              aria-hidden
-              className="absolute inset-0 isolate contain-strict -z-10 opacity-60"
-            >
-              <div className="bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,--theme(--color-foreground/.06)_0,hsla(0,0%,55%,.02)_50%,--theme(--color-foreground/.01)_80%)] absolute top-0 right-0 h-[320px] w-[560px] -translate-y-[350px] rounded-full" />
-              <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 right-0 h-[320px] w-60 [translate:5%_-50%] rounded-full" />
-              <div className="bg-[radial-gradient(50%_50%_at_50%_50%,--theme(--color-foreground/.04)_0,--theme(--color-foreground/.01)_80%,transparent_100%)] absolute top-0 right-0 h-[320px] w-60 -translate-y-[350px] rounded-full" />
-            </div>
-
-            {/* Back to top — exact AuthPage ghost button */}
-            <Button variant="ghost" className="absolute top-7 left-5" asChild>
-              <button
-                type="button"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            {/* ── RIGHT: Form ── */}
+            <div className="w-full h-full bg-card text-card-foreground flex flex-col items-center justify-center p-8 md:p-12">
+              <motion.div
+                className="w-full max-w-sm"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
               >
-                <ChevronUpIcon className="size-4 me-2" />
-                Home
-              </button>
-            </Button>
-
-            {/* Form container — sm:w-sm like AuthPage */}
-            <div className="mx-auto space-y-4 sm:w-sm">
-              {/* Mobile brand */}
-              <div className="flex items-center gap-2 lg:hidden">
-                <Sparkles className="size-6" />
-                <p className="text-xl font-semibold">StackForge</p>
-              </div>
-
-              {/* Heading — mirrors AuthPage "Sign In or Join Now!" */}
-              <div className="flex flex-col space-y-1">
-                <h1 className="text-fluid-hero font-bold font-playfair tracking-wide">
+                {/* Heading — mirrors "Welcome Back" */}
+                <motion.h1 variants={itemVariants} className="text-fluid-h1 font-bold tracking-tight mb-2 font-playfair">
                   Start Your Project
-                </h1>
-                <p className="text-muted-foreground text-base">
+                </motion.h1>
+                <motion.p variants={itemVariants} className="text-muted-foreground text-base mb-8">
                   Tell us what you need — we&apos;ll get it done.
-                </p>
-              </div>
+                </motion.p>
 
-              {isSuccess ? (
-                <SuccessState />
-              ) : (
-                <>
-                  {/* Quick service buttons — mirrors Google/Apple/GitHub stacked */}
-                  <div className="space-y-2">
-                    {QUICK_SERVICES.map((service) => (
-                      <Button
-                        key={service.value}
-                        type="button"
-                        size="lg"
-                        className={cn(
-                          "w-full justify-start",
-                          form.serviceNeed === service.value &&
-                            "bg-primary text-primary-foreground hover:bg-primary/90"
-                        )}
-                        onClick={() => handleQuickService(service.value)}
-                      >
-                        <service.icon className="size-4 me-2" />
-                        {service.label}
-                      </Button>
-                    ))}
+                {/* Quick service buttons — mirrors Google/Apple row */}
+                <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  {QUICK_SERVICES.map((service) => (
+                    <Button
+                      key={service.value}
+                      type="button"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-center",
+                        form.serviceNeed === service.value &&
+                          "bg-primary text-primary-foreground hover:bg-primary/90 border-primary"
+                      )}
+                      onClick={() => handleQuickService(service.value)}
+                    >
+                      <service.icon className="mr-2 h-4 w-4" />
+                      {service.label}
+                    </Button>
+                  ))}
+                </motion.div>
+
+                {/* OR separator — exact from demo */}
+                <motion.div variants={itemVariants} className="relative mb-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
                   </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      Or fill in your details
+                    </span>
+                  </div>
+                </motion.div>
 
-                  <ForgeSeparator />
-
-                  {/* Form — mirrors AuthPage email section */}
-                  <form onSubmit={handleSubmit} noValidate className="space-y-2">
-                    <p className="text-muted-foreground text-start text-xs">
-                      Enter your details to get a free consultation
-                    </p>
-
-                    {/* Name field */}
+                {/* Form — mirrors email + password fields */}
+                <motion.form
+                  variants={itemVariants}
+                  className="space-y-6"
+                  onSubmit={handleSubmit}
+                  noValidate
+                >
+                  {/* Name field */}
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
                     <div className="relative h-max">
                       <Input
                         ref={nameRef}
-                        placeholder="Your full name"
-                        className="peer ps-9"
+                        id="name"
                         type="text"
+                        placeholder="John Doe"
+                        autoComplete="name"
                         value={form.name}
                         onChange={(e) => handleChange("name", e.target.value)}
                         onBlur={() => handleBlur("name")}
-                        autoComplete="name"
+                        className="peer ps-9"
                       />
                       <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
                         <UserIcon className="size-4" aria-hidden="true" />
@@ -358,17 +298,26 @@ export function Contact() {
                         </p>
                       )}
                     </div>
+                  </div>
 
-                    {/* Contact field */}
+                  {/* Contact field */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="contactEmail">Email / WhatsApp</Label>
+                      <span className="text-xs text-muted-foreground">
+                        We&apos;ll reply in 12h
+                      </span>
+                    </div>
                     <div className="relative h-max">
                       <Input
-                        placeholder="Email or WhatsApp number"
-                        className="peer ps-9"
+                        id="contactEmail"
                         type="text"
+                        placeholder="Email or WhatsApp number"
+                        autoComplete="email"
                         value={form.contact}
                         onChange={(e) => handleChange("contact", e.target.value)}
                         onBlur={() => handleBlur("contact")}
-                        autoComplete="email"
+                        className="peer ps-9"
                       />
                       <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
                         <AtSignIcon className="size-4" aria-hidden="true" />
@@ -379,100 +328,56 @@ export function Contact() {
                         </p>
                       )}
                     </div>
+                  </div>
 
-                    {/* Submit button — mirrors "Continue With Email" */}
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      size="lg"
-                      disabled={!isValid || isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <span className="flex items-center gap-2">
-                          <svg
-                            className="size-4 animate-spin"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="3"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
-                          Sending...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <SendIcon className="size-4" />
-                          Get Free Consultation
-                        </span>
-                      )}
-                    </Button>
-                  </form>
+                  {/* Submit — mirrors "Log In" button */}
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    size="lg"
+                    disabled={!isValid || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <svg
+                          className="size-4 animate-spin"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Sending...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <SendIcon className="size-4" />
+                        Get Free Consultation
+                      </span>
+                    )}
+                  </Button>
+                </motion.form>
 
-                  {/* Trust — mirrors Terms text */}
-                  <p className="text-muted-foreground mt-8 flex items-center gap-2 text-sm">
-                    <ShieldCheck className="size-3.5 flex-shrink-0" />
-                    No spam. We&apos;ll contact you within 12 hours.
-                  </p>
+                {/* Trust — mirrors "Don't have an account?" */}
+                <motion.p variants={itemVariants} className="text-center text-sm text-muted-foreground mt-8 flex items-center justify-center gap-1.5">
+                  <ShieldCheck className="size-3.5" />
+                  No spam. We&apos;ll contact you within 12 hours.
+                </motion.p>
 
-                  {/* Error */}
-                  {submitError && (
-                    <div className="flex items-start gap-2.5 rounded-lg border border-red-500/10 bg-red-500/5 p-3">
-                      <HelpCircle className="mt-0.5 size-4 flex-shrink-0 text-red-400/70" />
-                      <p className="text-[13px] leading-relaxed text-red-400/80">
-                        {submitError}
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
+                {/* Error */}
+                {submitError && (
+                  <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-red-500/10 bg-red-500/5 p-3">
+                    <HelpCircle className="mt-0.5 size-4 flex-shrink-0 text-red-400/70" />
+                    <p className="text-[13px] leading-relaxed text-red-400/80">
+                      {submitError}
+                    </p>
+                  </div>
+                )}
+              </motion.div>
             </div>
-          </div>
-        </main>
-      </div>
-    </section>
-  );
-}
-
-/* ── Success State ── */
-function SuccessState() {
-  return (
-    <div className="animate-success-enter py-8 text-center sm:py-12">
-      <div className="mb-8 flex justify-center">
-        <div className="relative h-20 w-20">
-          <div className="animate-check-circle absolute inset-0 rounded-full border border-forge-accent/20 bg-forge-accent/10" />
-          <svg
-            className="absolute inset-0 h-20 w-20"
-            viewBox="0 0 80 80"
-            fill="none"
-          >
-            <path
-              className="animate-check-draw"
-              d="M24 42 L35 53 L56 28"
-              stroke="var(--forge-accent)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          </motion.div>
         </div>
       </div>
-      <h3 className="text-fluid-hero font-bold font-playfair">
-        You&apos;re in.
-      </h3>
-      <p className="text-muted-foreground mx-auto mt-4 max-w-[340px]">
-        We&apos;ll reach out within 12 hours to discuss your project.
-      </p>
-    </div>
+    </section>
   );
 }

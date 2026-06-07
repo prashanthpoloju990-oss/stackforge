@@ -381,3 +381,116 @@ Stage Summary:
 - Mobile: left panel correctly hidden, mobile branding visible, single-column stack
 - Zero console errors on both viewports
 - One minor UX note: name validation error pre-visible on mobile (non-blocking)
+
+---
+Task ID: 13
+Agent: browser-verify
+Task: Browser verify redesigned contact form (ImageSlider Login Demo layout)
+
+Work Log:
+- Read worklog.md (tasks 1–12) to understand full project history
+- Read contact.tsx source (383 lines) — confirmed ImageSlider Login Demo layout with 2-col grid, ImageSlider left, form right, 2×2 service buttons, OR separator, shadcn fields
+- Read image-slider.tsx source (71 lines) — confirmed AnimatePresence crossfade, auto-sliding via setInterval, dot indicators with click navigation
+- Launched agent-browser, set viewport 1440×900 (desktop)
+- Navigated to http://localhost:3000/#contact, scrolled to section
+- Took desktop screenshot: /home/z/my-project/contact-slider-desktop-1440.png
+- Ran accessibility tree snapshot + comprehensive JavaScript DOM verification queries
+- Verified auto-sliding animation: monitored slide transitions over ~11 seconds, confirmed all 4 slides cycle (Slide 1 → 2 → 3 → 4) at ~4s interval
+- Checked browser console: zero errors
+- Switched to 375×812 (iPhone X) viewport for mobile testing
+- Took mobile screenshot: /home/z/my-project/contact-slider-mobile-375.png
+- Ran same verification queries at mobile width
+- Checked browser console on mobile: zero errors
+
+Desktop Verification Results (1440×900):
+
+1. ✅ Overall layout — centered card:
+   - Card found with classes: "w-full max-w-5xl h-[700px] grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border"
+   - Max-width: 1024px (max-w-5xl), Height: 700px, Border-radius: 16px (rounded-2xl)
+   - Box-shadow: shadow-2xl applied, Border: 1px solid rgb(38,38,38)
+   - 2-column grid confirmed: gridTemplateCols "511px 511px"
+
+2. ✅ LEFT column — ImageSlider (desktop only):
+   - Left col found with class "hidden lg:block", display:block on desktop
+   - ImageSlider renders with 1 visible img (AnimatePresence crossfade), absolute positioned, object-cover
+   - Images confirmed from 4 Unsplash URLs (photo-1524504, photo-1504051, photo-1460925, photo-1498050)
+   - Auto-sliding animation verified: all 4 slides cycle (Slide 1 → 2 → 3 → 4) in ~11 seconds (~4s interval)
+   - 4 dot indicator buttons found with aria-labels "Go to slide 1–4"
+
+3. ✅ RIGHT column — heading and subtitle:
+   - Heading: "Start Your Project" with classes "text-fluid-h1 font-bold tracking-tight mb-2 font-playfair"
+   - Font-family confirmed as "Playfair Display" via getComputedStyle
+   - Subtitle: "Tell us what you need — we'll get it done." with classes "text-muted-foreground text-base mb-8"
+   - Right panel bg: rgb(10,10,10) dark theme, text: rgb(234,234,234)
+
+4. ✅ 4 quick-service buttons in 2×2 grid:
+   - All 4 buttons confirmed: "New Website", "Website Redesign", "Landing Page", "UI/UX Design"
+   - All have icons (hasIcon: true, Lucide SVG)
+   - All use shadcn outline variant (hasOutline: true)
+   - All full-width (w-full: true)
+   - Grid container: "grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"
+   - Desktop gridTemplateCols: "184px 184px" (2 equal columns)
+
+5. ✅ "Or fill in your details" separator:
+   - Found with classes "bg-card px-2 text-muted-foreground"
+   - Container: "relative mb-6" with absolute line "w-full border-t" centered behind text
+   - Correctly uses border-t on each side with centered text on bg-card background
+
+6. ✅ Form fields using shadcn Input + Label:
+   - "Full Name" input: id="name", placeholder="John Doe", type="text", autoComplete="name", ps-9 class, UserIcon prefix SVG present
+   - "Email / WhatsApp" input: id="contactEmail", placeholder="Email or WhatsApp number", type="text", autoComplete="email", ps-9 class, AtSignIcon prefix SVG present
+   - Both use shadcn Input: "flex h-9 w-full min-w-0 rounded-md border bg-transparent..." with focus-visible:ring-ring/50
+   - Labels use shadcn Label: "text-sm font-medium leading-none" with correct htmlFor attributes
+
+7. ✅ Submit button "Get Free Consultation":
+   - Found with SendIcon SVG present
+   - shadcn Button classes: "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all..."
+   - Full-width confirmed (w-full)
+   - Disabled when form invalid (disabled: true on empty form)
+   - Spinning loader SVG present for submitting state
+
+8. ✅ Trust text with ShieldCheck icon:
+   - Text: "No spam. We'll contact you within 12 hours."
+   - Classes: "text-center text-sm text-muted-foreground mt-8 flex items-center justify-center gap-1.5"
+   - ShieldCheck icon SVG present (hasIcon: true)
+
+9. ✅ Mobile (375px):
+   - ImageSlider hidden: leftCol display:none (hidden lg:block class)
+   - Grid collapses to single column: gridTemplateCols "341px"
+   - Service button grid: single column, gridTemplateCols "277px"
+   - All elements present and visible: h1, subtitle, 4 service buttons, OR separator, 2 inputs, submit button, trust text
+   - No console errors on mobile
+
+10. ✅ Framer-motion stagger animation:
+    - containerVariants: staggerChildren 0.15, delayChildren 0.2
+    - itemVariants: y:20→0, opacity:0→1, spring (stiffness:100, damping:12)
+    - Card level: opacity 0→1, scale 0.95→1, 0.5s easeOut
+    - Verified via inline styles: "opacity: 1; transform: none;" on animated elements (final state after animation completes)
+
+11. ✅ Colors — StackForge orange theme:
+    - --forge-accent confirmed: #ff6a00
+    - Submit button backgroundColor: rgb(255, 106, 0) = #FF6A00
+    - Submit button color (text): rgb(255, 255, 255) white
+    - Active service button state: bg-primary text-primary-foreground (same orange + white)
+
+Issues Found:
+- ⚠️ No issues found. All 10 requirements verified successfully.
+- Zero console errors on both viewports.
+- All images loading from Unsplash.
+- Auto-sliding animation working correctly with 4s interval.
+- No duplicate ID issues.
+- No broken layout or visual problems.
+
+Screenshots saved:
+- Desktop (1440×900): /home/z/my-project/contact-slider-desktop-1440.png
+- Mobile (375×812): /home/z/my-project/contact-slider-mobile-375.png
+
+Stage Summary:
+- All 10 requirement categories verified ✅
+- Centered card (max-w-5xl, 700px, rounded-2xl, shadow-2xl, border) with 2-col grid on desktop
+- LEFT column: ImageSlider with 4 Unsplash images, auto-sliding (4s), dot indicators
+- RIGHT column: Playfair "Start Your Project" heading, subtitle, 2×2 service grid, OR separator, shadcn form fields with icon prefixes, shadcn submit button, ShieldCheck trust text
+- Framer-motion stagger animation (spring, 0.15s stagger) working correctly
+- Orange theme (#FF6A00) for primary buttons and active states
+- Mobile (375px): ImageSlider hidden, single column, all elements visible
+- Zero console errors, zero visual bugs, zero missing elements
