@@ -2,12 +2,20 @@
 
 import { cn } from "@/lib/utils";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import { AnimatedShaderBackground } from "@/components/ui/animated-shader-background";
 
 export function CtaBanner() {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.15 });
 
   return (
     <section className="relative py-24 md:py-32 lg:py-[130px] overflow-hidden">
+      {/* Shader aurora background */}
+      <AnimatedShaderBackground
+        className="absolute inset-0"
+        opacity={0.15}
+        mixBlendMode="screen"
+      />
+
       {/* Background gradient */}
       <div
         className="absolute inset-0 pointer-events-none"

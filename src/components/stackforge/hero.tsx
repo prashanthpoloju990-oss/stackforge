@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { HeroVisual } from "./hero-visual";
+import { AnimatedShaderBackground } from "@/components/ui/animated-shader-background";
 
 function useCountUp(end: number, duration: number = 2000, startOnMount: boolean = true) {
   const [count, setCount] = useState(0);
@@ -68,12 +69,19 @@ export function Hero() {
       id="home"
       className="relative flex items-center justify-center min-h-[92dvh] pt-16 md:pt-[72px] overflow-hidden"
     >
-      {/* Ambient gradient */}
+      {/* Shader aurora background */}
+      <AnimatedShaderBackground
+        className="absolute inset-0"
+        opacity={0.3}
+        mixBlendMode="screen"
+      />
+
+      {/* Ambient gradient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 106, 0, 0.025) 0%, transparent 70%)",
+            "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 106, 0, 0.03) 0%, transparent 70%)",
         }}
       />
 

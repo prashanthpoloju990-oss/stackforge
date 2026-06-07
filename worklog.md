@@ -102,3 +102,26 @@ Stage Summary:
 - Full API backend with database storage
 - Success state with animated checkmark
 - Tested end-to-end: form fill → submit → DB insert → success display
+
+---
+Task ID: 6
+Agent: main
+Task: Integrate animated shader background (aurora) into StackForge landing page
+
+Work Log:
+- Installed three@0.184.0 and @types/three@0.184.1
+- Created /components/ui/animated-shader-background.tsx: GPU-driven aurora shader via Three.js
+- Improved original component: container-aware (ResizeObserver instead of window dimensions), IntersectionObserver pauses animation when offscreen, respects prefers-reduced-motion, capped pixelRatio at 1.5 for performance, low-power GPU preference
+- Props: opacity (default 0.35), className, mixBlendMode (default "screen")
+- Added @keyframes float (generic 10px) to globals.css alongside existing float-slow/float-drift
+- Integrated into Hero.tsx: absolute inset-0 behind content, opacity 0.3, screen blend mode
+- Integrated into CtaBanner.tsx: absolute inset-0 behind content, opacity 0.15, screen blend mode
+- Removed unused lucide-react imports from original (Infinity, Rocket, Shield, Brain, Play, ChevronDown)
+- Fixed ESLint react-hooks/immutability error (recursive useCallback → plain function inside useEffect)
+- Verified: 2 canvases rendering (hero + CTA), zero browser errors, desktop + mobile, ESLint clean
+
+Stage Summary:
+- Stunning aurora shader background on hero and CTA sections
+- Performance optimized: pauses offscreen, reduced-motion safe, low power GPU
+- Subtle opacity + screen blend keeps content readable while adding premium atmosphere
+- Fully responsive on mobile and desktop
