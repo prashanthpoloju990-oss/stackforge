@@ -36,7 +36,7 @@ export function StickyCta() {
       <button
         onClick={handleClick}
         className={cn(
-          "inline-flex items-center gap-2 h-10 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-full shadow-lg shadow-black/50 transition-all duration-200 cursor-pointer font-syne",
+          "inline-flex items-center gap-2 h-10 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-full shadow-lg transition-all duration-200 cursor-pointer font-syne",
           "hover:bg-[#e55f00] hover:scale-[1.03] hover:shadow-forge-accent/15",
           "active:scale-[0.97]"
         )}

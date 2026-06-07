@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "./theme-toggle";
 
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
@@ -67,20 +68,25 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Desktop CTA */}
-          <a
-            href="#contact"
-            className="hidden md:inline-flex items-center justify-center h-9 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-md transition-all duration-200 hover:bg-[#e55f00] active:scale-[0.98]"
-          >
-            Get in Touch
-          </a>
+          {/* Desktop: CTA + Theme Toggle */}
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center h-9 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-md transition-all duration-200 hover:bg-[#e55f00] active:scale-[0.98]"
+            >
+              Get in Touch
+            </a>
+          </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-forge-text -mr-1"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          >
+          {/* Mobile: Theme Toggle + Hamburger */}
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-forge-text -mr-1"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            >
             <span
               className={cn(
                 "block w-[18px] h-[1.5px] bg-current transition-all duration-300 origin-center",
@@ -100,6 +106,7 @@ export function Navbar() {
               )}
             />
           </button>
+          </div>
         </nav>
       </div>
 

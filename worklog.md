@@ -26,3 +26,36 @@ Stage Summary:
 - Zero browser errors
 - Site loads correctly on desktop and mobile viewports
 - Key improvements: tighter copy, varied section layouts, removed template-y elements (star ratings), added grain texture, better hover states, featured testimonial layout
+
+---
+Task ID: 2
+Agent: main
+Task: Reduce font-curvy usage + add rounded testimonial avatars
+
+Work Log:
+- Reduced font-curvy from 13 uses to 2 (hero h1 "that convert." + footer "We build. You grow.")
+- Replaced initials circles with AI-generated headshot avatars for 3 testimonials
+- Generated avatars: /public/avatars/arjun.jpg, priya.jpg, rahul.jpg
+
+Stage Summary:
+- Curvy font now used sparingly — only 2 deliberate accents
+- Professional avatar images replace generic initials circles
+
+---
+Task ID: 3
+Agent: main
+Task: Add dark/light theme toggle
+
+Work Log:
+- Restructured globals.css: moved dark colors under `.dark` selector, added light theme under `:root`
+- Made all CSS variables theme-aware via `var(--forge-*)` pattern in @theme inline
+- Updated static CSS (scrollbar, selection, hero-dots, section-rule, card-hover, grain-overlay) to use CSS variables
+- Created ThemeToggle component with sun/moon icons using `useSyncExternalStore` for mount detection (lint-safe)
+- Added toggle to navbar: desktop (between nav links and CTA) and mobile (next to hamburger)
+- Fixed hardcoded `shadow-black` references in hero-visual and sticky-cta for theme compatibility
+
+Stage Summary:
+- Full dark/light theme system working
+- Toggle button in navbar on both desktop and mobile
+- All components use CSS variables so they adapt automatically
+- ESLint clean, zero browser errors, both themes verified

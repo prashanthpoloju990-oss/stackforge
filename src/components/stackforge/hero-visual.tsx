@@ -72,7 +72,7 @@ export function HeroVisual() {
               : "none",
           }}
         >
-          <div className="w-full h-full rounded-xl border border-forge-border/40 bg-forge-bg/70 backdrop-blur-sm p-4 shadow-2xl shadow-black/20">
+          <div className="w-full h-full rounded-xl border border-forge-border/40 bg-forge-bg/70 backdrop-blur-sm p-4 shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">

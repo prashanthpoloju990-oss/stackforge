@@ -43,17 +43,67 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* StackForge Custom Colors */
-  --color-forge-bg: #000000;
-  --color-forge-surface: #0A0A0A;
-  --color-forge-text: #EAEAEA;
-  --color-forge-text-secondary: #9CA3AF;
-  --color-forge-accent: #FF6A00;
-  --color-forge-divider: #1A1A1A;
-  --color-forge-border: #262626;
+  --color-forge-bg: var(--forge-bg);
+  --color-forge-surface: var(--forge-surface);
+  --color-forge-text: var(--forge-text);
+  --color-forge-text-secondary: var(--forge-text-secondary);
+  --color-forge-accent: var(--forge-accent);
+  --color-forge-divider: var(--forge-divider);
+  --color-forge-border: var(--forge-border);
 }
 
+/* ── LIGHT THEME (default :root) ── */
 :root {
   --radius: 0.625rem;
+  --forge-bg: #FFFFFF;
+  --forge-surface: #F5F5F7;
+  --forge-text: #1A1A1A;
+  --forge-text-secondary: #6B7280;
+  --forge-accent: #FF6A00;
+  --forge-divider: #E5E7EB;
+  --forge-border: #D1D5DB;
+  --background: #FFFFFF;
+  --foreground: #1A1A1A;
+  --card: #F5F5F7;
+  --card-foreground: #1A1A1A;
+  --popover: #F5F5F7;
+  --popover-foreground: #1A1A1A;
+  --primary: #FF6A00;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5F5F7;
+  --secondary-foreground: #1A1A1A;
+  --muted: #F5F5F7;
+  --muted-foreground: #6B7280;
+  --accent: #FF6A00;
+  --accent-foreground: #FFFFFF;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #D1D5DB;
+  --input: #D1D5DB;
+  --ring: #FF6A00;
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: #F5F5F7;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #FF6A00;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F5F5F7;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: #D1D5DB;
+  --sidebar-ring: #FF6A00;
+}
+
+/* ── DARK THEME ── */
+.dark {
+  --forge-bg: #000000;
+  --forge-surface: #0A0A0A;
+  --forge-text: #EAEAEA;
+  --forge-text-secondary: #9CA3AF;
+  --forge-accent: #FF6A00;
+  --forge-divider: #1A1A1A;
+  --forge-border: #262626;
   --background: #000000;
   --foreground: #EAEAEA;
   --card: #0A0A0A;
@@ -68,15 +118,9 @@
   --muted-foreground: #9CA3AF;
   --accent: #FF6A00;
   --accent-foreground: #FFFFFF;
-  --destructive: oklch(0.577 0.245 27.325);
   --border: #262626;
   --input: #262626;
   --ring: #FF6A00;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
   --sidebar: #0A0A0A;
   --sidebar-foreground: #EAEAEA;
   --sidebar-primary: #FF6A00;
@@ -115,10 +159,14 @@
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.025;
+  opacity: 0.02;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 128px 128px;
+}
+
+.dark .grain-overlay {
+  opacity: 0.025;
 }
 
 /* Custom scrollbar */
@@ -131,23 +179,23 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1A1A1A;
+  background: var(--forge-divider);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #333333;
+  background: var(--forge-text-secondary);
 }
 
 /* Selection color */
 ::selection {
-  background: rgba(255, 106, 0, 0.15);
-  color: #EAEAEA;
+  background: rgba(255, 106, 0, 0.12);
+  color: var(--forge-text);
 }
 
 /* Hero dot grid pattern */
 .hero-dots {
-  background-image: radial-gradient(circle, #9CA3AF 0.8px, transparent 0.8px);
+  background-image: radial-gradient(circle, var(--forge-text-secondary) 0.8px, transparent 0.8px);
   background-size: 20px 20px;
   opacity: 0.06;
 }
@@ -196,12 +244,6 @@
   animation: marquee-scroll 35s linear infinite;
 }
 
-/* Smooth reveal animation — used by useScrollReveal */
-@keyframes reveal-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
 /* Subtle glow for accent elements */
 .accent-glow {
   box-shadow: 0 0 20px rgba(255, 106, 0, 0.08), 0 0 60px rgba(255, 106, 0, 0.04);
@@ -221,7 +263,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: #1A1A1A;
+  background: var(--forge-divider);
 }
 
 .section-rule::after {
@@ -232,7 +274,7 @@
   transform: translate(-50%, -50%);
   width: 40px;
   height: 1px;
-  background: rgba(255, 106, 0, 0.3);
+  background: rgba(255, 106, 0, 0.25);
 }
 
 /* Card hover lift */
@@ -244,6 +286,9 @@
 
 .card-hover:hover {
   transform: translateY(-2px);
+}
+
+.dark .card-hover:hover {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
