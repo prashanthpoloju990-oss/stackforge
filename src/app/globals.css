@@ -43,47 +43,47 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* StackForge Custom Colors */
-  --color-forge-bg: #0F1115;
-  --color-forge-surface: #1A1D23;
+  --color-forge-bg: #000000;
+  --color-forge-surface: #0D0D0D;
   --color-forge-text: #EAEAEA;
   --color-forge-text-secondary: #9CA3AF;
   --color-forge-accent: #FF6A00;
-  --color-forge-divider: #22262E;
-  --color-forge-border: #2A2E37;
+  --color-forge-divider: #1A1A1A;
+  --color-forge-border: #262626;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: #0F1115;
+  --background: #000000;
   --foreground: #EAEAEA;
-  --card: #1A1D23;
+  --card: #0D0D0D;
   --card-foreground: #EAEAEA;
-  --popover: #1A1D23;
+  --popover: #0D0D0D;
   --popover-foreground: #EAEAEA;
   --primary: #FF6A00;
   --primary-foreground: #FFFFFF;
-  --secondary: #1A1D23;
+  --secondary: #0D0D0D;
   --secondary-foreground: #EAEAEA;
-  --muted: #1A1D23;
+  --muted: #0D0D0D;
   --muted-foreground: #9CA3AF;
   --accent: #FF6A00;
   --accent-foreground: #FFFFFF;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #2A2E37;
-  --input: #2A2E37;
+  --border: #262626;
+  --input: #262626;
   --ring: #FF6A00;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: #1A1D23;
+  --sidebar: #0D0D0D;
   --sidebar-foreground: #EAEAEA;
   --sidebar-primary: #FF6A00;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #1A1D23;
+  --sidebar-accent: #0D0D0D;
   --sidebar-accent-foreground: #EAEAEA;
-  --sidebar-border: #2A2E37;
+  --sidebar-border: #262626;
   --sidebar-ring: #FF6A00;
 }
 
@@ -107,16 +107,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0F1115;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A2E37;
+  background: #1A1A1A;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3A3E47;
+  background: #333333;
 }
 
 /* Selection color */

@@ -98,7 +98,7 @@ export function HeroVisual() {
                       backgroundColor:
                         i === 7
                           ? "rgba(255, 106, 0, 0.35)"
-                          : "rgba(34, 38, 46, 0.7)",
+                          : "rgba(26, 26, 26, 0.7)",
                     }}
                   />
                 )

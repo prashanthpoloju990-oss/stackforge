@@ -1,6 +1,6 @@
 export function CtaBanner() {
   return (
-    <section className="relative py-24 md:py-32 lg:py-[140px] bg-[#12151A]">
+    <section className="relative py-24 md:py-32 lg:py-[140px] bg-[#0A0A0A]">
       {/* Subtle top edge line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-forge-divider" />
       {/* Subtle bottom edge line */}
