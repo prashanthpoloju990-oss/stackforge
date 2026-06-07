@@ -233,7 +233,7 @@ export function Contact() {
             <div>
               <label
                 htmlFor="name"
-                className="block text-[11px] text-forge-text-secondary/50 font-medium tracking-[0.08em] uppercase mb-2 pl-1"
+                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
               >
                 Full Name
               </label>
@@ -262,7 +262,7 @@ export function Contact() {
             <div>
               <label
                 htmlFor="contact"
-                className="block text-[11px] text-forge-text-secondary/50 font-medium tracking-[0.08em] uppercase mb-2 pl-1"
+                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
               >
                 Contact
               </label>
@@ -290,7 +290,7 @@ export function Contact() {
             <div>
               <label
                 htmlFor="businessType"
-                className="block text-[11px] text-forge-text-secondary/50 font-medium tracking-[0.08em] uppercase mb-2 pl-1"
+                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
               >
                 Business Type
               </label>
@@ -308,7 +308,7 @@ export function Contact() {
             <div>
               <label
                 htmlFor="serviceNeed"
-                className="block text-[11px] text-forge-text-secondary/50 font-medium tracking-[0.08em] uppercase mb-2 pl-1"
+                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
               >
                 What do you need?
               </label>
@@ -326,7 +326,7 @@ export function Contact() {
             <div>
               <label
                 htmlFor="budget"
-                className="block text-[11px] text-forge-text-secondary/50 font-medium tracking-[0.08em] uppercase mb-2 pl-1"
+                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
               >
                 Budget Range
               </label>
@@ -344,7 +344,7 @@ export function Contact() {
             <div>
               <label
                 htmlFor="timeline"
-                className="block text-[11px] text-forge-text-secondary/50 font-medium tracking-[0.08em] uppercase mb-2 pl-1"
+                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
               >
                 Timeline
               </label>
@@ -362,7 +362,7 @@ export function Contact() {
             <div>
               <label
                 htmlFor="details"
-                className="block text-[11px] text-forge-text-secondary/50 font-medium tracking-[0.08em] uppercase mb-2 pl-1"
+                className="block text-fluid-label-sm text-forge-text-secondary/50 font-medium uppercase mb-2 pl-1"
               >
                 Project Details{" "}
                 <span className="text-forge-text-secondary/30 normal-case tracking-normal font-normal">
@@ -385,7 +385,7 @@ export function Contact() {
                 type="submit"
                 disabled={!isValid || isSubmitting}
                 className={cn(
-                  "btn-primary w-full h-[52px] rounded-xl text-[14px] font-semibold tracking-[0.04em] uppercase transition-all duration-[250ms]",
+                  "btn-primary w-full h-fluid-btn-lg rounded-xl text-fluid-btn font-semibold uppercase transition-all duration-[250ms]",
                   isValid
                     ? "bg-forge-accent text-white cursor-pointer hover:bg-[#e55f00]"
                     : "bg-forge-accent/30 text-white/40 cursor-not-allowed"

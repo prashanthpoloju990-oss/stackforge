@@ -170,3 +170,42 @@ Stage Summary:
 - 44 typography replacements across 12 components
 - Each fluid class bundles size + line-height + letter-spacing for consistency
 - Responsive text now scales buttery-smooth from 375px to 1440px+
+
+---
+Task ID: 8
+Agent: main
+Task: Extend liquid fluid display to buttons, forms, and interactive elements
+
+Work Log:
+- Added 8 fluid button/control classes to globals.css:
+  - text-fluid-btn: 11.5px → 13px (button text + letter-spacing)
+  - h-fluid-btn: 40px → 48px (primary CTA height)
+  - h-fluid-btn-sm: 36px → 40px (nav/sticky CTA height)
+  - h-fluid-btn-lg: 48px → 56px (form submit button height)
+  - px-fluid-btn: 20px → 32px (medium button padding)
+  - px-fluid-btn-lg: 24px → 40px (large button padding)
+  - text-fluid-input: 13px → 14.5px (input text)
+  - h-fluid-input: 44px → 52px (input height)
+  - px-fluid-input: 12px → 16px (input padding)
+  - text-fluid-label-sm: 10px → 12px (form labels + letter-spacing)
+- Updated .form-input CSS: fluid height, fluid padding, fluid font-size, fluid border-radius
+- Updated .form-textarea CSS: fluid min-height, fluid padding
+- Updated .form-select CSS: fluid padding-right, fluid chevron position
+- Updated 8 buttons across 5 files:
+  - hero.tsx: 2 buttons (h-11→h-fluid-btn, px-7→px-fluid-btn, text-[13px]→text-fluid-btn)
+  - cta-banner.tsx: 2 buttons (h-11→h-fluid-btn, px-8→px-fluid-btn-lg)
+  - navbar.tsx: 2 buttons (h-9→h-fluid-btn-sm, h-11→h-fluid-btn)
+  - sticky-cta.tsx: 1 button (h-10→h-fluid-btn-sm)
+  - contact.tsx: 1 button (h-[52px]→h-fluid-btn-lg, text-[14px]→text-fluid-btn)
+- Updated 7 form labels in contact.tsx (text-[11px]→text-fluid-label-sm)
+- Verified across 3 viewports:
+  - 375px: btn 11.8px, h 40.7px, input 13px, input-h 44.7px, label 10px ✓
+  - 768px: btn 13px, h 45.6px, input 13.9px, input-h 49.6px, label 11.8px ✓
+  - 1440px: btn 13px, h 48px, input 14.5px, input-h 52px, label 12px ✓
+- ESLint clean, zero browser errors
+
+Stage Summary:
+- All buttons, form inputs, form labels now scale fluidly
+- 15 total replacements: 8 buttons + 7 form labels
+- CSS-level fluid sizing for .form-input, .form-textarea, .form-select
+- Complete liquid experience: text, buttons, forms, inputs all scale smoothly

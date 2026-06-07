@@ -55,14 +55,14 @@ export function CtaBanner() {
           <div className="flex flex-col sm:flex-row items-center gap-3 mt-10">
             <a
               href="#contact"
-              className="btn-primary inline-flex items-center justify-center h-11 px-8 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
+              className="btn-primary inline-flex items-center justify-center h-fluid-btn px-fluid-btn-lg bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
             >
               Start Your Project
             </a>
 
             <a
               href="#contact"
-              className="btn-secondary inline-flex items-center justify-center h-11 px-8 border border-forge-border text-forge-text-secondary text-[13px] font-medium tracking-[0.06em] uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
+              className="btn-secondary inline-flex items-center justify-center h-fluid-btn px-fluid-btn-lg border border-forge-border text-forge-text-secondary text-fluid-btn font-medium uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
             >
               Book a Free Call
             </a>

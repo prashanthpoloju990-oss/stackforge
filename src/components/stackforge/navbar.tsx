@@ -73,7 +73,7 @@ export function Navbar() {
             <ThemeToggle />
             <a
               href="#contact"
-              className="btn-primary inline-flex items-center justify-center h-9 px-5 bg-forge-accent text-white text-[12px] font-semibold tracking-[0.06em] uppercase rounded-md transition-all duration-200"
+              className="btn-primary inline-flex items-center justify-center h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-md transition-all duration-200"
             >
               Get in Touch
             </a>
@@ -133,7 +133,7 @@ export function Navbar() {
           <a
             href="#contact"
             onClick={() => setMobileOpen(false)}
-            className="mt-4 inline-flex items-center justify-center h-11 px-7 bg-forge-accent text-white text-[13px] font-semibold tracking-[0.06em] uppercase rounded-lg"
+            className="mt-4 inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg"
           >
             Start a Project
           </a>
