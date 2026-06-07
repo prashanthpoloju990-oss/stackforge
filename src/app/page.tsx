@@ -4,6 +4,7 @@ import { SectionDivider } from "@/components/stackforge/section-divider";
 import { Services } from "@/components/stackforge/services";
 import { Work } from "@/components/stackforge/work";
 import { Process } from "@/components/stackforge/process";
+import { CtaBanner } from "@/components/stackforge/cta-banner";
 import { Contact } from "@/components/stackforge/contact";
 import { Footer } from "@/components/stackforge/footer";
 
@@ -20,7 +21,7 @@ export default function Home() {
         <Work />
         <SectionDivider />
         <Process />
-        <SectionDivider />
+        <CtaBanner />
         <Contact />
       </main>
 
