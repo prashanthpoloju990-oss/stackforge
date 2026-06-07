@@ -133,43 +133,15 @@ Task: Implement liquid fluid display typography across entire site
 
 Work Log:
 - Cataloged all typography patterns across 13 component files (100+ text-[Npx] instances)
-- Defined 10-step fluid type scale in globals.css using CSS clamp():
-  - text-fluid-display: 34→60px (hero headline)
-  - text-fluid-hero: 28→50px (CTA/success headings)
-  - text-fluid-h1: 30→48px (section headings)
-  - text-fluid-h2: 18→26px (featured quotes, sub-headings)
-  - text-fluid-h3: 17→22px (card titles, step names)
-  - text-fluid-h4: 22→26px (service tier names)
-  - text-fluid-body-lg: 15→17px (descriptions)
-  - text-fluid-body: 14→15px (card text)
-  - text-fluid-label: 11→13px (eyebrows, counters)
-  - text-fluid-micro: 10→11px (tiny UI labels)
-- Each fluid class bundles font-size + line-height + letter-spacing
+- Defined 10-step fluid type scale in globals.css using CSS clamp()
 - Wrapped in @layer utilities for Tailwind v4 compatibility
-- Updated all 13 components via parallel agents:
-  - hero.tsx: display, body-lg, h2, label, micro (6 replacements)
-  - hero-visual.tsx: micro ×7 (7 replacements)
-  - navbar.tsx: h3 for mobile menu (1 replacement)
-  - services.tsx: h1, h4, body-lg, body (4 replacements)
-  - work.tsx: h1, body-lg, h3, body, micro ×2 (6 replacements)
-  - process.tsx: h1, h3 ×2, body ×2 (4 replacements)
-  - testimonials.tsx: h1, display (decorative quote), h2, body-lg, body (6 replacements)
-  - faq.tsx: h1, body, body-lg (4 replacements)
-  - cta-banner.tsx: hero, body-lg (2 replacements)
-  - contact.tsx: hero ×2, body-lg ×2 (4 replacements)
-  - footer.tsx: micro ×4 (4 replacements)
-  - Kept fixed: buttons (12-13px), nav links (13px), form labels (11px), eyebrows (12px)
-- Verified across 3 viewport widths:
-  - 375px (mobile): all at min clamp values ✓
-  - 768px (tablet): smooth interpolation ✓ (e.g., hero h1 = 40.72px)
-  - 1440px (desktop): all at max clamp values ✓
+- Updated all 13 components with fluid typography replacements
+- Verified across 3 viewport widths: 375px, 768px, 1440px
 - ESLint clean, zero browser errors
 
 Stage Summary:
 - Entire site typography is now liquid — no breakpoint jumps, pure smooth scaling
 - 44 typography replacements across 12 components
-- Each fluid class bundles size + line-height + letter-spacing for consistency
-- Responsive text now scales buttery-smooth from 375px to 1440px+
 
 ---
 Task ID: 8
@@ -177,35 +149,43 @@ Agent: main
 Task: Extend liquid fluid display to buttons, forms, and interactive elements
 
 Work Log:
-- Added 8 fluid button/control classes to globals.css:
-  - text-fluid-btn: 11.5px → 13px (button text + letter-spacing)
-  - h-fluid-btn: 40px → 48px (primary CTA height)
-  - h-fluid-btn-sm: 36px → 40px (nav/sticky CTA height)
-  - h-fluid-btn-lg: 48px → 56px (form submit button height)
-  - px-fluid-btn: 20px → 32px (medium button padding)
-  - px-fluid-btn-lg: 24px → 40px (large button padding)
-  - text-fluid-input: 13px → 14.5px (input text)
-  - h-fluid-input: 44px → 52px (input height)
-  - px-fluid-input: 12px → 16px (input padding)
-  - text-fluid-label-sm: 10px → 12px (form labels + letter-spacing)
-- Updated .form-input CSS: fluid height, fluid padding, fluid font-size, fluid border-radius
-- Updated .form-textarea CSS: fluid min-height, fluid padding
-- Updated .form-select CSS: fluid padding-right, fluid chevron position
-- Updated 8 buttons across 5 files:
-  - hero.tsx: 2 buttons (h-11→h-fluid-btn, px-7→px-fluid-btn, text-[13px]→text-fluid-btn)
-  - cta-banner.tsx: 2 buttons (h-11→h-fluid-btn, px-8→px-fluid-btn-lg)
-  - navbar.tsx: 2 buttons (h-9→h-fluid-btn-sm, h-11→h-fluid-btn)
-  - sticky-cta.tsx: 1 button (h-10→h-fluid-btn-sm)
-  - contact.tsx: 1 button (h-[52px]→h-fluid-btn-lg, text-[14px]→text-fluid-btn)
-- Updated 7 form labels in contact.tsx (text-[11px]→text-fluid-label-sm)
-- Verified across 3 viewports:
-  - 375px: btn 11.8px, h 40.7px, input 13px, input-h 44.7px, label 10px ✓
-  - 768px: btn 13px, h 45.6px, input 13.9px, input-h 49.6px, label 11.8px ✓
-  - 1440px: btn 13px, h 48px, input 14.5px, input-h 52px, label 12px ✓
+- Added 8 fluid button/control classes to globals.css
+- Updated 8 buttons across 5 files, 7 form labels in contact.tsx
+- Verified across 3 viewports: 375px, 768px, 1440px
 - ESLint clean, zero browser errors
 
 Stage Summary:
 - All buttons, form inputs, form labels now scale fluidly
-- 15 total replacements: 8 buttons + 7 form labels
-- CSS-level fluid sizing for .form-input, .form-textarea, .form-select
 - Complete liquid experience: text, buttons, forms, inputs all scale smoothly
+
+---
+Task ID: 9
+Agent: main
+Task: Redesign pricing section with animated pricing component themed to StackForge
+
+Work Log:
+- Installed dependencies: motion, @number-flow/react, @tsparticles/slim, @tsparticles/react
+- Created /src/components/ui/sparkles.tsx — particle effects using tsparticles v4 ParticlesProvider API
+- Created /src/components/ui/vertical-cut-reveal.tsx — text reveal animation with word/character splitting
+- Created /src/components/ui/timeline-animation.tsx — scroll-triggered animation wrapper using motion/react useInView
+- Created /src/components/stackforge/pricing.tsx — full pricing section with:
+  - 3 plans: Launch Kit (₹15K), Growth Pack (₹65K), Enterprise Bag (₹150K)
+  - One-time / Retainer toggle with animated spring pill
+  - NumberFlow animated price transitions
+  - VerticalCutReveal heading animation
+  - TimelineContent scroll-reveal for all elements
+  - Sparkles particle effects with grid background
+  - Orange glow orbs
+  - Popular badge on middle card
+  - Full dark/light theme support using forge-* tokens
+  - Fluid typography throughout
+- Updated page.tsx to include Pricing section between FAQ and CtaBanner
+- Fixed tsparticles v4 SSR issue (initParticlesEngine removed in v4, replaced with ParticlesProvider)
+- Fixed lint errors in vertical-cut-reveal (useCallback deps, setState in useEffect)
+- Verified with browser: toggle works, prices animate, 3-column grid on desktop, vertical stack on mobile, both themes render correctly
+
+Stage Summary:
+- New files: sparkles.tsx, vertical-cut-reveal.tsx, timeline-animation.tsx, pricing.tsx
+- Modified files: page.tsx (added Pricing import + section)
+- Pricing section fully functional with animated toggle, price flow, scroll reveals, and particle effects
+- All lint clean, no compilation errors
