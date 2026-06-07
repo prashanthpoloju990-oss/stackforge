@@ -7,7 +7,6 @@ import { Process } from "@/components/stackforge/process";
 import { Testimonials } from "@/components/stackforge/testimonials";
 import { TechStack } from "@/components/stackforge/tech-stack";
 import { FAQ } from "@/components/stackforge/faq";
-import { Pricing } from "@/components/stackforge/pricing";
 import { CtaBanner } from "@/components/stackforge/cta-banner";
 import { Contact } from "@/components/stackforge/contact";
 import { Footer } from "@/components/stackforge/footer";
@@ -40,8 +39,6 @@ export default function Home() {
         <SectionDivider />
         <TechStack />
         <FAQ />
-        <SectionDivider />
-        <Pricing />
         <CtaBanner />
         <SectionDivider />
         <Contact />
