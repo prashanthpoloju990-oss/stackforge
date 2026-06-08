@@ -1173,3 +1173,38 @@ Stage Summary:
 - Added preload: true for Inter (critical body font)
 - Estimated reduction: ~60-90KB fewer font bytes transferred
 - ESLint clean, server compiles successfully
+
+---
+Task ID: cursor-remove-perf
+Agent: main
+Task: Remove cursor effect and optimize scroll performance for lag-free experience
+
+Work Log:
+- Verified cursor components (cursor.tsx) are dead code — no imports found anywhere in src/
+- Deleted entire animate-ui directory tree (animate-ui/components/animate/cursor.tsx + empty parent dirs)
+- Identified 6 scroll performance bottlenecks:
+  1. Grain overlay: SVG feTurbulence filter forced GPU re-rasterization every scroll frame
+  2. BorderGlow cards: pointermove handlers on 11+ cards triggered layout thrashing (no RAF throttle)
+  3. backdrop-blur-xl on navbar + 3 other elements: expensive composite during scroll
+  4. Missing will-change / contain hints on animated elements
+  5. Scroll progress bar transition too slow (100ms)
+  6. No compositor layer promotion on root
+- Generated proper 128x128 noise PNG (public/grain.png) and replaced inline SVG filter
+- Added will-change, contain: layout style to .border-glow-card
+- Added will-change: opacity to border-glow pseudo-elements
+- Rewrote BorderGlow handlePointerMove with RAF throttling (pending ref + requestAnimationFrame)
+- Added handlePointerLeave cleanup (cancel RAF)
+- Downgraded backdrop-blur-xl → backdrop-blur-md on navbar, mobile menu, cookie consent
+- Added contain-layout to navbar and sticky CTA
+- Changed sticky CTA duration-400 → duration-300
+- Added html transform: translateZ(0) for compositor layer promotion
+- Improved scroll progress bar: transition 100ms → 50ms, added willChange: width
+- Verified: lint clean, dev server clean
+
+Stage Summary:
+- Cursor dead code removed (entire animate-ui directory)
+- Grain overlay now uses pre-rendered PNG instead of live SVG filter (major GPU savings)
+- BorderGlow pointermove is RAF-throttled (eliminates layout thrashing)
+- backdrop-blur reduced from xl to md across all elements
+- CSS contain/will-change hints added for browser optimization
+- All changes verified: lint clean, no hydration errors, clean dev log

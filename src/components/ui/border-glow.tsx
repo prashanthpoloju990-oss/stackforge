@@ -131,6 +131,8 @@ export function BorderGlow({
   fillOpacity = 0.4,
 }: BorderGlowProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef(0);
+  const pendingRef = useRef({ x: 0, y: 0, hasUpdate: false });
 
   const getCenterOfElement = useCallback((el: HTMLElement) => {
     const { width, height } = el.getBoundingClientRect();
@@ -165,23 +167,46 @@ export function BorderGlow({
     [getCenterOfElement],
   );
 
+  /* ── RAF-throttled pointer move — avoids layout thrashing ── */
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       const card = cardRef.current;
       if (!card) return;
 
       const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      pendingRef.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        hasUpdate: true,
+      };
 
-      const edge = getEdgeProximity(card, x, y);
-      const angle = getCursorAngle(card, x, y);
+      if (rafRef.current) return; // already scheduled
 
-      card.style.setProperty("--edge-proximity", `${(edge * 100).toFixed(3)}`);
-      card.style.setProperty("--cursor-angle", `${angle.toFixed(3)}deg`);
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        const pending = pendingRef.current;
+        if (!pending.hasUpdate) return;
+
+        const edge = getEdgeProximity(card, pending.x, pending.y);
+        const angle = getCursorAngle(card, pending.x, pending.y);
+
+        card.style.setProperty("--edge-proximity", `${(edge * 100).toFixed(3)}`);
+        card.style.setProperty("--cursor-angle", `${angle.toFixed(3)}deg`);
+        pending.hasUpdate = false;
+      });
     },
     [getEdgeProximity, getCursorAngle],
   );
+
+  const handlePointerLeave = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = 0;
+    pendingRef.current.hasUpdate = false;
+  }, []);
+
+  useEffect(() => {
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   /* ── Intro sweep animation ── */
   useEffect(() => {
@@ -237,6 +262,7 @@ export function BorderGlow({
     <div
       ref={cardRef}
       onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       className={`border-glow-card ${className}`}
       style={{
         "--card-bg": backgroundColor,

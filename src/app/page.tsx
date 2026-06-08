@@ -40,21 +40,21 @@ export default function Home() {
         <Hero />
         <TrustStrip />
         <SectionDivider />
-        <Services />
-        <Work />
+        <div className="section-contained"><Services /></div>
+        <div className="section-contained"><Work /></div>
         <SectionDivider />
-        <Process />
-        <Testimonials />
+        <div className="section-contained"><Process /></div>
+        <div className="section-contained"><Testimonials /></div>
         <SectionDivider />
-        <About />
+        <div className="section-contained"><About /></div>
         <SectionDivider />
-        <Blog />
+        <div className="section-contained"><Blog /></div>
         <SectionDivider />
-        <TechStack />
-        <FAQ />
+        <div className="section-contained"><TechStack /></div>
+        <div className="section-contained"><FAQ /></div>
         <SectionDivider />
-        <Pricing />
-        <CtaBanner />
+        <div className="section-contained"><Pricing /></div>
+        <div className="section-contained"><CtaBanner /></div>
         <SectionDivider />
         <Contact />
       </main>

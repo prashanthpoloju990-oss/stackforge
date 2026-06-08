@@ -159,6 +159,14 @@
   }
 }
 
+/* ── SCROLL PERFORMANCE: content-visibility for below-fold sections ── */
+@supports (content-visibility: auto) {
+  .section-contained {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
+  }
+}
+
 /* ── CUSTOM FONTS ── */
 .font-syne { font-family: var(--font-syne); }
 .font-playfair { font-family: var(--font-playfair); }
@@ -321,18 +329,25 @@
    Float: 6-10s loops, ≤8px movement
    ══════════════════════════════════════════════════ */
 
-/* ── GRAIN OVERLAY ── */
+/* ── GRAIN OVERLAY ──
+   Uses a lightweight pre-generated PNG instead of an
+   inline SVG with feTurbulence filter (which forces
+   expensive GPU rasterization on every frame).
+   The 128×128 tile is tiny (~2 KB) and composited
+   once via GPU caching. */
 .grain-overlay {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9999;
-  opacity: 0.02;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  z-index: 100;
+  opacity: 0.035;
+  background-image: url("/grain.png");
   background-repeat: repeat;
   background-size: 128px 128px;
+  contain: strict;
+  will-change: auto;
 }
-.dark .grain-overlay { opacity: 0.025; }
+.dark .grain-overlay { opacity: 0.04; }
 
 /* ── SHADER BACKGROUNDS — Theme-aware blend mode ──
    Screen blend looks great on dark backgrounds but
@@ -349,6 +364,12 @@
 }
 .dark .lightfall-wrap {
   mix-blend-mode: screen !important;
+}
+
+/* ── SCROLL PERFORMANCE: promote compositor layers ── */
+html {
+  /* Promote root to its own compositor layer for smoother scrolling */
+  transform: translateZ(0);
 }
 
 /* ── SCROLLBAR ── */
@@ -399,7 +420,6 @@
 .card-hover {
   transition: transform 0.3s ease,
               border-color 0.3s ease;
-  will-change: transform;
 }
 .card-hover:hover {
   transform: translateY(-4px);
@@ -437,7 +457,6 @@
    scale 1→1.03, 0.5s ease, overflow hidden via parent */
 .img-hover-zoom {
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
 }
 .img-hover-zoom:hover,
 .group:hover .img-hover-zoom {
@@ -741,11 +760,12 @@
   position: relative;
   border-radius: var(--border-radius);
   isolation: isolate;
-  transform: translate3d(0, 0, 0.01px);
   display: grid;
   border: 1px solid rgb(255 255 255 / 15%);
   background: var(--card-bg, var(--forge-bg));
   overflow: visible;
+  contain: layout style;
+  will-change: auto;
   box-shadow:
     rgba(0, 0, 0, 0.06) 0px 1px 2px,
     rgba(0, 0, 0, 0.06) 0px 2px 4px,
@@ -763,6 +783,7 @@
   border-radius: inherit;
   transition: opacity 0.25s ease-out;
   z-index: -1;
+  will-change: opacity;
 }
 
 .border-glow-card:not(:hover):not(.sweep-active)::before,

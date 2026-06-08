@@ -1,28 +1,45 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
 const CONSENT_KEY = "cookie-consent";
 
-export function CookieConsent() {
-  // Always start undefined so server and client match (render null)
-  const [consent, setConsent] = useState<string | null | undefined>(undefined);
+/* ── External store for localStorage consent ── */
+let cachedConsent: string | null | undefined = undefined;
+const consentListeners = new Set<() => void>();
 
-  // Check localStorage only after mount — avoids hydration mismatch
-  useEffect(() => {
-    setConsent(localStorage.getItem(CONSENT_KEY));
-  }, []);
+function subscribeConsent(cb: () => void) {
+  consentListeners.add(cb);
+  return () => consentListeners.delete(cb);
+}
+
+function getConsentSnapshot(): string | null | undefined {
+  // Lazy-read from localStorage once on the client
+  if (cachedConsent === undefined) {
+    cachedConsent = localStorage.getItem(CONSENT_KEY);
+  }
+  return cachedConsent;
+}
+
+function getConsentServerSnapshot(): string | null | undefined {
+  return undefined;
+}
+
+export function CookieConsent() {
+  const consent = useSyncExternalStore(subscribeConsent, getConsentSnapshot, getConsentServerSnapshot);
 
   const accept = useCallback(() => {
     localStorage.setItem(CONSENT_KEY, "true");
-    setConsent("true");
+    cachedConsent = "true";
+    consentListeners.forEach((l) => l());
   }, []);
 
   const dismiss = useCallback(() => {
     localStorage.setItem(CONSENT_KEY, "dismissed");
-    setConsent("dismissed");
+    cachedConsent = "dismissed";
+    consentListeners.forEach((l) => l());
   }, []);
 
   // Don't render until we've checked localStorage, or if already consented/dismissed
@@ -51,7 +68,7 @@ export function CookieConsent() {
               pointer-events-auto
               flex items-center justify-between gap-4
               flex-wrap sm:flex-nowrap
-              bg-forge-surface/95 backdrop-blur-xl
+              bg-forge-surface/95 backdrop-blur-md
               border border-forge-divider
               rounded-t-lg
               px-4 py-3

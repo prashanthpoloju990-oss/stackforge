@@ -1,41 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useScrollPosition, scrollToId } from "@/hooks/use-scroll-position";
 
 export function StickyCta() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setVisible(window.scrollY > 600);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleClick = () => {
-    const el = document.getElementById("contact");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      history.replaceState(null, "", "#contact");
-    }
-  };
+  const { pastSticky: visible } = useScrollPosition();
 
   return (
     <div
       className={cn(
-        "fixed bottom-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-400 pointer-events-none pb-[max(0px,env(safe-area-inset-bottom))]",
+        "fixed bottom-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 pointer-events-none pb-[max(0px,env(safe-area-inset-bottom))] contain-layout",
         visible
           ? "opacity-100 translate-y-0 pointer-events-auto"
           : "opacity-0 translate-y-4"
       )}
     >
       <button
-        onClick={handleClick}
+        onClick={() => scrollToId("contact")}
         className={cn(
           "btn-primary inline-flex items-center gap-2 h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-full shadow-lg transition-all duration-200 cursor-pointer font-syne",
           "active:scale-[0.98]"

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import { useScrollPosition } from "@/hooks/use-scroll-position";
 
 const NAV_LINKS = [
   { label: "Home", href: "#home" },
@@ -15,16 +16,8 @@ const NAV_LINKS = [
 ];
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
+  const { scrolled } = useScrollPosition();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     if (mobileOpen) {
@@ -40,9 +33,9 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 contain-layout",
         scrolled
-          ? "bg-forge-bg/80 backdrop-blur-xl border-b border-forge-divider/60"
+          ? "bg-forge-bg/85 backdrop-blur-md border-b border-forge-divider/60"
           : "bg-transparent"
       )}
     >
@@ -114,7 +107,7 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       <div
         className={cn(
-          "md:hidden fixed inset-0 top-16 bg-forge-bg/95 backdrop-blur-xl transition-all duration-300",
+          "md:hidden fixed inset-0 top-16 bg-forge-bg/95 backdrop-blur-md transition-all duration-300",
           mobileOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"

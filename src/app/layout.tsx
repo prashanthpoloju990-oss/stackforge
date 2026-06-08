@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Syne, Playfair_Display, Dancing_Script, Great_Vibes, Space_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { SmoothScrollProvider } from "@/components/ui/smooth-scroll-provider";
-import { CursorProvider, Cursor, CursorFollow } from "@/components/animate-ui/components/animate/cursor";
 import "./globals.css";
 
 const inter = Inter({
@@ -115,11 +114,7 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <CursorProvider global={true}>
-            <Cursor />
-            <CursorFollow>StackForge</CursorFollow>
-            <SmoothScrollProvider>{children}</SmoothScrollProvider>
-          </CursorProvider>
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
         </ThemeProvider>
         {/* JSON-LD Structured Data */}
         <script

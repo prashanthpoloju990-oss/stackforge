@@ -1,27 +1,41 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef } from "react";
 
-function getScrollProgress(): number {
-  if (typeof window === "undefined") return 0;
-  const scrollY = window.scrollY;
-  const docHeight =
-    document.documentElement.scrollHeight - window.innerHeight;
-  if (scrollY === 0) return 0;
-  return Math.min((scrollY / docHeight) * 100, 100);
-}
-
+/**
+ * ScrollProgress
+ * ─────────────
+ * Reads the shared scroll position via a rAF-throttled listener
+ * and writes it to a CSS custom property on a fixed bar.
+ * Zero React state updates → zero re-renders during scroll.
+ */
 export function ScrollProgress() {
-  const [progress, setProgress] = useState(getScrollProgress);
-
-  const handleScroll = useCallback(() => {
-    setProgress(getScrollProgress);
-  }, []);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+    const bar = barRef.current;
+    if (!bar) return;
+
+    let rafId = 0;
+
+    function onScroll() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        const scrollY = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? Math.min((scrollY / docHeight) * 100, 100) : 0;
+        bar.style.width = `${progress}%`;
+        bar.style.opacity = progress > 0 ? "1" : "0";
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   return (
     <div
@@ -29,11 +43,14 @@ export function ScrollProgress() {
       aria-hidden="true"
     >
       <div
-        className="h-full transition-[width] duration-150 ease-out"
+        ref={barRef}
+        className="h-full"
         style={{
-          width: `${progress}%`,
+          width: "0%",
+          opacity: 0,
           background: "var(--forge-accent, #FF6A00)",
-          opacity: progress === 0 ? 0 : 1,
+          transition: "width 50ms linear, opacity 100ms linear",
+          willChange: "width",
         }}
       />
     </div>
