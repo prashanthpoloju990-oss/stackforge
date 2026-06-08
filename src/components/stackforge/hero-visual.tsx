@@ -144,39 +144,6 @@ export function HeroVisual() {
           }}
         />
 
-        {/* Floating card — bottom left */}
-        <div
-          className={`absolute transition-all duration-1000 ease-out delay-200 ${
-            mounted
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-4"
-          }`}
-          style={{
-            width: "130px",
-            top: "auto",
-            bottom: "10%",
-            left: "5%",
-            animation: mounted
-              ? "float-slow 7s ease-in-out 1s infinite"
-              : "none",
-          }}
-        >
-          <div className="rounded-lg border border-forge-border/30 bg-forge-bg/60 backdrop-blur-sm p-3">
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500/50" />
-              <span className="text-fluid-micro text-forge-text-secondary/40 font-mono">
-                Status
-              </span>
-            </div>
-            <div className="text-[13px] text-forge-text font-semibold tracking-tight">
-              Live
-            </div>
-            <div className="text-fluid-micro text-forge-text-secondary/30 mt-0.5">
-              All systems go
-            </div>
-          </div>
-        </div>
-
         {/* Floating card — top right */}
         <div
           className={`absolute transition-all duration-1000 ease-out ${
