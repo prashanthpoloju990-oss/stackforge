@@ -115,6 +115,7 @@ export function Testimonials() {
                       width={44}
                       height={44}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </div>
                   <div
@@ -184,6 +185,7 @@ export function Testimonials() {
                         width={36}
                         height={36}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                     <div

@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { Inter, Syne, Playfair_Display, Dancing_Script, Great_Vibes, Space_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { SmoothScrollProvider } from "@/components/ui/smooth-scroll-provider";
+import { CursorProvider, Cursor, CursorFollow } from "@/components/animate-ui/components/animate/cursor";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 const syne = Syne({
@@ -20,14 +22,14 @@ const syne = Syne({
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
 const dancing = Dancing_Script({
   variable: "--font-dancing",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -41,7 +43,7 @@ const greatVibes = Great_Vibes({
 const spaceMono = Space_Mono({
   variable: "--font-space-mono",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -102,6 +104,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+      </head>
       <body className={`${inter.variable} ${syne.variable} ${playfair.variable} ${dancing.variable} ${greatVibes.variable} ${spaceMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
@@ -109,7 +115,11 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          <CursorProvider global={true}>
+            <Cursor />
+            <CursorFollow>StackForge</CursorFollow>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </CursorProvider>
         </ThemeProvider>
         {/* JSON-LD Structured Data */}
         <script

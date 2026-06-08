@@ -99,7 +99,7 @@ export function Footer() {
           {/* Left — Brand */}
           <div>
             <a href="#home" className="inline-block">
-              <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" />
+              <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" loading="lazy" />
             </a>
             <p className="mt-4 text-[20px] text-forge-accent/50 leading-relaxed max-w-[240px] font-curvy">
               We build. You grow.
@@ -152,6 +152,7 @@ export function Footer() {
                     type="submit"
                     disabled={status === "submitting"}
                     className="h-11 px-4 rounded-md bg-forge-accent text-white text-[13px] font-medium hover:bg-forge-accent/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                    aria-label="Subscribe to newsletter"
                   >
                     {status === "submitting" ? (
                       <Loader2 className="size-3.5 animate-spin" />

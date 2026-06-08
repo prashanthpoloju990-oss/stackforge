@@ -53,7 +53,7 @@ export function Navbar() {
             href="#home"
             className="flex items-center gap-2 text-forge-text font-semibold text-[18px] tracking-tight"
           >
-            <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" />
+            <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" priority />
           </a>
 
           {/* Desktop Navigation */}

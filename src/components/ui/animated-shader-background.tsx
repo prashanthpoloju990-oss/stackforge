@@ -1,7 +1,18 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useSyncExternalStore } from "react";
 import * as THREE from "three";
+import { useTheme } from "next-themes";
+
+const emptySubscribe = () => () => {};
+
+function useHasMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
 
 /* ═══════════════════════════════════════════════════
    Animated Shader Background
@@ -106,6 +117,12 @@ export function AnimatedShaderBackground({
 }: AnimatedShaderBackgroundProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<RenderState | null>(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const mounted = useHasMounted();
+
+  // Effective opacity: much more subtle in light mode
+  const effectiveOpacity = mounted ? (isDark ? opacity : opacity * 0.3) : opacity;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -235,7 +252,7 @@ export function AnimatedShaderBackground({
       ref={containerRef}
       className={className}
       style={{
-        opacity,
+        opacity: effectiveOpacity,
         mixBlendMode,
         pointerEvents: "none",
       }}

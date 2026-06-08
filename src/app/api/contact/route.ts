@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
       budget,
       timeline,
       details,
+      files,
     } = body;
 
     /* ── Required field checks ── */
@@ -191,6 +192,14 @@ export async function POST(request: NextRequest) {
         },
         { status: 429 }
       );
+    }
+
+    /* ── Log attached file names (don't store binary data in SQLite) ── */
+    if (Array.isArray(files) && files.length > 0) {
+      const fileNames = files
+        .map((f: { name?: string; size?: number }) => `${f.name} (${(f.size ?? 0) / 1024}KB)`)
+        .join(", ");
+      console.log(`[Contact] Attached files: ${fileNames}`);
     }
 
     /* ── Save to database ── */

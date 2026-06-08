@@ -940,3 +940,236 @@ Stage Summary:
 - Sticky CTA respects safe-area-inset-bottom
 - No horizontal overflow issues
 - ESLint passes clean, server compiles successfully
+---
+Task ID: 1+6+11
+Agent: main
+Task: Create 3 small UI components (ScrollProgress, BackToTop, CookieConsent) and integrate into page
+
+Work Log:
+- Created /src/components/ui/scroll-progress.tsx:
+  - "use client" component with thin 2px bar fixed at top of viewport (z-50)
+  - Width animates 0%→100% based on scroll position
+  - Color: var(--forge-accent, #FF6A00)
+  - Uses passive scroll event listener for smooth updates
+  - Hidden when scrollY === 0 (opacity 0)
+  - Lazy state initializer to avoid setState-in-effect lint error
+- Created /src/components/ui/back-to-top.tsx:
+  - "use client" component with AnimatePresence fade-in/out
+  - Fixed bottom-right, positioned above sticky CTA with safe-area-inset
+  - Shows only when scrolled past hero (scrollY > window.innerHeight)
+  - 40px circle button with ArrowUp icon from lucide-react
+  - Styled with forge-* tokens: bg-forge-surface, border-forge-divider, hover:border-forge-accent/40
+  - Smooth scroll to top, respects prefers-reduced-motion
+  - Lazy state initializer for lint compliance
+- Created /src/components/ui/cookie-consent.tsx:
+  - "use client" component with AnimatePresence slide-up/slide-down
+  - Fixed at bottom above sticky CTA (z-30, bottom with safe-area-inset offset)
+  - Only shows if localStorage "cookie-consent" is not set
+  - Slim horizontal bar with text + Accept button + × dismiss button
+  - Accept sets consent = "true", dismiss sets consent = "dismissed"
+  - bg-forge-surface/95 backdrop-blur-xl with border-top
+  - Responsive padding and text-wrap for mobile
+  - Uses project motion easing cubic-bezier(0.22,1,0.36,1)
+- Updated page.tsx:
+  - Added imports for all 3 new components
+  - ScrollProgress placed right after Navbar, before skip-to-content link
+  - BackToTop placed before StickyCta
+  - CookieConsent placed before StickyCta
+
+Stage Summary:
+- 3 new UI components created: scroll-progress.tsx, back-to-top.tsx, cookie-consent.tsx
+- All use "use client" directive, TypeScript strict typing, forge-* design tokens
+- All pass ESLint clean (react-hooks/set-state-in-effect resolved via lazy initializers)
+- Integrated into page.tsx at correct z-index layers
+- Dev server compiles without errors
+
+---
+Task ID: 5+8
+Agent: main
+Task: Create animate-ui cursor components + make shader theme-aware
+
+Work Log:
+- Created /src/components/animate-ui/components/animate/cursor.tsx:
+  - CursorProvider: React context provider tracking mouse position via window mousemove, shares x/y motion values + isHovering state
+  - Cursor: small white dot (6px default, 12px on hover) with mix-blend-difference, follows cursor via framer-motion useSpring (stiffness 500, damping 28)
+  - CursorFollow: ring/outline circle with border-white/60, backdrop-blur-sm, optional text label, follows with more delay (stiffness 150, damping 15), configurable side/align/offset props
+  - Extracted CursorInner and CursorFollowInner to avoid conditional hook calls (ESLint react-hooks/rules-of-hooks)
+  - Hidden on coarse-pointer devices via @media (pointer: coarse) CSS injection
+- Integrated cursor into /src/app/layout.tsx:
+  - Wrapped children with CursorProvider global={true} inside ThemeProvider
+  - Added <Cursor /> and <CursorFollow>StackForge</CursorFollow> components
+- Updated /src/components/ui/animated-shader-background.tsx:
+  - Added useTheme() from next-themes to detect current theme
+  - Added useHasMounted() via useSyncExternalStore for hydration-safe theme detection (same pattern as ThemeToggle)
+  - In light mode: shader opacity reduced to 30% of configured value (very subtle)
+  - In dark mode: shader opacity unchanged (current vibrant appearance)
+  - Used effectiveOpacity instead of raw opacity in style prop
+
+Stage Summary:
+- New files: /src/components/animate-ui/components/animate/cursor.tsx
+- Modified files: /src/app/layout.tsx (CursorProvider + Cursor + CursorFollow), /src/components/ui/animated-shader-background.tsx (theme-aware opacity)
+- Custom cursor system: dot + ring label following mouse with spring physics
+- Shader background adapts to theme: full opacity in dark, 30% in light
+- ESLint clean, zero browser errors, dev server running (200 responses)
+
+---
+Task ID: 4+10
+Agent: main
+Task: Add Case Study Modal/Lightbox (Task 4) + FAQ Search Filter (Task 10)
+
+Work Log:
+- Created /src/components/ui/case-study-modal.tsx — "use client" component:
+  - CaseStudy interface with title, subtitle, description, tags, image, metric, metricLabel, challenge, solution, results, testimonial?, testimonialAuthor?
+  - Full-screen overlay with bg-black/60 backdrop-blur-sm
+  - Centered content card (max-w-3xl, max-h-[85vh], overflow-y-auto)
+  - Close button (X icon, top-right, absolute positioned)
+  - Header: project image (16:9 aspect), title, subtitle, tags, metric badge
+  - Body sections: "The Challenge", "Our Approach", "The Results" + optional testimonial with Quote icon
+  - CTA: "Start a Similar Project" button linking to #contact
+  - AnimatePresence for enter/exit animations (scale + fade with spring physics)
+  - Escape key closes modal via useEffect keydown listener
+  - Click outside content card closes modal (stopPropagation on card)
+  - Body scroll locked when modal is open (document.body.style.overflow)
+  - Mobile responsive: full-width on mobile with p-4, p-6/p-10 on desktop
+  - role="dialog", aria-modal="true", aria-labelledby for accessibility
+- Updated /src/components/stackforge/work.tsx:
+  - Typed projects array as CaseStudy[]
+  - Added realistic challenge, solution, results, testimonial, testimonialAuthor to all 4 projects:
+    - NovaPay: fintech dashboard scaling challenge, real-time streaming solution, 3.2× conversion results
+    - Vertex: startup launch deadline, A/B testing framework, 4,200 waitlist signups in 3 days
+    - ElevateHR: HR operations chaos, hierarchical permissions, 98 Lighthouse score
+    - DineFine: static website + third-party commission, headless CMS + in-house reservations, 2.4× increase
+  - Added useState<CaseStudy | null> for selectedStudy
+  - Changed arrow icon buttons from <a href="#contact"> to <button onClick={() => openStudy(project)}>
+  - Changed "View Case Study" link from <a> to <button> with openStudy handler
+  - Added arrow icon circle in content area changed to <button> as well
+  - Rendered <CaseStudyModal study={selectedStudy} open={selectedStudy !== null} onClose={closeStudy} /> at bottom
+  - Imported useState from react, CaseStudyModal and CaseStudy type
+- Updated /src/components/stackforge/faq.tsx:
+  - Added useState for searchQuery
+  - Added filteredFaqs computed from faqs.filter matching question OR answer (case-insensitive)
+  - Added filteredOpenIndex state for tracking open item in filtered view
+  - Search input with Search icon (lucide-react) prefix, positioned between header and FAQ list
+  - Styled with forge-* tokens: bg-forge-surface, border-forge-divider, rounded-lg, h-11 (44px touch target)
+  - Focus state: border-forge-accent/40 + ring-forge-accent/10
+  - Clear button (X icon) appears inside input when search has text
+  - "No questions found" message with clear search link when no matches
+  - Smooth opacity transition on FAQ items
+
+Stage Summary:
+- New file: case-study-modal.tsx
+- Modified files: work.tsx (CaseStudy data + modal integration), faq.tsx (search filter)
+- All 4 work cards now open detailed case study modals with challenge/approach/results/testimonial
+- FAQ section now has real-time search filtering with clear button and empty state
+- ESLint clean, zero compilation errors, dev server compiles successfully
+
+---
+Task ID: 9+7
+Agent: main
+Task: Add file upload to contact form + create trust logos marquee strip
+
+Work Log:
+- Added file upload capability to contact form Step 2:
+  - Added state: files (File[]), isDragging (boolean), fileInputRef (useRef)
+  - Added handleFiles() with 10MB per-file max and 5 files max
+  - Added removeFile() to delete individual files from list
+  - Added file upload drop zone UI after Project Details textarea, before navigation buttons
+  - Drag-and-drop support with visual feedback (border color change, bg highlight)
+  - File list with truncated names and X remove buttons
+  - Accepts: .pdf, .png, .jpg, .jpeg, .gif, .webp, .svg, .doc, .docx, .txt, .zip
+  - Imported Upload and X icons from lucide-react
+  - Updated handleSubmit to convert files to base64 and include in POST body
+  - Files reset to empty on successful submission
+  - Updated /api/contact/route.ts to accept files array in body and log file names (no DB schema change)
+- Created TrustStrip component (trust-strip.tsx):
+  - "use client" component with useScrollReveal animation
+  - "Trusted by teams at" header label
+  - 8 placeholder trust logos (Vercel, Stripe, Shopify, Linear, Notion, Figma, Raycast, Arc)
+  - Each logo: abbreviation badge + company name
+  - Animated marquee using existing animate-marquee-scroll CSS class (doubled array for seamless loop)
+  - Left/right gradient fade overlays for smooth edge blending
+  - Uses forge-* theme tokens (forge-divider, forge-bg, forge-text-secondary, forge-surface)
+  - Scroll reveal: opacity 0→1 + translateY 4→0 over 700ms
+- Integrated TrustStrip in page.tsx between Hero and first SectionDivider
+- ESLint clean, zero compilation errors, dev server compiles successfully
+
+Stage Summary:
+- New file: trust-strip.tsx
+- Modified files: contact.tsx (file upload state, UI, submission), contact/route.ts (file logging), page.tsx (TrustStrip import + section)
+- Contact form Step 2 now has drag-and-drop file upload (max 5 files, 10MB each)
+- Trust logos marquee strip renders between Hero and Services sections
+- ESLint clean, zero errors
+---
+Task ID: 12
+Agent: main
+Task: Blog/Resources section with article cards
+
+Work Log:
+- Created /src/components/stackforge/blog.tsx — "use client" component
+- Section header: "Blog" label + "Insights & Resources" Playfair heading
+- Grid of 6 article cards: 1 col mobile, 2 cols md, 3 cols lg
+- Each card: gradient thumbnail with decorative geometric shapes, category badge (color-coded per category), title (font-syne font-semibold), 2-line excerpt (line-clamp-2), read time + date meta, "Read →" link with arrow
+- Categories: Development (#FF6A00), Business (#10B981), Design (#8B5CF6), Case Study (#F59E0B)
+- 6 articles covering Next.js, landing pages, dark mode, web performance, SaaS optimization, design psychology
+- Scroll-reveal animations: header + grid with 100ms stagger per card
+- Hover effects: card-hover class, title color transition, arrow gap expansion, geometric shape rotation
+- Integrated into page.tsx between About and TechStack with SectionDivider
+
+Stage Summary:
+- New file: blog.tsx
+- Modified: page.tsx (Blog import + section placement)
+- 6 article cards with gradient thumbnails, category badges, and consistent StackForge styling
+- ESLint clean, server compiles successfully
+
+---
+Task ID: 13
+Agent: main
+Task: Lighthouse audit fixes — image loading, preconnect, aria-labels
+
+Work Log:
+- Added `priority` to navbar logo Image (above-fold, critical for LCP)
+- Added `loading="lazy"` to all below-fold images:
+  - work.tsx: 4 project card images (fill mode)
+  - testimonials.tsx: 3 avatar images (featured + 2 cards)
+  - about.tsx: 5 team member avatar images (founder + 4 members)
+  - footer.tsx: logo image
+- Added `<link rel="preconnect">` and `<link rel="dns-prefetch">` for images.unsplash.com in layout.tsx <head>
+- Added aria-label to interactive elements missing them:
+  - footer.tsx subscribe button: "Subscribe to newsletter"
+  - sticky-cta.tsx: "Start a project — scroll to contact form"
+  - faq.tsx "Clear search" text button: aria-label="Clear search"
+  - cookie-consent.tsx Accept button: "Accept cookies"
+- Verified all images already have explicit width/height or fill prop
+- Hero-visual uses only CSS (no images), so no priority needed there
+
+Stage Summary:
+- Modified files: navbar.tsx, work.tsx, testimonials.tsx, about.tsx, footer.tsx, layout.tsx, sticky-cta.tsx, faq.tsx, cookie-consent.tsx
+- Above-fold images: priority loading
+- Below-fold images: explicit lazy loading
+- External domain preconnected for faster image fetching
+- 4 aria-labels added for improved accessibility
+- ESLint clean, server compiles successfully
+
+---
+Task ID: 14
+Agent: main
+Task: Font subsetting optimization
+
+Work Log:
+- Audited all font usage across components to determine which weights are actually needed
+- Analysis results:
+  - Inter (400): body font, used everywhere → added preload: true
+  - Syne (700, 800): both used (font-bold + font-extrabold in hero) → kept both
+  - Playfair Display (400, 700): used with font-bold and default → removed unused weight 900
+  - Dancing Script (400): only CSS declaration, no component usage → removed unused weight 700
+  - Space Mono (400): only CSS variable, no component usage → removed unused weight 700
+  - Great Vibes (400): used in hero + footer → correct as-is
+- Verified display: "swap" on all 6 fonts (confirmed)
+- Font file savings: removed 3 unused weights (Playfair 900, Dancing Script 700, Space Mono 700)
+
+Stage Summary:
+- Modified file: layout.tsx (font configuration)
+- Reduced font weights: Playfair Display 3→2, Dancing Script 2→1, Space Mono 2→1
+- Added preload: true for Inter (critical body font)
+- Estimated reduction: ~60-90KB fewer font bytes transferred
+- ESLint clean, server compiles successfully

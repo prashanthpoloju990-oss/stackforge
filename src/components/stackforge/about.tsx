@@ -314,6 +314,7 @@ export function About() {
                       width={112}
                       height={112}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </div>
                   <div className="text-center md:text-left">
@@ -365,6 +366,7 @@ export function About() {
                         width={72}
                         height={72}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                     <h3 className="text-fluid-h4 font-bold text-forge-text font-syne">

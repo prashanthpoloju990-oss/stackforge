@@ -28,6 +28,8 @@ import {
   ArrowRight,
   ArrowLeft,
   ChevronRight,
+  Upload,
+  X,
 } from "lucide-react";
 
 /* ══════════════════════════════════════════════════
@@ -307,6 +309,19 @@ export function Contact() {
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [currentStep, setCurrentStep] = React.useState<1 | 2>(1);
   const [slideDirection, setSlideDirection] = React.useState<number>(1);
+  const [files, setFiles] = React.useState<File[]>([]);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFiles = (newFiles: File[]) => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const validFiles = newFiles.filter((f) => f.size <= maxSize);
+    setFiles((prev) => [...prev, ...validFiles].slice(0, 5)); // Max 5 files
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
 
   /* Autofocus first field on step 1 */
   React.useEffect(() => {
@@ -444,15 +459,29 @@ export function Contact() {
 
     setIsSubmitting(true);
     try {
+      /* Convert files to base64 for submission */
+      const fileData = await Promise.all(
+        files.map(async (f) => {
+          const buffer = await f.arrayBuffer();
+          return {
+            name: f.name,
+            type: f.type,
+            size: f.size,
+            data: Buffer.from(buffer).toString("base64"),
+          };
+        })
+      );
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, files: fileData }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Submission failed");
       setIsSuccess(true);
       setForm(INITIAL_FORM);
+      setFiles([]);
       setTouched({});
       setErrors({});
       setCurrentStep(1);
@@ -696,6 +725,73 @@ export function Contact() {
 
       {/* Textarea */}
       {STEP_2_FIELDS.filter((f) => f.type === "textarea").map((field) => renderField(field))}
+
+      {/* File Upload Area */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium text-foreground/80">
+          Attachments
+          <span className="ml-1 text-forge-text-secondary/40 text-xs">(optional)</span>
+        </Label>
+        <div
+          className={cn(
+            "relative border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer",
+            "hover:border-forge-accent/40 hover:bg-forge-accent/5",
+            isDragging
+              ? "border-forge-accent bg-forge-accent/10"
+              : "border-forge-divider"
+          )}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            handleFiles(Array.from(e.dataTransfer.files));
+          }}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.svg,.doc,.docx,.txt,.zip"
+            className="hidden"
+            onChange={(e) => handleFiles(Array.from(e.target.files || []))}
+          />
+          <Upload className="mx-auto size-5 text-forge-text-secondary/30 mb-2" />
+          <p className="text-xs text-forge-text-secondary/50">
+            Drop files here or <span className="text-forge-accent/70">browse</span>
+          </p>
+          <p className="text-[11px] text-forge-text-secondary/30 mt-1">
+            PDF, PNG, JPG, GIF up to 10MB each
+          </p>
+        </div>
+
+        {/* File list */}
+        {files.length > 0 && (
+          <div className="space-y-1.5">
+            {files.map((file, i) => (
+              <div
+                key={`${file.name}-${i}`}
+                className="flex items-center justify-between gap-2 px-3 py-2 rounded-md bg-forge-surface/50 border border-forge-divider/40 text-xs"
+              >
+                <span className="truncate text-forge-text-secondary/70">
+                  {file.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeFile(i)}
+                  className="text-forge-text-secondary/40 hover:text-red-400 shrink-0"
+                >
+                  <X className="size-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Navigation buttons */}
       <div className="flex items-center gap-3 pt-2">

@@ -40,6 +40,7 @@ export function StickyCta() {
           "btn-primary inline-flex items-center gap-2 h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-full shadow-lg transition-all duration-200 cursor-pointer font-syne",
           "active:scale-[0.98]"
         )}
+        aria-label="Start a project — scroll to contact form"
       >
         Start a Project
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0">

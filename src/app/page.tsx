@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/stackforge/navbar";
 import { Hero } from "@/components/stackforge/hero";
+import { TrustStrip } from "@/components/stackforge/trust-strip";
 import { SectionDivider } from "@/components/stackforge/section-divider";
 import { Services } from "@/components/stackforge/services";
 import { Work } from "@/components/stackforge/work";
@@ -11,8 +12,12 @@ import { Pricing } from "@/components/stackforge/pricing";
 import { CtaBanner } from "@/components/stackforge/cta-banner";
 import { Contact } from "@/components/stackforge/contact-lazy";
 import { About } from "@/components/stackforge/about";
+import { Blog } from "@/components/stackforge/blog";
 import { Footer } from "@/components/stackforge/footer";
 import { StickyCta } from "@/components/stackforge/sticky-cta";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
+import { BackToTop } from "@/components/ui/back-to-top";
+import { CookieConsent } from "@/components/ui/cookie-consent";
 
 export default function Home() {
   return (
@@ -21,6 +26,7 @@ export default function Home() {
       <div className="grain-overlay" aria-hidden="true" />
 
       <Navbar />
+      <ScrollProgress />
 
       {/* Skip to content — accessibility */}
       <a
@@ -32,6 +38,7 @@ export default function Home() {
 
       <main id="main-content" className="flex-1">
         <Hero />
+        <TrustStrip />
         <SectionDivider />
         <Services />
         <Work />
@@ -40,6 +47,8 @@ export default function Home() {
         <Testimonials />
         <SectionDivider />
         <About />
+        <SectionDivider />
+        <Blog />
         <SectionDivider />
         <TechStack />
         <FAQ />
@@ -51,6 +60,8 @@ export default function Home() {
       </main>
 
       <Footer />
+      <BackToTop />
+      <CookieConsent />
       <StickyCta />
     </div>
   );
