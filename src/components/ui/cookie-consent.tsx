@@ -4,23 +4,16 @@ import { useEffect, useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
-const reducedMotion =
-  typeof window !== "undefined"
-    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    : false;
-
 const CONSENT_KEY = "cookie-consent";
 
-function getConsent(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(CONSENT_KEY);
-}
-
 export function CookieConsent() {
-  const [consent, setConsent] = useState<string | null | undefined>(() => {
-    if (typeof window === "undefined") return undefined;
-    return getConsent();
-  });
+  // Always start undefined so server and client match (render null)
+  const [consent, setConsent] = useState<string | null | undefined>(undefined);
+
+  // Check localStorage only after mount — avoids hydration mismatch
+  useEffect(() => {
+    setConsent(localStorage.getItem(CONSENT_KEY));
+  }, []);
 
   const accept = useCallback(() => {
     localStorage.setItem(CONSENT_KEY, "true");
@@ -32,7 +25,7 @@ export function CookieConsent() {
     setConsent("dismissed");
   }, []);
 
-  // Don't render until we've checked localStorage (avoids flash)
+  // Don't render until we've checked localStorage, or if already consented/dismissed
   if (consent === undefined || consent !== null) {
     return null;
   }
@@ -41,14 +34,10 @@ export function CookieConsent() {
     <AnimatePresence>
       {consent === null && (
         <motion.div
-          initial={reducedMotion ? { opacity: 1 } : { y: 80, opacity: 0 }}
+          initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={reducedMotion ? { opacity: 0 } : { y: 80, opacity: 0 }}
-          transition={
-            reducedMotion
-              ? { duration: 0 }
-              : { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
-          }
+          exit={{ y: 80, opacity: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="
             fixed left-0 right-0
             bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]
@@ -63,8 +52,7 @@ export function CookieConsent() {
               flex items-center justify-between gap-4
               flex-wrap sm:flex-nowrap
               bg-forge-surface/95 backdrop-blur-xl
-              border border-t-0 border-forge-divider
-              border-t border-forge-divider
+              border border-forge-divider
               rounded-t-lg
               px-4 py-3
               shadow-lg
