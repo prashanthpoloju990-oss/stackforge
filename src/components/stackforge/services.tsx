@@ -1,9 +1,14 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import {
+  ServiceModal,
+  type ServiceDetail,
+} from "@/components/stackforge/service-modal";
 
-const services = [
+const services: ServiceDetail[] = [
   {
     number: "01",
     title: "Kit",
@@ -19,6 +24,14 @@ const services = [
       "Basic SEO & analytics",
       "2 rounds of revisions",
     ],
+    deliverables: [
+      "Responsive design system",
+      "5 pages with content",
+      "SEO meta tags & sitemap",
+      "Performance optimization",
+      "2 revision rounds",
+    ],
+    timeline: "2–3 weeks",
     cta: "Get Started →",
     highlighted: false,
   },
@@ -37,6 +50,15 @@ const services = [
       "Advanced SEO strategy",
       "3 months post-launch support",
     ],
+    deliverables: [
+      "Custom UI/UX design in Figma",
+      "CMS integration",
+      "API connections",
+      "Advanced SEO setup",
+      "3 months support",
+      "Analytics dashboard",
+    ],
+    timeline: "4–6 weeks",
     cta: "Start Building →",
     highlighted: true,
   },
@@ -55,6 +77,15 @@ const services = [
       "Dedicated project lead",
       "Priority delivery & SLA",
     ],
+    deliverables: [
+      "Product strategy document",
+      "Full-stack development",
+      "Custom feature engineering",
+      "CI/CD pipeline",
+      "Dedicated project manager",
+      "Priority SLA support",
+    ],
+    timeline: "8–12 weeks",
     cta: "Let's Talk →",
     highlighted: false,
   },
@@ -63,6 +94,25 @@ const services = [
 export function Services() {
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
   const { ref: blocksRef, isVisible: blocksVisible } = useScrollReveal({ threshold: 0.05 });
+  const [selectedService, setSelectedService] = useState<ServiceDetail | null>(null);
+
+  const handleOpenModal = useCallback((service: ServiceDetail) => {
+    setSelectedService(service);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedService(null);
+  }, []);
+
+  const handleCardKeyDown = useCallback(
+    (e: React.KeyboardEvent, service: ServiceDetail) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleOpenModal(service);
+      }
+    },
+    [handleOpenModal]
+  );
 
   return (
     <section id="services" className="py-24 md:py-32 lg:py-[110px]">
@@ -88,11 +138,13 @@ export function Services() {
         {/* Service Blocks */}
         <div ref={blocksRef} className="flex flex-col gap-4 md:gap-5">
           {services.map((service, index) => (
-            <a
+            <button
               key={service.title}
-              href="#contact"
+              type="button"
+              onClick={() => handleOpenModal(service)}
+              onKeyDown={(e) => handleCardKeyDown(e, service)}
               className={cn(
-                "group block rounded-xl border p-6 sm:p-8 md:p-10 transition-all duration-600 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                "group block text-left rounded-xl border p-6 sm:p-8 md:p-10 transition-all duration-600 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer",
                 blocksVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]",
                 service.highlighted
                   ? "border-forge-accent/20 bg-forge-accent/[0.03] hover:border-forge-accent/35 hover:bg-forge-accent/[0.05]"
@@ -166,6 +218,7 @@ export function Services() {
                         viewBox="0 0 14 14"
                         fill="none"
                         className="transition-transform duration-300 group-hover:translate-x-1.5"
+                        aria-hidden="true"
                       >
                         <path
                           d="M1 7H13M13 7L8 2M13 7L8 12"
@@ -179,10 +232,17 @@ export function Services() {
                   </div>
                 </div>
               </div>
-            </a>
+            </button>
           ))}
         </div>
       </div>
+
+      {/* Service Detail Modal */}
+      <ServiceModal
+        service={selectedService}
+        isOpen={selectedService !== null}
+        onClose={handleCloseModal}
+      />
     </section>
   );
 }

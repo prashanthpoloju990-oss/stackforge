@@ -1,22 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useScrollPosition } from "@/hooks/use-scroll-position";
 
+/**
+ * HeroVisual
+ * ──────────
+ * Abstract hero composition with subtle parallax depth.
+ * Scroll-driven translateY via the shared RAF-throttled
+ * useScrollPosition hook — zero per-frame layout reads,
+ * GPU-composited transforms only. Max shift: ±15px.
+ */
 export function HeroVisual() {
   const [mounted, setMounted] = useState(false);
+  const { scrollY, pastHero } = useScrollPosition();
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 120);
     return () => clearTimeout(timer);
   }, []);
 
+  // Clamp parallax factor: 0 at top, 0.15 at 1 viewport scroll, capped
+  const factor = pastHero ? 1 : Math.min(scrollY / 800, 1) * 0.15;
+
   return (
     <div className="relative w-full h-full min-h-[420px] lg:min-h-[520px]">
-      {/* Subtle dot grid */}
-      <div className="hero-dots absolute inset-0" />
+      {/* Subtle dot grid — slowest layer (moves UP on scroll) */}
+      <div
+        className="hero-dots absolute inset-0"
+        style={{
+          transform: `translate3d(0, ${-scrollY * 0.02}px, 0)`,
+          willChange: "transform",
+        }}
+      />
 
       <div className="relative w-full h-full flex items-center justify-center">
-        {/* Back panel — largest */}
+        {/* Back panel — largest (moves slower than scroll) */}
         <div
           className={`absolute transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             mounted
@@ -29,6 +48,11 @@ export function HeroVisual() {
             height: "65%",
             top: "14%",
             left: "8%",
+            transform: mounted
+              ? `translate3d(0, ${-scrollY * factor * 0.6}px, 0)`
+              : undefined,
+            willChange: mounted ? "transform" : "auto",
+            transitionProperty: mounted ? "opacity" : "opacity transform",
           }}
         >
           <div className="w-full h-full rounded-xl border border-forge-divider/60 bg-forge-surface/40 p-5">
@@ -53,7 +77,7 @@ export function HeroVisual() {
           </div>
         </div>
 
-        {/* Middle panel — overlapping */}
+        {/* Middle panel — overlapping (moves at different rate) */}
         <div
           className={`absolute transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] delay-150 ${
             mounted
@@ -70,6 +94,11 @@ export function HeroVisual() {
             animation: mounted
               ? "float-slow 6s ease-in-out infinite"
               : "none",
+            transform: mounted
+              ? `translate3d(0, ${-scrollY * factor * 0.35}px, 0)`
+              : undefined,
+            willChange: mounted ? "transform" : "auto",
+            transitionProperty: mounted ? "opacity" : "opacity transform",
           }}
         >
           <div className="w-full h-full rounded-xl border border-forge-border/40 bg-forge-bg/70 backdrop-blur-sm p-4 shadow-2xl">
@@ -125,7 +154,7 @@ export function HeroVisual() {
           </div>
         </div>
 
-        {/* Accent line */}
+        {/* Accent line — moves fastest (closest to viewer) */}
         <div
           className={`absolute transition-all duration-1000 ease-out delay-300 ${
             mounted
@@ -141,10 +170,15 @@ export function HeroVisual() {
             animation: mounted
               ? "float-drift 8s ease-in-out infinite"
               : "none",
+            transform: mounted
+              ? `translate3d(0, ${-scrollY * factor * 0.9}px, 0)`
+              : undefined,
+            willChange: mounted ? "transform" : "auto",
+            transitionProperty: mounted ? "opacity" : "opacity transform",
           }}
         />
 
-        {/* Floating card — top right */}
+        {/* Floating card — top right (moves at medium rate) */}
         <div
           className={`absolute transition-all duration-1000 ease-out ${
             mounted
@@ -158,6 +192,11 @@ export function HeroVisual() {
             animation: mounted
               ? "float-drift 9s ease-in-out 0.5s infinite"
               : "none",
+            transform: mounted
+              ? `translate3d(0, ${-scrollY * factor * 0.7}px, 0)`
+              : undefined,
+            willChange: mounted ? "transform" : "auto",
+            transitionProperty: mounted ? "opacity" : "opacity transform",
           }}
         >
           <div className="rounded-lg border border-forge-accent/10 bg-forge-bg/50 backdrop-blur-sm p-2.5">

@@ -1208,3 +1208,204 @@ Stage Summary:
 - backdrop-blur reduced from xl to md across all elements
 - CSS contain/will-change hints added for browser optimization
 - All changes verified: lint clean, no hydration errors, clean dev log
+
+---
+Task ID: 16
+Agent: main
+Task: Branded 404 page, PWA manifest, sitemap.xml + robots.txt
+
+Work Log:
+- Created /src/app/not-found.tsx — branded 404 page as "use client" component
+  - Large "404" display using text-fluid-display font-syne font-bold
+  - Subtle gradient "404" ghost behind main number (orange accent fade to transparent, 12% opacity)
+  - "Page not found" in text-fluid-h2 font-playfair
+  - Description text in text-fluid-body-lg with forge-text-secondary/60
+  - "Back to Home" button with btn-primary styling (bg-forge-accent, rounded-full, text-white)
+  - Centered layout: min-h-screen flex items-center justify-center
+  - Dark/light theme compatible using forge-* tokens
+- Created /public/manifest.json — PWA web app manifest
+  - name: StackForge, short_name: StackForge
+  - display: standalone, background_color: #000000, theme_color: #FF6A00
+  - 192x192 and 512x512 icons pointing to /logo.jpg
+- Updated /src/app/layout.tsx — added PWA meta tags to <head>
+  - manifest link, theme-color meta, apple-mobile-web-app-capable, apple-mobile-web-app-status-bar-style
+- Created /src/app/sitemap.ts — Next.js 16 static sitemap
+  - Single entry for https://stackforge.dev with weekly changeFrequency and priority 1
+- Created /src/app/robots.ts — Next.js 16 robots.txt
+  - Allow all user agents, sitemap reference to https://stackforge.dev/sitemap.xml
+- Ran ESLint: clean, zero errors
+
+Stage Summary:
+- New files: not-found.tsx, manifest.json, sitemap.ts, robots.ts
+- Modified files: layout.tsx (PWA meta tags)
+- Branded 404 page with fluid typography, subtle gradient ghost, and orange accent CTA
+- PWA manifest with orange theme color and standalone display
+- SEO: sitemap.xml and robots.txt for search engine crawling
+- ESLint clean
+
+---
+Task ID: 7
+Agent: main
+Task: Service Detail Modals — interactive modal for each service card
+
+Work Log:
+- Created /src/components/stackforge/service-modal.tsx:
+  - "use client" component with exported ServiceDetail interface and ServiceModal component
+  - framer-motion AnimatePresence for enter/exit animations (GPU-composited CSS transforms)
+  - Backdrop: fixed overlay, dark semi-transparent bg-black/60, click-to-close
+  - Panel: centered card max-w-2xl, rounded-xl, scrollable overflow-y-auto, max-h-[85vh]
+  - BorderGlow wrapper with animated=true, borderRadius=12, glowIntensity=1.1
+  - Header: service number + title (font-playfair) + tagline
+  - Description section with the full service description
+  - Price display (accent color for highlighted tier)
+  - "What You Get" section: deliverables list with Package icons (5-6 items per service)
+  - Features section: Check icon list from existing features array
+  - Timeline: Clock icon + "Typical timeline: X-Y weeks"
+  - CTA button: "Start with {title}" → scrolls to #contact after 200ms delay (orange accent, rounded-full, btn-primary)
+  - Close button: X icon top-right, rounded-full, backdrop-blur
+  - Escape key handler closes modal
+  - Body scroll lock: document.body.style.overflow = "hidden" when open, restored on close
+  - Animation: backdrop opacity 0→1 (0.2s), panel opacity 0/y20/scale 0.95 → 1/0/1 (0.3s, ease [0.22,1,0.36,1]), exit reverse
+  - Content only rendered when open (AnimatePresence conditional)
+  - Sub-components: SectionLabel, CheckItem, DeliverableItem
+- Modified /src/components/stackforge/services.tsx:
+  - Added `deliverables` and `timeline` fields to each service object (Kit: 5 deliverables, Pack: 6 deliverables, Bag: 6 deliverables)
+  - Timeline: Kit 2–3 weeks, Pack 4–6 weeks, Bag 8–12 weeks
+  - Converted service data array type to ServiceDetail[] (imported from service-modal)
+  - Added `useState<ServiceDetail | null>` for selectedService (null by default)
+  - Changed service card `<a>` elements to `<button>` elements with onClick setting selectedService
+  - Added `onKeyDown` handler for Enter/Space accessibility on buttons
+  - Added `text-left cursor-pointer` classes to button, `type="button"` for form safety
+  - Imported and rendered ServiceModal at bottom of Services component
+  - Modal opens when selectedService !== null, closes via handleCloseModal callback
+- ESLint: passes clean with zero errors
+- Dev server: compiles successfully with no errors
+
+Stage Summary:
+- New files: service-modal.tsx (exported ServiceDetail interface + ServiceModal component)
+- Modified files: services.tsx (data fields + useState + button conversion + modal integration)
+- 3 service cards are now interactive buttons opening a detailed modal
+- Modal features: BorderGlow, deliverables list, features list, timeline, CTA, escape/close
+- All animations are GPU-composited (transform/opacity only)
+- Body scroll lock, accessible keyboard navigation, click-to-close backdrop
+- ESLint clean, zero compilation errors
+
+---
+Task ID: 17
+Agent: main
+Task: Animated testimonial carousel + process timeline connecting line animations
+
+Work Log:
+- Rewrote testimonials.tsx as auto-rotating carousel:
+  - Shows ONE testimonial at a time in a large featured BorderGlow card
+  - Auto-rotates every 5 seconds via useState + useEffect setInterval
+  - CSS transform: translateX() slide animation, 0.4s cubic-bezier(0.22, 1, 0.36, 1)
+  - 3 dot indicators below card (active dot highlighted with w-8 pill shape, others w-2.5 circle)
+  - Prev/next arrow buttons (ChevronLeft/ChevronRight) positioned on sides of card
+  - Pause auto-rotation on hover over carousel container
+  - Resume after 8s delay when user clicks arrows or dots
+  - Touch swipe support for mobile (touchStart/touchEnd, 50px threshold)
+  - All 3 testimonials rendered in flex container with overflow-hidden
+  - will-change: transform for GPU compositing
+  - Kept existing data array, star ratings, avatars, BorderGlow styling, company color badges
+  - Section header "Client Words" / "Don't take our word for it." preserved
+  - useScrollReveal for section entrance animation preserved
+- Modified process.tsx to add animated connecting lines:
+  - Added separate useScrollReveal (lineRef, lineVisible) for desktop connecting line
+  - Desktop horizontal line: width 0% → 100% with CSS transition (1s, 200ms delay after steps appear), origin-left
+  - Mobile vertical connecting lines: scaleY 0 → 1 with CSS transition (0.6s, 300ms+100ms stagger), origin-top
+  - Step circles: scale 0.8 → 1 with CSS transition (0.5s, 200ms+100ms stagger)
+  - Desktop step circles: combined border-color + transform transition for hover states
+  - All existing content, layout, 4 steps, descriptions, and structure preserved
+  - All animations use CSS transitions/transforms only — zero per-frame JavaScript
+
+Stage Summary:
+- Modified files: testimonials.tsx (full rewrite as carousel), process.tsx (animated lines + circles)
+- Testimonial carousel: auto-rotate 5s, CSS slide, dots, arrows, hover pause, touch swipe, BorderGlow cards
+- Process timeline: desktop line width animation, mobile vertical scaleY animation, step circle scale animation
+- All CSS transitions/transforms only (GPU-composited)
+- ESLint clean, zero compilation errors
+
+---
+Task ID: 16
+Agent: frontend-styling-expert
+Task: CSS polish + accessibility UX (Tasks 5, 6, 13, 14, 15)
+
+Work Log:
+- Task 5: Micro-interaction Polish (CSS-only)
+  - Added button ripple effect to .btn-primary using ::after pseudo-element with radial-gradient
+    - scale(0) → scale(2.5) on :active, opacity 0 → 0.2 → 0, 0.5s fade-out
+    - Added position:relative + overflow:hidden to .btn-primary base styles
+  - Enhanced .form-input focus with left-border accent sweep via ::after pseudo-element
+    - 3px orange bar scaleY(0→1) on focus with transform-origin animation
+    - Added position:relative to .form-input base styles
+  - Changed .link-underline::after transition from 0.3s to 0.2s for faster underline acceleration
+
+- Task 6: Section Morph Transitions (CSS-only)
+  - Added @keyframes reveal-morph: scale(0.98) translateY(12px) opacity(0) → scale(1) translateY(0) opacity(1)
+  - Added .reveal-morph utility class with 0.6s cubic-bezier easing
+  - Utility-only: does not force on existing sections, opt-in via class
+
+- Task 13: Focus Trap on Mobile Menu
+  - Added useRef for hamburgerRef and overlayRef to navbar.tsx
+  - Added useCallback closeMenu that sets mobileOpen(false) and focuses hamburger
+  - Added useEffect keydown listener when mobileOpen is true:
+    - Escape key: closes menu, returns focus to hamburger
+    - Tab key: finds all focusable (a, button) in overlay, prevents default, cycles focus
+    - Shift+Tab: reverse cycling through focusable elements
+  - Added aria-expanded attribute to hamburger button
+  - Added role="dialog", aria-modal="true", aria-label to overlay
+  - Auto-focuses first nav link on menu open via requestAnimationFrame
+
+- Task 14: Enhanced Skip Links
+  - Replaced single skip-to-content link with nav aria-label="Skip links"
+  - 4 skip targets: #services, #work, #about, #contact
+  - All links sr-only by default, visible as group on focus
+  - Styled with forge-accent bg, white text, rounded-lg, 14px font
+
+- Task 15: Reduced Motion Mode
+  - Added comprehensive @media (prefers-reduced-motion: reduce), .reduced-motion block
+  - Disables grain overlay, float animations, marquee-scroll, reveal/morph animations, success animations
+  - Form field stagger: all animation-delay set to 0ms
+  - Removes button hover scale transforms, card hover translateY, image hover zoom
+  - Keeps link underlines (subtle enough)
+  - Disables form-input::after focus sweep, button ripple ::after
+  - Kills border-glow transitions and opacity
+  - Disables smooth scroll (auto)
+  - Global: animation-duration 0.01ms, transition-duration 0.01ms, scroll-behavior auto
+  - Neumorphic submit button: disables ::before gradient sweep
+  - .reduced-motion class mirrors same rules for manual JS toggling
+
+- Verified: bun run lint passes clean (zero errors)
+
+Stage Summary:
+- globals.css: +button ripple (::after), +input focus sweep (::after), +reveal-morph utility, +reduced motion block
+- navbar.tsx: +focus trap (useRef, useCallback, useEffect keydown), +aria-expanded, +role=dialog
+- page.tsx: replaced single skip link with 4 skip-to-section links nav
+- All changes are CSS-only or lightweight JS (single useEffect keydown listener)
+- ESLint clean, zero errors
+
+
+---
+Task ID: 13-features-batch
+Agent: main + 4 subagents
+Task: Implement 13 features (carousel, parallax, micro-interactions, morph transitions, service modals, timeline animation, 404, PWA, sitemap, code-split, focus trap, skip links, reduced motion)
+
+Work Log:
+- Dispatched 4 parallel subagents + handled 2 tasks (parallax, code-split) directly
+- Agent 1 (Carousel + Timeline): Rewrote testimonials.tsx as auto-rotating carousel with dots/arrows/swipe. Added animated connecting lines to process.tsx (width 0→100% on desktop, scaleY on mobile, circle scale 0.8→1)
+- Agent 2 (CSS Polish + Accessibility): Added CSS-only button ripple (.btn-primary::after), input focus glow sweep, reveal-morph keyframes, comprehensive reduced motion block, focus trap on mobile menu, skip-to-section links
+- Agent 3 (Static/Config): Created not-found.tsx (branded 404), manifest.json (PWA), sitemap.ts, robots.ts, added PWA meta tags to layout.tsx
+- Agent 4 (Service Modals): Created service-modal.tsx with BorderGlow wrapper, deliverables/timeline/CTA. Modified services.tsx to open modal on click (button instead of link)
+- Main (Parallax): Added scroll-driven translate3d parallax to hero-visual.tsx using useScrollPosition (RAF-throttled). 4 layers with different parallax factors (0.35× to 0.9×), max 15px shift
+- Main (Code-split): Created lazy-pricing.tsx and lazy-cta-banner.tsx wrappers with next/dynamic + ssr:false + skeleton loading states. Updated page.tsx imports
+- Bug fix: CSS parse error in reduced motion block (@media comma-chaining with class selector) — split into two separate blocks
+- Bug fix: Skip links using Tailwind focus:not-sr-only didn't work in v4 — replaced with custom .skip-links CSS using :focus-within
+
+Stage Summary:
+- 13 features implemented across 10+ files
+- All CSS animations are GPU-composited (transform/opacity only)
+- Parallax uses RAF-throttled hook, max ±15px shift
+- Code-split only targets heavy sections (Pricing particles, CTA WebGL shader)
+- Zero lint errors, zero hydration errors, clean dev log
+- 2 bugs found and fixed during browser verification

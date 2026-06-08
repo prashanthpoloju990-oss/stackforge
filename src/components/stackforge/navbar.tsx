@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
@@ -18,6 +18,13 @@ const NAV_LINKS = [
 export function Navbar() {
   const { scrolled } = useScrollPosition();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const closeMenu = useCallback(() => {
+    setMobileOpen(false);
+    hamburgerRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (mobileOpen) {
@@ -29,6 +36,61 @@ export function Navbar() {
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
+
+  /* ── Focus trap for mobile menu ── */
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeMenu();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const focusable = Array.from(
+        overlay.querySelectorAll<HTMLAnchorElement | HTMLButtonElement>(
+          'a[href], button:not([disabled])'
+        )
+      );
+
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Auto-focus first nav link when menu opens
+    const firstFocusable = overlay.querySelector<HTMLAnchorElement>(
+      'a[href], button:not([disabled])'
+    );
+    if (firstFocusable) {
+      // Small delay to allow transition to start
+      requestAnimationFrame(() => firstFocusable.focus());
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mobileOpen, closeMenu]);
 
   return (
     <header
@@ -77,9 +139,11 @@ export function Navbar() {
           <div className="md:hidden flex items-center gap-2">
             <ThemeToggle />
             <button
+              ref={hamburgerRef}
               onClick={() => setMobileOpen(!mobileOpen)}
               className="flex flex-col items-center justify-center w-11 h-11 gap-[5px] text-forge-text -mr-1"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
             >
             <span
               className={cn(
@@ -99,13 +163,17 @@ export function Navbar() {
                 mobileOpen && "-rotate-45 -translate-y-[3.25px]"
               )}
             />
-          </button>
+            </button>
           </div>
         </nav>
       </div>
 
       {/* Mobile Menu Overlay */}
       <div
+        ref={overlayRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation"
         className={cn(
           "md:hidden fixed inset-0 top-16 bg-forge-bg/95 backdrop-blur-md transition-all duration-300",
           mobileOpen

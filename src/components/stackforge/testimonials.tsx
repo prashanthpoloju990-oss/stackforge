@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { cn } from "@/lib/utils";
 import { BorderGlow } from "@/components/ui/border-glow";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const testimonials = [
   {
@@ -13,7 +14,6 @@ const testimonials = [
     name: "Arjun Mehta",
     role: "Founder, NovaPay",
     avatar: "/avatars/arjun.jpg",
-    featured: true,
     rating: 5,
     initials: "NP",
     companyColor: "#FF6A00",
@@ -24,7 +24,6 @@ const testimonials = [
     name: "Priya Sharma",
     role: "CTO, ElevateHR",
     avatar: "/avatars/priya.jpg",
-    featured: false,
     rating: 5,
     initials: "EH",
     companyColor: "#6366F1",
@@ -35,12 +34,13 @@ const testimonials = [
     name: "Rahul Verma",
     role: "CEO, DineFine",
     avatar: "/avatars/rahul.jpg",
-    featured: false,
     rating: 5,
     initials: "DF",
     companyColor: "#10B981",
   },
 ];
+
+const SLIDE_INTERVAL = 5000;
 
 export function Testimonials() {
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
@@ -48,8 +48,81 @@ export function Testimonials() {
     threshold: 0.05,
   });
 
-  const featured = testimonials[0];
-  const rest = testimonials.slice(1);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const total = testimonials.length;
+
+  const goTo = useCallback(
+    (index: number) => {
+      setCurrentIndex((prev) => {
+        // Wrap around
+        if (index < 0) return total - 1;
+        if (index >= total) return 0;
+        return index;
+      });
+    },
+    [total]
+  );
+
+  const goNext = useCallback(() => {
+    goTo(currentIndex + 1);
+  }, [currentIndex, goTo]);
+
+  const goPrev = useCallback(() => {
+    goTo(currentIndex - 1);
+  }, [currentIndex, goTo]);
+
+  // Auto-rotation
+  useEffect(() => {
+    if (isPaused) return;
+
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % total);
+    }, SLIDE_INTERVAL);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isPaused, total]);
+
+  const handleMouseEnter = () => setIsPaused(true);
+  const handleMouseLeave = () => setIsPaused(false);
+
+  const handleDotClick = (index: number) => {
+    goTo(index);
+    // Pause briefly after manual interaction
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 8000);
+  };
+
+  const handleArrowClick = (direction: "prev" | "next") => {
+    if (direction === "prev") goPrev();
+    else goNext();
+    // Pause briefly after manual interaction
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 8000);
+  };
+
+  // Touch swipe support
+  const touchStartRef = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartRef.current === null) return;
+    const diff = touchStartRef.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) handleArrowClick("next");
+      else handleArrowClick("prev");
+    }
+    touchStartRef.current = null;
+  };
+
+  const current = testimonials[currentIndex];
 
   return (
     <section className="py-24 md:py-32 lg:py-[110px]">
@@ -70,146 +143,137 @@ export function Testimonials() {
           </h2>
         </div>
 
-        {/* Featured Testimonial */}
+        {/* Carousel */}
         <div
           ref={cardsRef}
           className={cn(
-            "mb-6 md:mb-8 transition-all duration-600 ease-out",
+            "transition-all duration-600 ease-out",
             cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
           )}
         >
-          <BorderGlow
-            animated
-            backgroundColor="var(--forge-bg)"
-            borderRadius={12}
-            glowRadius={35}
-            glowIntensity={1.2}
-            className="rounded-xl"
+          <div
+            className="relative"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
-            <div className="p-8 md:p-12 lg:p-14 relative">
-              {/* Large quote */}
-              <span className="absolute top-6 left-8 md:left-12 text-forge-accent/8 text-fluid-display font-playfair block select-none pointer-events-none">
-                &ldquo;
-              </span>
+            {/* Prev Arrow */}
+            <button
+              onClick={() => handleArrowClick("prev")}
+              aria-label="Previous testimonial"
+              className="absolute left-2 md:-left-14 lg:-left-16 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-11 md:h-11 rounded-full border border-forge-divider/60 bg-forge-bg/80 backdrop-blur-sm flex items-center justify-center text-forge-text-secondary hover:text-forge-text hover:border-forge-accent/40 transition-colors duration-200 hover:scale-105 active:scale-95"
+              style={{ transitionProperty: "color, border-color, transform" }}
+            >
+              <ChevronLeft className="size-4 md:size-5" />
+            </button>
 
-              <div className="relative">
-                {/* Star rating */}
-                <div className="flex items-center gap-0.5 mb-3">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className="size-3.5"
-                      fill={i < featured.rating ? "var(--forge-accent)" : "none"}
-                      stroke={i < featured.rating ? "var(--forge-accent)" : "var(--forge-divider)"}
-                    />
-                  ))}
-                </div>
-                <blockquote className="text-fluid-h2 text-forge-text/90 font-playfair max-w-[800px]">
-                  {featured.quote}
-                </blockquote>
-                <div className="mt-8 flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-full overflow-hidden border border-forge-accent/20 shrink-0">
-                    <Image
-                      src={featured.avatar}
-                      alt={featured.name}
-                      width={44}
-                      height={44}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+            {/* Next Arrow */}
+            <button
+              onClick={() => handleArrowClick("next")}
+              aria-label="Next testimonial"
+              className="absolute right-2 md:-right-14 lg:-right-16 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-11 md:h-11 rounded-full border border-forge-divider/60 bg-forge-bg/80 backdrop-blur-sm flex items-center justify-center text-forge-text-secondary hover:text-forge-text hover:border-forge-accent/40 transition-colors duration-200 hover:scale-105 active:scale-95"
+              style={{ transitionProperty: "color, border-color, transform" }}
+            >
+              <ChevronRight className="size-4 md:size-5" />
+            </button>
+
+            {/* Slide Container */}
+            <div
+              className="overflow-hidden rounded-xl"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div
+                className="flex will-change-transform"
+                style={{
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                  transition: "transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
+                }}
+              >
+                {testimonials.map((testimonial) => (
+                  <div key={testimonial.name} className="w-full shrink-0">
+                    <BorderGlow
+                      animated={false}
+                      backgroundColor="var(--forge-bg)"
+                      borderRadius={12}
+                      glowRadius={35}
+                      glowIntensity={1.2}
+                      className="rounded-xl"
+                    >
+                      <div className="p-8 md:p-12 lg:p-14 relative">
+                        {/* Large quote */}
+                        <span className="absolute top-6 left-8 md:left-12 text-forge-accent/8 text-fluid-display font-playfair block select-none pointer-events-none">
+                          &ldquo;
+                        </span>
+
+                        <div className="relative">
+                          {/* Star rating */}
+                          <div className="flex items-center gap-0.5 mb-3">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className="size-3.5"
+                                fill={i < testimonial.rating ? "var(--forge-accent)" : "none"}
+                                stroke={i < testimonial.rating ? "var(--forge-accent)" : "var(--forge-divider)"}
+                              />
+                            ))}
+                          </div>
+                          <blockquote className="text-fluid-h2 text-forge-text/90 font-playfair max-w-[800px]">
+                            {testimonial.quote}
+                          </blockquote>
+                          <div className="mt-8 flex items-center gap-4">
+                            <div className="w-11 h-11 rounded-full overflow-hidden border border-forge-accent/20 shrink-0">
+                              <Image
+                                src={testimonial.avatar}
+                                alt={testimonial.name}
+                                width={44}
+                                height={44}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            </div>
+                            <div
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0"
+                              style={{
+                                backgroundColor: testimonial.companyColor + "15",
+                                color: testimonial.companyColor,
+                              }}
+                            >
+                              {testimonial.initials}
+                            </div>
+                            <div>
+                              <p className="text-fluid-body-lg text-forge-text font-semibold">
+                                {testimonial.name}
+                              </p>
+                              <p className="text-[13px] text-forge-text-secondary/50">
+                                {testimonial.role}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </BorderGlow>
                   </div>
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0"
-                    style={{
-                      backgroundColor: featured.companyColor + "15",
-                      color: featured.companyColor,
-                    }}
-                  >
-                    {featured.initials}
-                  </div>
-                  <div>
-                    <p className="text-fluid-body-lg text-forge-text font-semibold">
-                      {featured.name}
-                    </p>
-                    <p className="text-[13px] text-forge-text-secondary/50">
-                      {featured.role}
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
-          </BorderGlow>
-        </div>
 
-        {/* Smaller testimonial cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-          {rest.map((testimonial, index) => (
-            <div
-              key={testimonial.name}
-              className={cn(
-                "transition-all duration-600 ease-out",
-                cardsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              )}
-              style={{
-                transitionDelay: cardsVisible ? `${(index + 1) * 100}ms` : "0ms",
-              }}
-            >
-              <BorderGlow
-                backgroundColor="var(--forge-bg)"
-                borderRadius={12}
-                glowRadius={30}
-                glowIntensity={1.0}
-                className="rounded-xl h-full"
-              >
-                <div className="p-6 md:p-8">
-                  {/* Star rating */}
-                  <div className="flex items-center gap-0.5 mb-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="size-3.5"
-                        fill={i < testimonial.rating ? "var(--forge-accent)" : "none"}
-                        stroke={i < testimonial.rating ? "var(--forge-accent)" : "var(--forge-divider)"}
-                      />
-                    ))}
-                  </div>
-                  <blockquote className="text-fluid-body-lg text-forge-text-secondary/70">
-                    &ldquo;{testimonial.quote}&rdquo;
-                  </blockquote>
-
-                  <div className="mt-5 pt-4 border-t border-forge-divider/50 flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full overflow-hidden border border-forge-divider/40 shrink-0">
-                      <Image
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        width={36}
-                        height={36}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-[9px] font-bold shrink-0"
-                      style={{
-                        backgroundColor: testimonial.companyColor + "15",
-                        color: testimonial.companyColor,
-                      }}
-                    >
-                      {testimonial.initials}
-                    </div>
-                    <div>
-                      <p className="text-fluid-body text-forge-text font-medium">
-                        {testimonial.name}
-                      </p>
-                      <p className="text-[12px] text-forge-text-secondary/40">
-                        {testimonial.role}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </BorderGlow>
+            {/* Dot Indicators */}
+            <div className="flex items-center justify-center gap-2.5 mt-6 md:mt-8">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDotClick(index)}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                  className={cn(
+                    "rounded-full transition-all duration-300 ease-out",
+                    index === currentIndex
+                      ? "w-8 h-2.5 bg-forge-accent"
+                      : "w-2.5 h-2.5 bg-forge-divider/60 hover:bg-forge-text-secondary/40"
+                  )}
+                />
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>

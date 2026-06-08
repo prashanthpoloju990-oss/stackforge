@@ -33,6 +33,7 @@ const steps = [
 export function Process() {
   const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
   const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal({ threshold: 0.05 });
+  const { ref: lineRef, isVisible: lineVisible } = useScrollReveal({ threshold: 0.1 });
 
   return (
     <section id="process" className="py-24 md:py-32 lg:py-[110px]">
@@ -57,8 +58,15 @@ export function Process() {
 
         {/* Steps */}
         <div ref={stepsRef} className="relative">
-          {/* Desktop connecting line */}
-          <div className="hidden lg:block absolute top-[36px] left-[60px] right-[60px] h-px bg-forge-divider" />
+          {/* Desktop connecting line — animates width 0→100% */}
+          <div
+            ref={lineRef}
+            className="hidden lg:block absolute top-[36px] left-[60px] right-[60px] h-px bg-forge-divider origin-left"
+            style={{
+              width: lineVisible ? "100%" : "0%",
+              transition: "width 1s cubic-bezier(0.22, 1, 0.36, 1) 200ms",
+            }}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-0 relative">
             {steps.map((step, index) => (
@@ -72,13 +80,27 @@ export function Process() {
               >
                 {/* Mobile layout */}
                 <div className="lg:hidden flex items-start gap-5">
-                  <div className="flex items-center justify-center w-11 h-11 rounded-full border border-forge-divider bg-forge-bg shrink-0 relative z-10">
+                  {/* Step circle with scale animation */}
+                  <div
+                    className="flex items-center justify-center w-11 h-11 rounded-full border border-forge-divider bg-forge-bg shrink-0 relative z-10"
+                    style={{
+                      transform: stepsVisible ? "scale(1)" : "scale(0.8)",
+                      transition: `transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${200 + index * 100}ms`,
+                    }}
+                  >
                     <span className="text-[14px] font-bold text-forge-text tracking-tight font-syne">
                       {step.number}
                     </span>
                   </div>
+                  {/* Mobile vertical connecting line — animates scaleY 0→1 */}
                   {index < steps.length - 1 && (
-                    <div className="absolute top-11 left-[21px] w-px h-[calc(100%+8px)] bg-forge-divider" />
+                    <div
+                      className="absolute top-11 left-[21px] w-px h-[calc(100%+8px)] bg-forge-divider origin-top"
+                      style={{
+                        transform: stepsVisible ? "scaleY(1)" : "scaleY(0)",
+                        transition: `transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) ${300 + index * 100}ms`,
+                      }}
+                    />
                   )}
                   <div className="pb-10">
                     <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
@@ -92,7 +114,14 @@ export function Process() {
 
                 {/* Desktop layout */}
                 <div className="hidden lg:flex flex-col items-center text-center px-4">
-                  <div className="flex items-center justify-center w-[72px] h-[72px] rounded-full border border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/30 group">
+                  {/* Step circle with scale animation */}
+                  <div
+                    className="flex items-center justify-center w-[72px] h-[72px] rounded-full border border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/30 group"
+                    style={{
+                      transform: stepsVisible ? "scale(1)" : "scale(0.8)",
+                      transition: `border-color 0.3s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${200 + index * 100}ms`,
+                    }}
+                  >
                     <span className="text-[22px] font-bold text-forge-text tracking-tight transition-colors duration-300 group-hover:text-forge-accent font-syne">
                       {step.number}
                     </span>
