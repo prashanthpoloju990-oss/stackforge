@@ -494,3 +494,218 @@ Stage Summary:
 - Orange theme (#FF6A00) for primary buttons and active states
 - Mobile (375px): ImageSlider hidden, single column, all elements visible
 - Zero console errors, zero visual bugs, zero missing elements
+
+---
+Task ID: 14
+Agent: browser-verify
+Task: Browser verify enhanced contact form with comprehensive validation
+
+Work Log:
+- Read worklog.md (tasks 1–13) to understand full project history
+- Read contact.tsx source (698 lines) — confirmed enhanced form with: progress bar, 7 fields (6 required + 1 optional), 2×2 quick service buttons, blur-triggered validation, animated progress bar, submit button state changes, success state
+- Launched agent-browser, set viewport 1440×900 (desktop)
+- Navigated to http://localhost:3000/#contact
+- Took desktop screenshot: /home/z/my-project/contact-enhanced-desktop.png
+- Ran accessibility tree snapshot + comprehensive JavaScript DOM verification queries
+- Tested validation: blur-triggered error on name field → confirmed red border, AlertCircle icon, error message
+- Tested valid state: filled name → confirmed green border, CheckCircle2 icon, error cleared
+- Tested quick service button pre-fill: clicked "New Website" → confirmed serviceNeed select populated with "New Website"
+- Tested progress bar updates: 0/6 → 1/6 (17%) → 2/6 (33%) → 6/6 (100%) at each stage
+- Tested progress bar color: orange (#FF6A00) until 100%, green (#22C55E) at 100%
+- Tested submit button state: "Get Free Consultation" (disabled) → "Submit Project Inquiry" (enabled) when all required valid
+- Filled all 6 required fields to verify submit button enables → confirmed text change and disabled=false
+- Took filled screenshot: /home/z/my-project/contact-enhanced-filled.png
+- Reloaded page, clicked submit with empty fields → button is disabled so handleSubmit does NOT fire
+- Autofocus caused name field to blur when submit clicked → only name error appeared (blur-triggered)
+- Took error screenshot: /home/z/my-project/contact-enhanced-errors.png
+- Switched to 375×812 (iPhone X) viewport for mobile testing
+- Took mobile screenshot: /home/z/my-project/contact-enhanced-mobile-375.png
+- Ran same verification queries at mobile width
+- Checked browser console on both viewports: zero errors
+
+Desktop Verification Results (1440×900):
+
+1. ✅ Layout — centered card with 2-col grid:
+   - Card: "w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border"
+   - gridTemplateCols: "511px 511px" (2 equal columns)
+   - Card has 2 children: left panel (ImageSlider) + right panel (form)
+
+2. ✅ LEFT column — ImageSlider:
+   - Left panel display:block on desktop
+   - Images confirmed (2 visible due to AnimatePresence crossfade)
+   - 4 dot indicator buttons with "Go to slide 1–4" aria-labels
+
+3. ✅ RIGHT column — form:
+   - display:flex, bg-card
+   - Heading: "Start Your Project" (font-playfair)
+   - Subtitle: "Tell us what you need — we'll get it done."
+   - max-h-screen lg:overflow-y-auto (right panel scrollable)
+
+4. ✅ Progress bar:
+   - Track: h-1.5 rounded-full bg-muted found
+   - Fill bar: animated via framer-motion (0.4s easeOut)
+   - Empty state: width=0px, backgroundColor=rgb(255,106,0) = orange
+   - Label: "0/6 required fields" with "0%" percentage
+   - After filling 1 field: "1/6 required fields" / "17%"
+   - After pre-filling service: "2/6 required fields" / "33%"
+   - All valid: "6/6 required fields" / "100%", color=rgb(34,197,94) = green (#22C55E)
+
+5. ✅ Quick service buttons — 2×2 grid:
+   - 4 buttons: "New Website" (Globe), "Website Redesign" (RefreshCw), "Landing Page" (LayoutGrid), "UI/UX Design" (Palette)
+   - Grid: grid-cols-2, gridTemplateCols: "201.5px 201.5px"
+   - Click "New Website" → serviceNeed select pre-filled with "New Website" ✅
+   - Active state: bg-primary text-primary-foreground (orange bg + white text)
+
+6. ✅ Required fields (6 total) — ALL visible with red asterisk:
+   - Full Name* (UserIcon, id="name") — text input ✅
+   - Email or WhatsApp* (AtSignIcon, id="contact") — text input ✅
+   - Business Type* (select, id="businessType") — 6 options ✅
+   - What Do You Need?* (select, id="serviceNeed") — 6 options ✅
+   - Budget Range* (select, id="budget") — 5 options ✅
+   - Timeline* (select, id="timeline") — 5 options ✅
+   - Project Details (no asterisk — optional, FileText, textarea, id="details") ✅
+
+7. ✅ Validation behavior:
+   - Blur triggers validation (name blurred empty → "Name is required" error) ✅
+   - Error: red border (border-red-300), red focus ring (focus-visible:ring-red-100) ✅
+   - Error message below field: "Name is required" with AlertCircle SVG icon, text-red-400/90 ✅
+   - Status icon (right): AlertCircle (red) on error, CheckCircle2 (green) on valid ✅
+   - Valid: green border (border-green-500/50), error message removed ✅
+   - Untouched fields show NO errors (contact field had no error before blur) ✅
+   - Error messages animate in/out with framer-motion (0.2s, opacity+y) ✅
+   - Text inputs in 2-col grid: gridTemplateCols "199.5px 199.5px" ✅
+   - Select fields in 2×2 grid: gridTemplateCols "199.5px 199.5px" ✅
+   - Textarea: full-width below selects ✅
+
+8. ✅ Submit button behavior:
+   - Empty form: "Get Free Consultation" + SendIcon, disabled=true ✅
+   - All valid: "Submit Project Inquiry" + CheckCircle2, disabled=false ✅
+   - Spinner SVG + "Sending..." present in code for submitting state ✅
+
+9. ✅ Mobile (375×812):
+   - Left panel: display:none (hidden lg:block) ✅
+   - Card: single column, gridTemplateCols "341px" ✅
+   - Form field grids: collapse to single column (293px each) ✅
+   - Service buttons: still 2×2 grid (140.5px 140.5px) — appropriate for small buttons ✅
+   - All 7 labels present with correct asterisks ✅
+   - All 2+4+1 fields present ✅
+   - Progress bar: 0px fill ✅
+   - Submit button: "Get Free Consultation", disabled ✅
+   - Trust text: visible ✅
+
+10. ✅ OR separator: "Or fill in the form" centered between service buttons and form fields
+
+11. ✅ Success state (in code): "You're all set!" heading + green animated checkmark + "We've received your inquiry"
+
+12. ✅ Trust text: "No spam. We'll contact you within 12 hours." with ShieldCheck icon
+
+Issues Found:
+
+⚠️ CRITICAL: Submit button is DISABLED when form is invalid (disabled={!isValid || isSubmitting}). This means:
+   - Users CANNOT click the submit button to trigger handleSubmit
+   - handleSubmit contains logic to touch ALL fields, validate ALL at once, and focus the first error field
+   - This full-form validation code path is NEVER reached via the submit button
+   - The requirement says "Try clicking the submit button with empty fields — it should focus the first empty required field" — this does NOT work because the button is disabled
+   - Current behavior: errors only appear one at a time as individual fields are blurred
+   - FIX: Remove the disabled condition on the submit button OR keep disabled but also add a separate "Validate" mechanism
+   - NOTE: The requirement spec may have been aspirational. The current progressive disclosure (one field at a time) is a valid UX pattern, but conflicts with the spec requirement.
+
+⚠️ MINOR: The "Website Redesign" quick service button label doesn't match the select dropdown option "Website Redesign". Let me verify... actually they DO match. Both say "Website Redesign". ✅ No issue.
+
+⚠️ MINOR: Contact field value was empty in one verification pass after using fill command — the fill command may have had timing issues. However, the progress bar showing "6/6" and submit button being enabled confirm the value was present. Likely a timing issue with the eval script.
+
+Zero console errors on both desktop and mobile viewports.
+
+Screenshots saved:
+- Desktop empty: /home/z/my-project/contact-enhanced-desktop.png
+- Desktop filled: /home/z/my-project/contact-enhanced-filled.png
+- Desktop error state: /home/z/my-project/contact-enhanced-errors.png
+- Mobile (375×812): /home/z/my-project/contact-enhanced-mobile-375.png
+
+Stage Summary:
+- 11 of 12 requirement categories fully verified ✅
+- Layout: centered card with 2-col grid (ImageSlider left, form right) ✅
+- Progress bar: animated, orange (#FF6A00) → green (#22C55E) at 100%, "X/6 required fields" label ✅
+- Quick service buttons: 2×2 grid, pre-fills serviceNeed dropdown ✅
+- All 7 fields present with correct icons, asterisks, and labels ✅
+- Validation: blur-triggered errors with red borders/green borders, AlertCircle/CheckCircle2 icons ✅
+- Submit button: "Get Free Consultation" (disabled) → "Submit Project Inquiry" (enabled) ✅
+- Mobile: left panel hidden, single-column form, all elements visible ✅
+- Success state: "You're all set!" with animated green checkmark ✅
+- Zero console errors ✅
+- 1 CRITICAL issue: disabled submit button prevents full-form validation on submit (handleSubmit never fires when form is invalid)
+
+---
+Task ID: 15
+Agent: browser-verify
+Task: Re-verify submit validation fix — submit button always clickable (dimmed at 70%), full-form validation on empty submit
+
+Work Log:
+- Read worklog.md (tasks 1–14) to understand full project history and the CRITICAL issue from Task 14
+- Confirmed the fix in contact.tsx source: `disabled={isSubmitting}` (NOT `disabled={!isValid || isSubmitting}`), `!isValid && !isSubmitting && "opacity-70"` (visual dim only)
+- Launched agent-browser, set viewport 1440×900 (desktop)
+- Navigated to http://localhost:3000/#contact
+
+Step 1: Navigate to #contact
+- ✅ PASS — Page loaded, contact section visible with all form elements
+
+Step 2: Submit with empty fields → all 6 errors
+- Verified submit button: `disabled: false`, `opacity: "0.7"`, text: "Get Free Consultation" — confirmed NOT disabled, visually dimmed
+- Focused submit button + pressed Enter to trigger form submit
+- ✅ PASS — All 6 error messages appeared simultaneously:
+  1. "Name is required" (Full Name)
+  2. "Contact is required" (Email or WhatsApp)
+  3. "Please select your business type" (Business Type)
+  4. "Please select a service" (What Do You Need?)
+  5. "Please select a budget range" (Budget Range)
+  6. "Please select a timeline" (Timeline)
+- 6 labels turned red, 6 red borders on fields, 6 error message paragraphs
+
+Step 3: First error field focused/scrolled to
+- ✅ PASS — `document.activeElement` = `<input id="name">` (first error field)
+- Name field top position: 468px within 900px viewport (in viewport, scrolled into view)
+
+Step 4: Fill Name + Contact, submit again → 4 remaining errors
+- Filled Name = "Test", Contact = "test@example.com"
+- 2 green borders appeared (name, contact validated)
+- 4 red borders remained (businessType, serviceNeed, budget, timeline)
+- Pressed Enter on submit button again
+- ✅ PASS — Exactly 4 errors remain:
+  1. "Please select your business type"
+  2. "Please select a service"
+  3. "Please select a budget range"
+  4. "Please select a timeline"
+- First error field focused: `<select id="businessType">`
+
+Step 5: Select all 4 dropdowns → button text change + checkmark
+- Selected Business Type = "Startup"
+- Selected Service = "New Website"
+- Selected Budget = "$700 – $1,500"
+- Selected Timeline = "This month"
+- ✅ PASS — Submit button changed:
+  - Text: "Submit Project Inquiry" (was "Get Free Consultation")
+  - Opacity: 1.0 (was 0.7)
+  - Has CheckCircle2 SVG icon (was SendIcon)
+  - disabled: false
+
+Step 6: Progress bar 6/6 and green
+- ✅ PASS — Progress bar confirmed:
+  - Label: "6/6 required fields"
+  - Percentage: "100%"
+  - Fill bar color: rgb(34, 197, 94) = #22C55E (green, was orange #FF6A00)
+  - Fill width: 415px (full width of track)
+
+Additional Checks:
+- Zero console errors throughout entire test session
+- No error paragraphs remain when all fields are valid
+- No form submission was actually sent (we didn't click submit with all valid fields, to avoid creating test data in DB)
+
+Stage Summary:
+- ALL 9 verification steps PASSED ✅
+- Submit button fix CONFIRMED: button is `disabled={isSubmitting}` only, dimmed at `opacity-70` when invalid
+- Full-form validation now works: handleSubmit touches all fields, runs validateAll, sets all errors simultaneously
+- First error field auto-focus + scrollIntoView working correctly
+- Progressive error clearing works: fixed fields show green borders, remaining errors persist
+- Button state transitions: "Get Free Consultation" + SendIcon (dimmed) → "Submit Project Inquiry" + CheckCircle2 (full opacity)
+- Progress bar: 0/6 orange → 6/6 green with 100% label
+- Previous CRITICAL issue from Task 14 is now FIXED
