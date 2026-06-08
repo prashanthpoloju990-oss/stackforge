@@ -72,13 +72,13 @@ export function Process() {
               >
                 {/* Mobile layout */}
                 <div className="lg:hidden flex items-start gap-5">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-forge-divider bg-forge-bg shrink-0 relative z-10">
+                  <div className="flex items-center justify-center w-11 h-11 rounded-full border border-forge-divider bg-forge-bg shrink-0 relative z-10">
                     <span className="text-[14px] font-bold text-forge-text tracking-tight font-syne">
                       {step.number}
                     </span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className="absolute top-10 left-[19px] w-px h-[calc(100%+8px)] bg-forge-divider" />
+                    <div className="absolute top-11 left-[21px] w-px h-[calc(100%+8px)] bg-forge-divider" />
                   )}
                   <div className="pb-10">
                     <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">

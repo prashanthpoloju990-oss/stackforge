@@ -11,7 +11,7 @@ export function CtaBanner() {
     <section className="relative py-24 md:py-32 lg:py-[130px] overflow-hidden">
       {/* Shader aurora background */}
       <AnimatedShaderBackground
-        className="absolute inset-0"
+        className="absolute inset-0 shader-bg"
         opacity={0.15}
         mixBlendMode="screen"
       />

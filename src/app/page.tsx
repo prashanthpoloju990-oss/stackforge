@@ -9,14 +9,14 @@ import { TechStack } from "@/components/stackforge/tech-stack";
 import { FAQ } from "@/components/stackforge/faq";
 import { Pricing } from "@/components/stackforge/pricing";
 import { CtaBanner } from "@/components/stackforge/cta-banner";
-import { Contact } from "@/components/stackforge/contact";
+import { Contact } from "@/components/stackforge/contact-lazy";
 import { About } from "@/components/stackforge/about";
 import { Footer } from "@/components/stackforge/footer";
 import { StickyCta } from "@/components/stackforge/sticky-cta";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col bg-forge-bg">
+    <div className="min-h-screen flex flex-col bg-forge-bg overflow-x-hidden">
       {/* Grain texture overlay */}
       <div className="grain-overlay" aria-hidden="true" />
 

@@ -85,7 +85,7 @@ export function Navbar() {
             <ThemeToggle />
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-forge-text -mr-1"
+              className="flex flex-col items-center justify-center w-11 h-11 gap-[5px] text-forge-text -mr-1"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
             <span
@@ -126,7 +126,7 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="text-fluid-h3 text-forge-text-secondary/60 font-medium tracking-[0.08em] transition-colors duration-200 hover:text-forge-text py-1"
+              className="text-fluid-h3 text-forge-text-secondary/60 font-medium tracking-[0.08em] transition-colors duration-200 hover:text-forge-text py-2"
             >
               {link.label}
             </a>

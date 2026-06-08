@@ -71,7 +71,7 @@ export function Hero() {
     >
       {/* Shader aurora background */}
       <AnimatedShaderBackground
-        className="absolute inset-0"
+        className="absolute inset-0 shader-bg"
         opacity={0.3}
         mixBlendMode="screen"
       />
@@ -147,14 +147,14 @@ export function Hero() {
 
             {/* Trust indicators */}
             <div
-              className={`flex items-center gap-5 sm:gap-7 mt-11 transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-[400ms] ${
+              className={`flex items-center gap-4 sm:gap-7 mt-11 transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-[400ms] overflow-x-auto scrollbar-none ${
                 mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
               <CounterStat value={50} suffix="+" label="Projects Delivered" />
-              <div className="w-px h-9 bg-forge-divider" />
+              <div className="w-px h-9 bg-forge-divider shrink-0" />
               <CounterStat value={99} suffix=".9%" label="Uptime SLA" />
-              <div className="w-px h-9 bg-forge-divider" />
+              <div className="w-px h-9 bg-forge-divider shrink-0" />
               <CounterStat value={24} suffix="h" label="Avg. Response" />
             </div>
           </div>

@@ -20,14 +20,15 @@ export function StickyCta() {
   const handleClick = () => {
     const el = document.getElementById("contact");
     if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      history.replaceState(null, "", "#contact");
     }
   };
 
   return (
     <div
       className={cn(
-        "fixed bottom-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-400 pointer-events-none",
+        "fixed bottom-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-400 pointer-events-none pb-[max(0px,env(safe-area-inset-bottom))]",
         visible
           ? "opacity-100 translate-y-0 pointer-events-auto"
           : "opacity-0 translate-y-4"

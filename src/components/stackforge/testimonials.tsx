@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Star } from "lucide-react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { cn } from "@/lib/utils";
 import { BorderGlow } from "@/components/ui/border-glow";
@@ -13,6 +14,9 @@ const testimonials = [
     role: "Founder, NovaPay",
     avatar: "/avatars/arjun.jpg",
     featured: true,
+    rating: 5,
+    initials: "NP",
+    companyColor: "#FF6A00",
   },
   {
     quote:
@@ -21,6 +25,9 @@ const testimonials = [
     role: "CTO, ElevateHR",
     avatar: "/avatars/priya.jpg",
     featured: false,
+    rating: 5,
+    initials: "EH",
+    companyColor: "#6366F1",
   },
   {
     quote:
@@ -29,6 +36,9 @@ const testimonials = [
     role: "CEO, DineFine",
     avatar: "/avatars/rahul.jpg",
     featured: false,
+    rating: 5,
+    initials: "DF",
+    companyColor: "#10B981",
   },
 ];
 
@@ -83,6 +93,17 @@ export function Testimonials() {
               </span>
 
               <div className="relative">
+                {/* Star rating */}
+                <div className="flex items-center gap-0.5 mb-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="size-3.5"
+                      fill={i < featured.rating ? "var(--forge-accent)" : "none"}
+                      stroke={i < featured.rating ? "var(--forge-accent)" : "var(--forge-divider)"}
+                    />
+                  ))}
+                </div>
                 <blockquote className="text-fluid-h2 text-forge-text/90 font-playfair max-w-[800px]">
                   {featured.quote}
                 </blockquote>
@@ -95,6 +116,15 @@ export function Testimonials() {
                       height={44}
                       className="w-full h-full object-cover"
                     />
+                  </div>
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0"
+                    style={{
+                      backgroundColor: featured.companyColor + "15",
+                      color: featured.companyColor,
+                    }}
+                  >
+                    {featured.initials}
                   </div>
                   <div>
                     <p className="text-fluid-body-lg text-forge-text font-semibold">
@@ -131,6 +161,17 @@ export function Testimonials() {
                 className="rounded-xl h-full"
               >
                 <div className="p-6 md:p-8">
+                  {/* Star rating */}
+                  <div className="flex items-center gap-0.5 mb-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className="size-3.5"
+                        fill={i < testimonial.rating ? "var(--forge-accent)" : "none"}
+                        stroke={i < testimonial.rating ? "var(--forge-accent)" : "var(--forge-divider)"}
+                      />
+                    ))}
+                  </div>
                   <blockquote className="text-fluid-body-lg text-forge-text-secondary/70">
                     &ldquo;{testimonial.quote}&rdquo;
                   </blockquote>
@@ -144,6 +185,15 @@ export function Testimonials() {
                         height={36}
                         className="w-full h-full object-cover"
                       />
+                    </div>
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-[9px] font-bold shrink-0"
+                      style={{
+                        backgroundColor: testimonial.companyColor + "15",
+                        color: testimonial.companyColor,
+                      }}
+                    >
+                      {testimonial.initials}
                     </div>
                     <div>
                       <p className="text-fluid-body text-forge-text font-medium">

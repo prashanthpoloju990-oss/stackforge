@@ -506,7 +506,7 @@ export function Contact() {
               onChange={(e) => handleChange(field.key, e.target.value)}
               onBlur={() => handleBlur(field.key)}
               className={cn(
-                "flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm shadow-sm shadow-black/5 transition-all duration-200 appearance-none cursor-pointer",
+                "flex h-11 w-full rounded-lg border bg-background px-3 py-2 text-sm shadow-sm shadow-black/5 transition-all duration-200 appearance-none cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-ring",
                 "hover:border-border/80",
                 "disabled:cursor-not-allowed disabled:opacity-50",
@@ -572,7 +572,7 @@ export function Contact() {
               onChange={(e) => handleChange(field.key, e.target.value)}
               onBlur={() => handleBlur(field.key)}
               className={cn(
-                "peer ps-10 h-10",
+                "peer ps-10 h-11",
                 hasError
                   ? "border-red-300/80 focus-visible:ring-red-200"
                   : isValidField
@@ -632,7 +632,7 @@ export function Contact() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className={cn(
-                "flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium transition-all duration-200",
+                "flex items-center justify-center gap-2 rounded-lg border px-3 py-3 text-xs font-medium transition-all duration-200 min-h-[44px]",
                 form.serviceNeed === service.value
                   ? "bg-forge-accent text-white border-forge-accent shadow-sm shadow-orange-500/15"
                   : "bg-background text-foreground/70 border-input hover:border-forge-accent/40 hover:text-foreground"

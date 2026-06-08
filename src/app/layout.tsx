@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Syne, Playfair_Display, Dancing_Script, Great_Vibes, Space_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { SmoothScrollProvider } from "@/components/ui/smooth-scroll-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -44,10 +45,14 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
+const SITE_URL = "https://stackforge.dev";
+const SITE_DESCRIPTION =
+  "StackForge builds premium, high-performance web experiences with precision engineering and modern design systems.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "StackForge — Engineering Digital Experiences",
-  description:
-    "StackForge builds premium, high-performance web experiences with precision engineering and modern design systems.",
+  description: SITE_DESCRIPTION,
   keywords: [
     "StackForge",
     "web development",
@@ -60,11 +65,18 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.jpg",
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: "StackForge — Engineering Digital Experiences",
-    description:
-      "Premium web development studio. We build fast, beautiful, scalable digital products.",
+    description: SITE_DESCRIPTION,
     siteName: "StackForge",
+    locale: "en_US",
     type: "website",
     images: [{
       url: "/logo.jpg",
@@ -75,9 +87,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    creator: "@stackforge",
+    site: "@stackforge",
     title: "StackForge — Engineering Digital Experiences",
-    description:
-      "Premium web development studio. We build fast, beautiful, scalable digital products.",
+    description: SITE_DESCRIPTION,
     images: ["/logo.jpg"],
   },
 };
@@ -96,31 +109,47 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
+          <SmoothScrollProvider>{children}</SmoothScrollProvider>
         </ThemeProvider>
         {/* JSON-LD Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "StackForge",
-              url: "https://stackforge.dev",
-              logo: "https://stackforge.dev/logo.jpg",
-              description: "Premium web development studio crafting high-performance digital experiences.",
-              address: {
-                "@type": "PostalAddress",
-                addressLocality: "Hyderabad",
-                addressCountry: "IN",
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "StackForge",
+                url: SITE_URL,
+                logo: `${SITE_URL}/logo.jpg`,
+                description: "Premium web development studio crafting high-performance digital experiences.",
+                address: {
+                  "@type": "PostalAddress",
+                  addressLocality: "Hyderabad",
+                  addressCountry: "IN",
+                },
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  email: "hello@stackforge.dev",
+                  contactType: "customer service",
+                },
+                sameAs: [],
               },
-              contactPoint: {
-                "@type": "ContactPoint",
-                email: "hello@stackforge.dev",
-                contactType: "customer service",
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "StackForge",
+                url: SITE_URL,
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: {
+                    "@type": "EntryPoint",
+                    urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+                  },
+                  "query-input": "required name=search_term_string",
+                },
               },
-              sameAs: [],
-            }),
+            ]),
           }}
         />
       </body>

@@ -1,6 +1,8 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
+import { Mail, CheckCircle2, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const Lightfall = dynamic(() => import("@/components/ui/lightfall"), {
@@ -8,13 +10,60 @@ const Lightfall = dynamic(() => import("@/components/ui/lightfall"), {
   loading: () => null,
 });
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = React.useState("");
+  const [error, setError] = React.useState<string | null>(null);
+  const [status, setStatus] = React.useState<"idle" | "submitting" | "success" | "error">("idle");
+
+  const handleBlur = () => {
+    if (email.trim() && !EMAIL_REGEX.test(email.trim())) {
+      setError("Enter a valid email");
+    } else {
+      setError(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim().toLowerCase();
+
+    if (!trimmed || !EMAIL_REGEX.test(trimmed)) {
+      setError("Enter a valid email");
+      return;
+    }
+
+    setStatus("submitting");
+    setError(null);
+
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus("error");
+        setError(data.error || "Something went wrong");
+        return;
+      }
+
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+      setError("Network error");
+    }
+  };
 
   return (
     <footer className="relative bg-forge-bg border-t border-forge-divider pb-[env(safe-area-inset-bottom,0px)] overflow-hidden">
       {/* Lightfall shader background */}
-      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+      <div className="absolute inset-0 pointer-events-none lightfall-wrap" aria-hidden="true">
         <Lightfall
           colors={["#FF6A00", "#FF9F43", "#FFD93D"]}
           backgroundColor="#09090B"
@@ -64,16 +113,64 @@ export function Footer() {
               {["X", "Li", "Gh"].map((label) => (
                 <span
                   key={label}
-                  className="w-8 h-8 rounded-md border border-forge-divider flex items-center justify-center text-fluid-micro text-forge-text-secondary/30 hover:text-forge-text/60 hover:border-forge-border transition-all duration-200 cursor-pointer"
+                  className="w-11 h-11 rounded-md border border-forge-divider flex items-center justify-center text-fluid-micro text-forge-text-secondary/30 hover:text-forge-text/60 hover:border-forge-border transition-all duration-200 cursor-pointer"
                 >
                   {label}
                 </span>
               ))}
             </div>
+
+            {/* Newsletter signup */}
+            <div className="mt-8">
+              <span className="text-[13px] text-forge-text/40 font-medium block mb-3">
+                Stay updated
+              </span>
+              {status === "success" ? (
+                <div className="flex items-center gap-2 text-[13px] text-green-500">
+                  <CheckCircle2 className="size-4" />
+                  <span>You&apos;re in!</span>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (error) setError(null);
+                      }}
+                      onBlur={handleBlur}
+                      placeholder="you@email.com"
+                      disabled={status === "submitting"}
+                      className="w-full h-11 rounded-md border border-forge-divider bg-forge-bg/50 px-3 py-1 text-[13px] text-forge-text placeholder:text-forge-text-secondary/25 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-forge-accent/40 focus-visible:border-forge-accent/40 transition-all duration-200 disabled:opacity-50"
+                      aria-label="Email for newsletter"
+                    />
+                    <Mail className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 size-3.5 text-forge-text-secondary/20" />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={status === "submitting"}
+                    className="h-11 px-4 rounded-md bg-forge-accent text-white text-[13px] font-medium hover:bg-forge-accent/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                  >
+                    {status === "submitting" ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      "Subscribe"
+                    )}
+                  </button>
+                </form>
+              )}
+              {error && (
+                <p className="mt-1.5 text-[11px] text-red-400/80 leading-relaxed">
+                  {error}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Right — 3 Columns */}
-          <div className="grid grid-cols-3 gap-8 sm:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
             <div className="flex flex-col gap-3">
               <span className="text-fluid-micro text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
                 Pages
