@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Sparkles,
   Globe,
   RefreshCw,
   LayoutGrid,
@@ -26,6 +25,9 @@ import {
   DollarSign,
   Clock,
   FileText,
+  ArrowRight,
+  ArrowLeft,
+  ChevronRight,
 } from "lucide-react";
 
 /* ══════════════════════════════════════════════════
@@ -102,7 +104,7 @@ const FIELDS: FieldConfig[] = [
   {
     key: "contact",
     label: "Email or WhatsApp",
-    placeholder: "Email or WhatsApp number",
+    placeholder: "you@example.com or +91 98765 43210",
     required: true,
     icon: AtSignIcon,
     type: "text",
@@ -157,7 +159,7 @@ const FIELDS: FieldConfig[] = [
   {
     key: "timeline",
     label: "Timeline",
-    placeholder: "Select your timeline",
+    placeholder: "When do you need it?",
     required: true,
     icon: Clock,
     type: "select",
@@ -170,7 +172,7 @@ const FIELDS: FieldConfig[] = [
   {
     key: "details",
     label: "Project Details",
-    placeholder: "Describe your project, goals, and any specific requirements...",
+    placeholder: "Describe your project, goals, and any specific requirements…",
     required: false,
     icon: FileText,
     type: "textarea",
@@ -183,23 +185,113 @@ const FIELDS: FieldConfig[] = [
   },
 ];
 
+/* Step 1 fields: name, contact + quick service buttons */
+const STEP_1_KEYS: FormFieldKey[] = ["name", "contact"];
+const STEP_2_KEYS: FormFieldKey[] = ["businessType", "serviceNeed", "budget", "timeline", "details"];
+
+const STEP_1_FIELDS = FIELDS.filter((f) => STEP_1_KEYS.includes(f.key));
+const STEP_2_FIELDS = FIELDS.filter((f) => STEP_2_KEYS.includes(f.key));
+
 /* ── Framer variants ── */
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
   },
 };
 
 const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
+  hidden: { y: 16, opacity: 0 },
   visible: {
     y: 0,
     opacity: 1,
-    transition: { type: "spring", stiffness: 100, damping: 12 },
+    transition: { type: "spring", stiffness: 120, damping: 14 },
   },
 };
+
+const slideInRight = {
+  initial: { x: 60, opacity: 0 },
+  animate: { x: 0, opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+  exit: { x: -60, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } },
+};
+
+const slideInLeft = {
+  initial: { x: -60, opacity: 0 },
+  animate: { x: 0, opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+  exit: { x: 60, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } },
+};
+
+/* ══════════════════════════════════════════════════
+   Step Indicator
+   ══════════════════════════════════════════════════ */
+function StepIndicator({
+  step,
+  direction,
+}: {
+  step: 1 | 2;
+  direction: number;
+}) {
+  const steps = [
+    { num: 1, label: "Your Details" },
+    { num: 2, label: "Your Project" },
+  ] as const;
+
+  return (
+    <div className="flex items-center gap-3 mb-7">
+      {steps.map((s, i) => {
+        const isActive = step === s.num;
+        const isDone = step > s.num;
+
+        return (
+          <React.Fragment key={s.num}>
+            {i > 0 && (
+              <motion.div
+                className="h-px flex-1"
+                animate={{ backgroundColor: isDone ? "var(--forge-accent, #FF6A00)" : "var(--border)" }}
+                transition={{ duration: 0.4 }}
+              />
+            )}
+            <motion.div
+              className="flex items-center gap-2"
+              key={`${s.num}-${direction}`}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold transition-all duration-300",
+                  isActive
+                    ? "bg-forge-accent text-white shadow-sm shadow-orange-500/20"
+                    : isDone
+                      ? "bg-forge-accent/15 text-forge-accent"
+                      : "bg-muted text-muted-foreground"
+                )}
+              >
+                {isDone ? (
+                  <CheckCircle2 className="size-3.5" />
+                ) : (
+                  s.num
+                )}
+              </div>
+              <span
+                className={cn(
+                  "text-sm font-medium transition-colors duration-300 hidden sm:block",
+                  isActive
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                {s.label}
+              </span>
+            </motion.div>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
 
 /* ══════════════════════════════════════════════════
    Main Component
@@ -213,14 +305,16 @@ export function Contact() {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
+  const [currentStep, setCurrentStep] = React.useState<1 | 2>(1);
+  const [slideDirection, setSlideDirection] = React.useState<number>(1);
 
-  /* Autofocus first field */
+  /* Autofocus first field on step 1 */
   React.useEffect(() => {
-    if (isVisible && nameRef.current && !isSuccess) {
+    if (isVisible && currentStep === 1 && nameRef.current && !isSuccess) {
       const t = setTimeout(() => nameRef.current?.focus(), 600);
       return () => clearTimeout(t);
     }
-  }, [isVisible, isSuccess]);
+  }, [isVisible, currentStep, isSuccess]);
 
   /* Auto-clear submit error */
   React.useEffect(() => {
@@ -241,37 +335,60 @@ export function Contact() {
     [form]
   );
 
-  /* ── Full form validation ── */
-  const validateAll = React.useCallback((): FormErrors => {
-    const errs: FormErrors = {};
-    for (const field of FIELDS) {
-      if (field.required || form[field.key].trim().length > 0) {
-        const err = field.validate?.(form[field.key]);
-        if (err) errs[field.key] = err;
+  /* ── Validate a set of fields ── */
+  const validateStep = React.useCallback(
+    (keys: FormFieldKey[]): boolean => {
+      const errs: FormErrors = {};
+      const newTouched: Partial<Record<FormFieldKey, boolean>> = {};
+
+      keys.forEach((key) => {
+        newTouched[key] = true;
+        const field = FIELDS.find((f) => f.key === key);
+        if (field?.required || form[key].trim().length > 0) {
+          const err = field?.validate?.(form[key]);
+          if (err) errs[key] = err;
+        }
+      });
+
+      setTouched((p) => ({ ...p, ...newTouched }));
+      setErrors((p) => ({ ...p, ...errs }));
+
+      if (Object.keys(errs).length > 0) {
+        const firstErr = keys.find((k) => errs[k]);
+        if (firstErr) {
+          const el = document.getElementById(firstErr);
+          el?.focus();
+          el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return false;
       }
-    }
-    return errs;
-  }, [form]);
+      return true;
+    },
+    [form]
+  );
 
-  /* ── Form completeness (for submit button) ── */
-  const requiredFields = FIELDS.filter((f) => f.required);
-  const isValid = React.useMemo(() => {
-    return requiredFields.every((f) => validateField(f.key) === undefined);
-  }, [requiredFields, validateField]);
+  /* ── Completion per step ── */
+  const step1Valid = React.useMemo(() => {
+    return STEP_1_KEYS.every((k) => validateField(k) === undefined);
+  }, [STEP_1_KEYS, validateField]);
 
-  /* ── Completion progress (filled required / total required) ── */
+  const step2Valid = React.useMemo(() => {
+    const required = STEP_2_FIELDS.filter((f) => f.required);
+    return required.every((f) => validateField(f.key) === undefined);
+  }, [STEP_2_FIELDS, validateField]);
+
+  /* Overall progress */
+  const allRequiredFields = FIELDS.filter((f) => f.required);
   const filledCount = React.useMemo(() => {
-    return requiredFields.filter((f) => validateField(f.key) === undefined).length;
-  }, [requiredFields, validateField]);
-
+    return allRequiredFields.filter((f) => validateField(f.key) === undefined).length;
+  }, [allRequiredFields, validateField]);
   const progressPercent = React.useMemo(() => {
-    return Math.round((filledCount / requiredFields.length) * 100);
-  }, [filledCount, requiredFields]);
+    return Math.round((filledCount / allRequiredFields.length) * 100);
+  }, [filledCount, allRequiredFields]);
 
   /* ── Handlers ── */
   const handleChange = (field: FormFieldKey, value: string) => {
     setForm((p) => ({ ...p, [field]: value }));
-    /* Clear error on type */
     if (touched[field] && errors[field]) {
       const err = FIELDS.find((f) => f.key === field)?.validate?.(value);
       setErrors((p) => {
@@ -294,26 +411,34 @@ export function Contact() {
     });
   };
 
+  const handleNext = () => {
+    if (validateStep(STEP_1_KEYS)) {
+      setSlideDirection(1);
+      setCurrentStep(2);
+    }
+  };
+
+  const handleBack = () => {
+    setSlideDirection(-1);
+    setCurrentStep(1);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
 
-    /* Touch all required fields */
-    const newTouched: Partial<Record<FormFieldKey, boolean>> = {};
-    requiredFields.forEach((f) => { newTouched[f.key] = true; });
-    setTouched(newTouched);
+    if (!validateStep(STEP_2_KEYS)) return;
 
-    const ne = validateAll();
-    setErrors(ne);
-
-    if (Object.keys(ne).length > 0) {
-      /* Focus first error field */
-      const firstError = requiredFields.find((f) => ne[f.key]);
-      if (firstError) {
-        const el = document.getElementById(firstError.key);
-        el?.focus();
-        el?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+    /* Also double-check step 1 fields */
+    const step1Errs: FormErrors = {};
+    STEP_1_KEYS.forEach((key) => {
+      const err = validateField(key);
+      if (err) step1Errs[key] = err;
+    });
+    if (Object.keys(step1Errs).length > 0) {
+      setErrors((p) => ({ ...p, ...step1Errs }));
+      setSlideDirection(-1);
+      setCurrentStep(1);
       return;
     }
 
@@ -330,6 +455,7 @@ export function Contact() {
       setForm(INITIAL_FORM);
       setTouched({});
       setErrors({});
+      setCurrentStep(1);
     } catch (err) {
       setSubmitError(
         err instanceof Error ? err.message : "Something went wrong. Please try again."
@@ -345,30 +471,28 @@ export function Contact() {
   };
 
   /* ── Render field ── */
-  const renderField = (field: FieldConfig, index: number) => {
+  const renderField = (field: FieldConfig) => {
     const hasError = touched[field.key] && errors[field.key];
     const isValidField = touched[field.key] && !errors[field.key] && form[field.key].trim().length > 0;
     const isRequired = field.required;
 
     return (
-      <motion.div key={field.key} variants={itemVariants} className="space-y-1.5">
+      <div key={field.key} className="space-y-2">
         {/* Label row */}
         <div className="flex items-center justify-between">
           <Label
             htmlFor={field.key}
             className={cn(
-              "text-sm font-medium",
-              hasError && "text-red-400"
+              "text-sm font-medium leading-none",
+              hasError ? "text-red-400" : "text-foreground/80"
             )}
           >
             {field.label}
-            {isRequired && (
-              <span className="ml-0.5 text-red-400/70">*</span>
-            )}
+            {isRequired && <span className="ml-1 text-red-400/60">*</span>}
           </Label>
           {field.key === "details" && (
-            <span className="text-xs text-muted-foreground">
-              {form.details.trim().length} / 2000
+            <span className="text-[11px] text-muted-foreground tabular-nums">
+              {form.details.trim().length}/2000
             </span>
           )}
         </div>
@@ -382,12 +506,14 @@ export function Contact() {
               onChange={(e) => handleChange(field.key, e.target.value)}
               onBlur={() => handleBlur(field.key)}
               className={cn(
-                "flex h-9 w-full rounded-lg border bg-background px-3 py-2 text-sm shadow-sm shadow-black/5 transition-colors appearance-none cursor-pointer",
-                "focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50",
+                "flex h-10 w-full rounded-lg border bg-background px-3 py-2 text-sm shadow-sm shadow-black/5 transition-all duration-200 appearance-none cursor-pointer",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-ring",
+                "hover:border-border/80",
+                "disabled:cursor-not-allowed disabled:opacity-50",
                 hasError
-                  ? "border-red-300 focus-visible:border-red-400 focus-visible:ring-red-100"
+                  ? "border-red-300/80 focus-visible:ring-red-200"
                   : isValidField
-                    ? "border-green-500/50"
+                    ? "border-green-500/40 focus-visible:ring-green-200"
                     : "border-input",
                 !form[field.key] && "text-muted-foreground"
               )}
@@ -396,16 +522,19 @@ export function Contact() {
                 {field.placeholder}
               </option>
               {field.options?.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
-            {/* Status icon */}
             <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3">
               {hasError ? (
                 <AlertCircle className="size-3.5 text-red-400" />
               ) : isValidField ? (
                 <CheckCircle2 className="size-3.5 text-green-500" />
-              ) : null}
+              ) : (
+                <ChevronRight className="size-3.5 text-muted-foreground -rotate-90" />
+              )}
             </div>
           </div>
         ) : field.type === "textarea" ? (
@@ -416,17 +545,18 @@ export function Contact() {
               onChange={(e) => handleChange(field.key, e.target.value)}
               onBlur={() => handleBlur(field.key)}
               placeholder={field.placeholder}
-              rows={3}
+              rows={4}
               maxLength={2000}
               className={cn(
-                "flex w-full rounded-lg border bg-background px-3 py-2 text-sm shadow-sm shadow-black/5 transition-colors resize-none",
-                "focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50",
+                "flex w-full rounded-lg border bg-background px-3 py-2.5 text-sm shadow-sm shadow-black/5 transition-all duration-200 resize-none",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-ring",
+                "hover:border-border/80",
+                "min-h-[100px]",
                 hasError
-                  ? "border-red-300 focus-visible:border-red-400 focus-visible:ring-red-100"
+                  ? "border-red-300/80 focus-visible:ring-red-200"
                   : isValidField
-                    ? "border-green-500/50"
-                    : "border-input",
-                "min-h-[80px]"
+                    ? "border-green-500/40 focus-visible:ring-green-200"
+                    : "border-input"
               )}
             />
           </div>
@@ -442,18 +572,17 @@ export function Contact() {
               onChange={(e) => handleChange(field.key, e.target.value)}
               onBlur={() => handleBlur(field.key)}
               className={cn(
-                "peer ps-9",
+                "peer ps-10 h-10",
                 hasError
-                  ? "border-red-300 focus-visible:border-red-400 focus-visible:ring-red-100"
+                  ? "border-red-300/80 focus-visible:ring-red-200"
                   : isValidField
-                    ? "border-green-500/50"
+                    ? "border-green-500/40 focus-visible:ring-green-200"
                     : ""
               )}
             />
             <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 peer-disabled:opacity-50">
               <field.icon className="size-4" aria-hidden="true" />
             </div>
-            {/* Status icon */}
             <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3">
               {hasError ? (
                 <AlertCircle className="size-3.5 text-red-400" />
@@ -468,26 +597,151 @@ export function Contact() {
         <AnimatePresence mode="wait">
           {hasError && errors[field.key] && (
             <motion.p
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex items-center gap-1 pl-0.5 text-[11px] leading-relaxed text-red-400/90"
+              className="flex items-center gap-1 overflow-hidden pl-0.5 text-[11px] leading-relaxed text-red-400/90"
             >
               <AlertCircle className="size-3 flex-shrink-0" />
               {errors[field.key]}
             </motion.p>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     );
   };
 
-  /* Input fields only (not selects/textareas — rendered differently) */
-  const inputFields = FIELDS.filter((f) => f.type === "text");
-  const selectFields = FIELDS.filter((f) => f.type === "select");
-  const textareaFields = FIELDS.filter((f) => f.type === "textarea");
+  /* ── Step 1 content ── */
+  const renderStep1 = () => (
+    <motion.div
+      key="step-1"
+      {...slideInRight}
+      className="space-y-5"
+    >
+      {/* Quick service buttons */}
+      <div>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+          What do you need?
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {QUICK_SERVICES.map((service) => (
+            <motion.button
+              type="button"
+              key={service.value}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={cn(
+                "flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium transition-all duration-200",
+                form.serviceNeed === service.value
+                  ? "bg-forge-accent text-white border-forge-accent shadow-sm shadow-orange-500/15"
+                  : "bg-background text-foreground/70 border-input hover:border-forge-accent/40 hover:text-foreground"
+              )}
+              onClick={() => handleQuickService(service.value)}
+            >
+              <service.icon className="size-3.5" />
+              {service.label}
+            </motion.button>
+          ))}
+        </div>
+      </div>
 
+      {/* Separator */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-[11px] text-muted-foreground uppercase tracking-wider">Or fill your details</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      {/* Name */}
+      {STEP_1_FIELDS.map((field) => renderField(field))}
+
+      {/* Continue button */}
+      <div className="pt-2">
+        <Button
+          type="button"
+          onClick={handleNext}
+          className={cn(
+            "w-full h-11 text-sm font-semibold transition-all duration-300",
+            step1Valid
+              ? "bg-forge-accent hover:bg-forge-accent/90 text-white shadow-sm shadow-orange-500/15"
+              : "opacity-50 cursor-not-allowed"
+          )}
+          disabled={!step1Valid}
+        >
+          <span className="flex items-center gap-2">
+            Continue
+            <ArrowRight className="size-4" />
+          </span>
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  /* ── Step 2 content ── */
+  const renderStep2 = (dir: number) => (
+    <motion.div
+      key="step-2"
+      {...(dir > 0 ? slideInRight : slideInLeft)}
+      className="space-y-5"
+    >
+      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+        Project specifics
+      </p>
+
+      {/* Select fields in 2-column grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {STEP_2_FIELDS.filter((f) => f.type === "select").map((field) => renderField(field))}
+      </div>
+
+      {/* Textarea */}
+      {STEP_2_FIELDS.filter((f) => f.type === "textarea").map((field) => renderField(field))}
+
+      {/* Navigation buttons */}
+      <div className="flex items-center gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleBack}
+          className="h-11 px-5 text-sm font-medium"
+        >
+          <span className="flex items-center gap-1.5">
+            <ArrowLeft className="size-3.5" />
+            Back
+          </span>
+        </Button>
+        <Button
+          type="submit"
+          className={cn(
+            "flex-1 h-11 text-sm font-semibold transition-all duration-300",
+            step2Valid
+              ? "bg-forge-accent hover:bg-forge-accent/90 text-white shadow-sm shadow-orange-500/15"
+              : "opacity-50 cursor-not-allowed"
+          )}
+          disabled={isSubmitting || !step2Valid}
+        >
+          {isSubmitting ? (
+            <span className="flex items-center gap-2">
+              <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Sending…
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <SendIcon className="size-4" />
+              Submit Project Inquiry
+            </span>
+          )}
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  /* ══════════════════════════════════════════════════
+     Render
+     ══════════════════════════════════════════════════ */
   return (
     <section id="contact">
       <div
@@ -510,140 +764,70 @@ export function Contact() {
             </div>
 
             {/* ── RIGHT: Form ── */}
-            <div className="w-full bg-card text-card-foreground flex flex-col items-center justify-start p-6 md:p-10 lg:p-12 max-h-screen lg:max-h-screen lg:overflow-y-auto">
-              <motion.div
-                className="w-full max-w-md py-8 lg:py-4"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                {/* Heading */}
-                <motion.h1 variants={itemVariants} className="text-fluid-h1 font-bold tracking-tight mb-1 font-playfair">
-                  Start Your Project
-                </motion.h1>
-                <motion.p variants={itemVariants} className="text-muted-foreground text-sm mb-6">
-                  Tell us what you need — we&apos;ll get it done.
-                </motion.p>
+            <div className="w-full bg-card text-card-foreground flex flex-col items-center justify-start p-6 md:p-10 lg:p-12">
+              <div className="w-full max-w-md py-6 lg:py-4">
+                {/* Heading — always visible */}
+                <div className="mb-6">
+                  <h1 className="text-fluid-h1 font-bold tracking-tight mb-1 font-playfair">
+                    Start Your Project
+                  </h1>
+                  <p className="text-muted-foreground text-sm">
+                    {currentStep === 1
+                      ? "Tell us who you are — we'll handle the rest."
+                      : "Almost there! Describe your dream project."}
+                  </p>
+                </div>
+
+                {/* Step Indicator */}
+                <StepIndicator step={currentStep} direction={slideDirection} />
 
                 {/* Progress bar */}
-                <motion.div variants={itemVariants} className="mb-6">
+                <div className="mb-6">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-muted-foreground">
-                      {filledCount}/{requiredFields.length} required fields
+                    <span className="text-[11px] text-muted-foreground">
+                      {filledCount}/{allRequiredFields.length} required
                     </span>
-                    <span className="text-xs font-medium tabular-nums" style={{ color: progressPercent === 100 ? "#22c55e" : "var(--foreground)" }}>
+                    <span
+                      className="text-[11px] font-medium tabular-nums"
+                      style={{ color: progressPercent === 100 ? "#22c55e" : "var(--foreground)" }}
+                    >
                       {progressPercent}%
                     </span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                  <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
                     <motion.div
                       className="h-full rounded-full"
                       animate={{
                         width: `${progressPercent}%`,
-                        backgroundColor: progressPercent === 100 ? "#22c55e" : "var(--forge-accent, #FF6A00)",
+                        backgroundColor:
+                          progressPercent === 100
+                            ? "#22c55e"
+                            : "var(--forge-accent, #FF6A00)",
                       }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
                     />
                   </div>
-                </motion.div>
+                </div>
 
                 {isSuccess ? (
                   <SuccessState />
                 ) : (
                   <>
-                    {/* Quick service buttons */}
-                    <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-5">
-                      {QUICK_SERVICES.map((service) => (
-                        <Button
-                          key={service.value}
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className={cn(
-                            "w-full justify-center text-xs",
-                            form.serviceNeed === service.value &&
-                              "bg-primary text-primary-foreground hover:bg-primary/90 border-primary"
-                          )}
-                          onClick={() => handleQuickService(service.value)}
-                        >
-                          <service.icon className="mr-1.5 h-3.5 w-3.5" />
-                          {service.label}
-                        </Button>
-                      ))}
-                    </motion.div>
+                    <form onSubmit={handleSubmit} noValidate>
+                      <AnimatePresence mode="wait">
+                        {currentStep === 1
+                          ? renderStep1()
+                          : renderStep2(slideDirection)}
+                      </AnimatePresence>
+                    </form>
 
-                    {/* OR separator */}
-                    <motion.div variants={itemVariants} className="relative mb-5">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">
-                          Or fill in the form
-                        </span>
-                      </div>
-                    </motion.div>
-
-                    {/* Form */}
-                    <motion.form
-                      variants={itemVariants}
-                      className="space-y-4"
-                      onSubmit={handleSubmit}
-                      noValidate
-                    >
-                      {/* Text inputs: Name + Contact side by side */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {inputFields.map((field) => renderField(field, 0))}
-                      </div>
-
-                      {/* Select fields: 2x2 grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {selectFields.map((field) => renderField(field, 0))}
-                      </div>
-
-                      {/* Textarea */}
-                      {textareaFields.map((field) => renderField(field, 0))}
-
-                      {/* Submit */}
-                      <div className="pt-2">
-                        <Button
-                          type="submit"
-                          className={cn(
-                            "w-full transition-all",
-                            !isValid && !isSubmitting && "opacity-70"
-                          )}
-                          size="lg"
-                          disabled={isSubmitting}
-                        >
-                          {isSubmitting ? (
-                            <span className="flex items-center gap-2">
-                              <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                              </svg>
-                              Sending...
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-2">
-                              {isValid ? (
-                                <CheckCircle2 className="size-4" />
-                              ) : (
-                                <SendIcon className="size-4" />
-                              )}
-                              {isValid ? "Submit Project Inquiry" : "Get Free Consultation"}
-                            </span>
-                          )}
-                        </Button>
-                      </div>
-                    </motion.form>
-
-                    {/* Trust */}
-                    <motion.p variants={itemVariants} className="text-center text-xs text-muted-foreground mt-6 flex items-center justify-center gap-1.5">
+                    {/* Trust text */}
+                    <p className="text-center text-[11px] text-muted-foreground mt-6 flex items-center justify-center gap-1.5">
                       <ShieldCheck className="size-3" />
                       No spam. We&apos;ll contact you within 12 hours.
-                    </motion.p>
+                    </p>
 
-                    {/* Error */}
+                    {/* Submit error */}
                     <AnimatePresence>
                       {submitError && (
                         <motion.div
@@ -661,7 +845,7 @@ export function Contact() {
                     </AnimatePresence>
                   </>
                 )}
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -673,7 +857,12 @@ export function Contact() {
 /* ── Success State ── */
 function SuccessState() {
   return (
-    <div className="animate-success-enter py-10 text-center">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="py-10 text-center"
+    >
       <div className="mb-6 flex justify-center">
         <div className="relative h-16 w-16">
           <div className="animate-check-circle absolute inset-0 rounded-full border border-green-500/30 bg-green-500/10" />
@@ -695,6 +884,6 @@ function SuccessState() {
       <p className="text-muted-foreground mx-auto mt-3 max-w-[300px] text-sm">
         We&apos;ve received your inquiry and will get back to you within 12 hours.
       </p>
-    </div>
+    </motion.div>
   );
 }

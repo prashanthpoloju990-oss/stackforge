@@ -731,3 +731,29 @@ Stage Summary:
 - Brand-consistent orange/amber/gold color scheme applied
 - Effect is subtle (18% opacity + screen blend) so footer text remains readable
 - Dynamic import prevents SSR hydration mismatch with WebGL canvas
+
+---
+Task ID: 17
+Agent: main
+Task: Redesign contact form into 2-step wizard with clean spacing and detailed filling
+
+Work Log:
+- Rewrote `src/components/stackforge/contact.tsx` — split single-page form into 2-step wizard
+- Step 1 ("Your Details"): Quick service buttons (2×2 grid), separator, Full Name input, Email/WhatsApp input, Continue button
+- Step 2 ("Your Project"): Business Type select, What Do You Need select, Budget Range select, Timeline select, Project Details textarea, Back + Submit buttons
+- Added `StepIndicator` component: numbered circles with connecting line, active/done states, labels hidden on mobile
+- Added `AnimatePresence mode="wait"` for smooth slide transitions (slideInRight/slideInLeft)
+- Per-step validation: step 1 validates name+contact before allowing Continue, step 2 validates all project fields before Submit
+- Back button returns to step 1 with reverse slide animation, preserving all entered values
+- Increased field spacing (space-y-5, gap-5) for cleaner layout
+- Select fields use 2-column grid on step 2 for better use of space
+- Progress bar spans both steps showing overall completion
+- Subtitle text changes per step ("Tell us who you are" → "Almost there!")
+- ESLint: clean, zero errors
+- Agent Browser verified: Step 1 renders correctly with disabled Continue → enabled after filling → advances to Step 2 → Step 2 shows all selects + textarea + Back/Submit → Back returns to Step 1 with values preserved → zero console errors
+
+Stage Summary:
+- Contact form is now a clean 2-step wizard with animated transitions
+- Each step validates only its own fields before proceeding
+- Back navigation preserves all form data
+- Design uses generous spacing, proper field grouping, and smooth slide animations
