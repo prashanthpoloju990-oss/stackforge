@@ -709,3 +709,25 @@ Stage Summary:
 - Button state transitions: "Get Free Consultation" + SendIcon (dimmed) → "Submit Project Inquiry" + CheckCircle2 (full opacity)
 - Progress bar: 0/6 orange → 6/6 green with 100% label
 - Previous CRITICAL issue from Task 14 is now FIXED
+
+---
+Task ID: 16
+Agent: main
+Task: Integrate Lightfall WebGL shader effect into footer as background
+
+Work Log:
+- Installed `ogl` (v1.0.11) as dependency for WebGL rendering
+- Created `src/components/ui/lightfall.tsx` — TypeScript conversion of React Bits Lightfall component with full prop typing, forwardRef, cleanup logic
+- Created `src/components/ui/lightfall.css` — Container styles for the canvas
+- Updated `src/components/stackforge/footer.tsx` — Made client component, added dynamic Lightfall import (SSR disabled), positioned as absolute background with `pointer-events-none`
+- Configured Lightfall with StackForge brand colors: `['#FF6A00', '#FF9F43', '#FFD93D']` (orange/amber/gold), dark bg `#09090B`, `opacity: 0.18`, `mixBlendMode: screen`, `mouseInteraction: false`, subtle streak settings
+- Added radial gradient overlay for ambient depth matching Hero pattern
+- All footer content elevated with `relative z-10` to sit above the shader
+- ESLint: clean, zero errors
+- Agent Browser verified: footer renders with 1 WebGL canvas (1280×427), zero console errors
+
+Stage Summary:
+- Footer now has a subtle falling light streaks WebGL effect as background, matching the Hero's shader aesthetic
+- Brand-consistent orange/amber/gold color scheme applied
+- Effect is subtle (18% opacity + screen blend) so footer text remains readable
+- Dynamic import prevents SSR hydration mismatch with WebGL canvas

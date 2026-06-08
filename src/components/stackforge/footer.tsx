@@ -1,11 +1,50 @@
+"use client";
+
 import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const Lightfall = dynamic(() => import("@/components/ui/lightfall"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-forge-bg border-t border-forge-divider pb-[env(safe-area-inset-bottom,0px)]">
-      <div className="mx-auto max-w-[1200px] px-6 md:px-20 pt-14 sm:pt-16 md:pt-20 pb-6 md:pb-8">
+    <footer className="relative bg-forge-bg border-t border-forge-divider pb-[env(safe-area-inset-bottom,0px)] overflow-hidden">
+      {/* Lightfall shader background */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <Lightfall
+          colors={["#FF6A00", "#FF9F43", "#FFD93D"]}
+          backgroundColor="#09090B"
+          speed={0.3}
+          streakCount={4}
+          streakWidth={0.8}
+          streakLength={0.7}
+          glow={0.8}
+          density={0.4}
+          twinkle={0.6}
+          zoom={3}
+          backgroundGlow={0.3}
+          opacity={0.18}
+          mouseInteraction={false}
+          mixBlendMode="screen"
+          className="absolute inset-0"
+        />
+      </div>
+
+      {/* Ambient gradient overlay for depth */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255, 106, 0, 0.04) 0%, transparent 70%)",
+        }}
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 mx-auto max-w-[1200px] px-6 md:px-20 pt-14 sm:pt-16 md:pt-20 pb-6 md:pb-8">
         {/* Main Grid */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-10 md:gap-16 lg:gap-24">
           {/* Left — Brand */}
