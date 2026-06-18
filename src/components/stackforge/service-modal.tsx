@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { X, Check, Clock, Package, ArrowRight } from "lucide-react";
 import { BorderGlow } from "@/components/ui/border-glow";
 import { cn } from "@/lib/utils";
+import { BlobButton } from "@/components/ui/blob-button";
 
 export interface ServiceDetail {
   number: string;
@@ -266,7 +267,8 @@ export function ServiceModal({ service, isOpen, onClose }: ServiceModalProps) {
                     </div>
 
                     {/* ── CTA ── */}
-                    <button
+                    <BlobButton
+                      variant="popular"
                       onClick={handleCtaClick}
                       className={cn(
                         "inline-flex items-center gap-2 px-8 py-3 rounded-full",
@@ -278,7 +280,7 @@ export function ServiceModal({ service, isOpen, onClose }: ServiceModalProps) {
                     >
                       Start with {service.title}
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </BlobButton>
                   </div>
                 </div>
               </div>

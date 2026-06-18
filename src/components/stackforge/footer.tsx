@@ -3,12 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { Mail, CheckCircle2, Loader2 } from "lucide-react";
-import dynamic from "next/dynamic";
-
-const Lightfall = dynamic(() => import("@/components/ui/lightfall"), {
-  ssr: false,
-  loading: () => null,
-});
+import Ballpit from "@/components/ui/ballpit";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -62,33 +57,26 @@ export function Footer() {
 
   return (
     <footer className="relative bg-forge-bg border-t border-forge-divider pb-[env(safe-area-inset-bottom,0px)] overflow-hidden">
-      {/* Lightfall shader background */}
-      <div className="absolute inset-0 pointer-events-none lightfall-wrap" aria-hidden="true">
-        <Lightfall
-          colors={["#FF6A00", "#FF9F43", "#FFD93D"]}
-          backgroundColor="#09090B"
-          speed={0.3}
-          streakCount={4}
-          streakWidth={0.8}
-          streakLength={0.7}
-          glow={0.8}
-          density={0.4}
-          twinkle={0.6}
-          zoom={3}
-          backgroundGlow={0.3}
-          opacity={0.18}
-          mouseInteraction={false}
-          mixBlendMode="screen"
-          className="absolute inset-0"
+      {/* Interactive Ballpit animation */}
+      <div className="absolute inset-0 z-0">
+        <Ballpit
+          count={100}
+          gravity={0.4}
+          friction={0.99}
+          wallBounce={0.9}
+          followCursor={true}
+          colors={[0xff5500, 0xffaa00, 0xff2200]}
+          ambientColor={0xffffff}
+          ambientIntensity={1}
+          lightIntensity={200}
         />
       </div>
 
-      {/* Ambient gradient overlay for depth */}
+      {/* Text-readability overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255, 106, 0, 0.04) 0%, transparent 70%)",
+          background: "rgba(9,9,11,0.82)",
         }}
         aria-hidden="true"
       />
@@ -99,12 +87,12 @@ export function Footer() {
           {/* Left — Brand */}
           <div>
             <a href="#home" className="inline-block">
-              <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" loading="lazy" />
+              <Image src="/stackforge-logo.jpg" alt="StackForge" width={56} height={56} className="h-12 w-auto object-contain" loading="lazy" />
             </a>
-            <p className="mt-4 text-[20px] text-forge-accent/50 leading-relaxed max-w-[240px] font-curvy">
+            <p className="mt-4 text-[20px] text-forge-accent/80 leading-relaxed max-w-[240px] font-curvy">
               We build. You grow.
             </p>
-            <p className="mt-3 text-[13px] text-forge-text-secondary/30 leading-[1.6] max-w-[260px]">
+            <p className="mt-3 text-[13px] text-forge-text-secondary/70 leading-[1.6] max-w-[260px]">
               Premium web development studio based in Hyderabad. We craft fast, beautiful, scalable digital products.
             </p>
 
@@ -113,7 +101,7 @@ export function Footer() {
               {["X", "Li", "Gh"].map((label) => (
                 <span
                   key={label}
-                  className="w-11 h-11 rounded-md border border-forge-divider flex items-center justify-center text-fluid-micro text-forge-text-secondary/30 hover:text-forge-text/60 hover:border-forge-border transition-all duration-200 cursor-pointer"
+                  className="w-11 h-11 rounded-md border border-forge-divider/60 flex items-center justify-center text-fluid-micro text-forge-text-secondary/60 hover:text-forge-text hover:border-forge-border transition-all duration-200 cursor-pointer"
                 >
                   {label}
                 </span>
@@ -122,7 +110,7 @@ export function Footer() {
 
             {/* Newsletter signup */}
             <div className="mt-8">
-              <span className="text-[13px] text-forge-text/40 font-medium block mb-3">
+              <span className="text-[13px] text-forge-text/70 font-medium block mb-3">
                 Stay updated
               </span>
               {status === "success" ? (
@@ -178,7 +166,7 @@ export function Footer() {
               </span>
               {[
                 { label: "Home", href: "#home" },
-                { label: "Services", href: "#services" },
+                { label: "Pricing", href: "#pricing" },
                 { label: "Work", href: "#work" },
                 { label: "Process", href: "#process" },
                 { label: "FAQ", href: "#faq" },
@@ -195,12 +183,12 @@ export function Footer() {
 
             <div className="flex flex-col gap-3">
               <span className="text-fluid-micro text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono">
-                Services
+                Pricing
               </span>
               {[
-                { label: "Kit", href: "#services" },
-                { label: "Pack", href: "#services" },
-                { label: "Bag", href: "#services" },
+                { label: "Launch Kit", href: "#pricing" },
+                { label: "Growth Pack", href: "#pricing" },
+                { label: "Enterprise Bag", href: "#pricing" },
               ].map((link) => (
                 <a
                   key={link.label}
@@ -217,10 +205,10 @@ export function Footer() {
                 Contact
               </span>
               <a
-                href="mailto:hello@stackforge.dev"
+                href="mailto:support@stackforge.co.in"
                 className="text-[13px] text-forge-text-secondary/50 hover:text-forge-text transition-colors duration-200 py-0.5 break-all"
               >
-                hello@stackforge.dev
+                support@stackforge.co.in
               </a>
               <span className="text-[13px] text-forge-text-secondary/30">
                 Hyderabad, India
@@ -231,10 +219,10 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 sm:mt-14 md:mt-16 pt-5 border-t border-forge-divider/40 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span className="text-[12px] text-forge-text-secondary/20">
+          <span className="text-[12px] text-forge-text-secondary/50">
             © {currentYear} StackForge. All rights reserved.
           </span>
-          <span className="text-fluid-micro text-forge-text-secondary/15 font-mono">
+          <span className="text-fluid-micro text-forge-text-secondary/40 font-mono">
             Built with Next.js & Tailwind
           </span>
         </div>

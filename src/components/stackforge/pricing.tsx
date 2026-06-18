@@ -10,7 +10,7 @@ const tiers: PricingTier[] = [
   {
     name: "Launch Kit",
     icon: <Rocket className="w-6 h-6" />,
-    price: "₹15K",
+    price: "₹1,999",
     priceNote: "starting at",
     description: "Fast, clean websites for MVPs and early-stage startups.",
     colorClass: "text-forge-accent/70",
@@ -25,7 +25,7 @@ const tiers: PricingTier[] = [
   {
     name: "Growth Pack",
     icon: <Zap className="w-6 h-6" />,
-    price: "₹80K",
+    price: "₹2,999",
     priceNote: "starting at",
     description: "Custom design, backend integration, and scalable features.",
     colorClass: "text-forge-accent",

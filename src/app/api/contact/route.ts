@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import nodemailer from "nodemailer";
 
 /* ── Validation rules ── */
 const REQUIRED_FIELDS = [
@@ -168,38 +169,72 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    /* ── Rate limiting (simple IP-based check) ── */
-    const clientIP =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      request.headers.get("x-real-ip") ||
-      "unknown";
-
-    // Check for recent submissions from same IP (within last 5 minutes)
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const recentCount = await db.contactSubmission.count({
-      where: {
-        createdAt: { gte: fiveMinutesAgo },
-        // Note: We don't store IP, so this is a placeholder for future enhancement
-      },
-    });
-
-    // Allow max 3 submissions per 5 minutes as a basic safeguard
-    if (recentCount >= 3) {
-      return NextResponse.json(
-        {
-          error:
-            "Too many submissions. Please wait a few minutes before trying again.",
+    /* ── Simple rate limiting by contact info ── */
+    // No strict rate limit for localhost/dev, just log
+    if (process.env.NODE_ENV !== "development") {
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const recentCount = await db.contactSubmission.count({
+        where: {
+          createdAt: { gte: fiveMinutesAgo },
+          contact: sanitizedContact, // Rate-limit by contact info instead of IP
         },
-        { status: 429 }
-      );
+      });
+
+      if (recentCount >= 3) {
+        return NextResponse.json(
+          {
+            error:
+              "Too many submissions. Please wait a few minutes before trying again.",
+          },
+          { status: 429 }
+        );
+      }
     }
 
-    /* ── Log attached file names (don't store binary data in SQLite) ── */
+    /* ── Upload files to OQENS Storage and store public CDN links ── */
+    let attachmentsJson: string | null = null;
     if (Array.isArray(files) && files.length > 0) {
-      const fileNames = files
-        .map((f: { name?: string; size?: number }) => `${f.name} (${(f.size ?? 0) / 1024}KB)`)
-        .join(", ");
-      console.log(`[Contact] Attached files: ${fileNames}`);
+      const apiKey = process.env.OQENS_API_KEY;
+      const cloudId = process.env.OQENS_CLOUD_ID;
+
+      if (apiKey && cloudId) {
+        const uploadedAttachments = [];
+        for (const file of files) {
+          try {
+            const buffer = Buffer.from(file.data, "base64");
+            const blob = new Blob([buffer], { type: file.type });
+            const uniqueKey = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+
+            const formData = new FormData();
+            formData.append("file", blob, uniqueKey);
+
+            const uploadRes = await fetch("https://auth.oqens.me/api/bucket/upload", {
+              method: "POST",
+              headers: {
+                "X-API-Key": apiKey,
+              },
+              body: formData,
+            });
+
+            if (uploadRes.ok) {
+              uploadedAttachments.push({
+                name: file.name,
+                url: `https://dl.oqens.me/${cloudId}/${uniqueKey}`,
+              });
+              console.log(`[OQENS] Successfully uploaded ${file.name} to ${uniqueKey}`);
+            } else {
+              console.error(`[OQENS] Upload failed for ${file.name}:`, await uploadRes.text());
+            }
+          } catch (uploadErr) {
+            console.error(`[OQENS] Error uploading ${file.name}:`, uploadErr);
+          }
+        }
+        if (uploadedAttachments.length > 0) {
+          attachmentsJson = JSON.stringify(uploadedAttachments);
+        }
+      } else {
+        console.warn("[OQENS] Credentials are not configured in environment variables.");
+      }
     }
 
     /* ── Save to database ── */
@@ -212,8 +247,83 @@ export async function POST(request: NextRequest) {
         budget: sanitizedBudget,
         timeline: sanitizedTimeline,
         details: sanitizedDetails,
+        attachments: attachmentsJson,
       },
     });
+
+    /* ── Send Email using Nodemailer ── */
+    try {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.SMTP_USER || "dummy@gmail.com",
+          pass: process.env.SMTP_PASS || "dummypass",
+        },
+      });
+
+      const mailOptions = {
+        from: '"StackForge Contact" <no-reply@stackforge.co>',
+        to: "stackforge.co@gmail.com",
+        subject: `New Project Inquiry: ${sanitizedService} - ${sanitizedName}`,
+        text: `New Inquiry Details:\nName: ${sanitizedName}\nContact: ${sanitizedContact}\nBusiness Type: ${sanitizedBT}\nService Needed: ${sanitizedService}\nBudget: ${sanitizedBudget}\nTimeline: ${sanitizedTimeline}\nDetails: ${sanitizedDetails || "None"}\nAttachments: ${attachmentsJson || "None"}`,
+        html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+          <div style="background-color: #1a1a1a; padding: 24px; text-align: center; border-bottom: 4px solid #FF6A00;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">STACKFORGE</h1>
+            <p style="color: #a0a0a0; margin: 8px 0 0 0; font-size: 14px;">New Project Inquiry</p>
+          </div>
+          <div style="padding: 32px 24px; background-color: #ffffff;">
+            <p style="font-size: 16px; color: #333333; margin-top: 0;">You have received a new project inquiry from <strong style="color: #FF6A00;">${sanitizedName}</strong>.</p>
+            
+            <div style="background-color: #f9f9f9; border-radius: 6px; padding: 20px; margin-top: 24px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; width: 35%; color: #666666; font-weight: bold; font-size: 14px;">Contact</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;"><a href="mailto:${sanitizedContact}" style="color: #FF6A00; text-decoration: none;">${sanitizedContact}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Business Type</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedBT}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Service Needed</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedService}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Budget</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedBudget}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Timeline</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedTimeline}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #666666; font-weight: bold; font-size: 14px;">Attachments</td>
+                  <td style="padding: 8px 0; color: #333333; font-size: 15px;">${attachmentsJson && attachmentsJson !== "[]" ? attachmentsJson : "None provided"}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="margin-top: 24px;">
+              <h3 style="color: #333333; font-size: 16px; margin-bottom: 8px;">Project Details</h3>
+              <div style="background-color: #f1f5f9; padding: 16px; border-radius: 6px; border-left: 4px solid #FF6A00; color: #475569; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${sanitizedDetails || "No additional details provided."}</div>
+            </div>
+            
+            <div style="margin-top: 32px; text-align: center;">
+              <a href="mailto:${sanitizedContact}" style="display: inline-block; background-color: #FF6A00; color: #ffffff; font-weight: bold; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 15px;">Reply to Inquiry</a>
+            </div>
+          </div>
+          <div style="background-color: #f4f4f5; padding: 16px; text-align: center; color: #a1a1aa; font-size: 12px;">
+            This email was generated automatically by the StackForge website contact form.
+          </div>
+        </div>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+    } catch (emailErr) {
+      console.error("Failed to send email:", emailErr);
+    }
 
     return NextResponse.json(
       {

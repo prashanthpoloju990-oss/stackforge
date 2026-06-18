@@ -319,8 +319,15 @@ const Lightfall = React.forwardRef<HTMLDivElement, LightfallProps>(
         canvas.addEventListener("pointermove", onPointerMove);
       }
 
+      const LIGHTFALL_FPS = 24;
+      const LIGHTFALL_INTERVAL = 1000 / LIGHTFALL_FPS;
+      let lastLightfallFrame = 0;
+
       const loop = (t: number) => {
         rafRef.current = requestAnimationFrame(loop);
+        /* Throttle to 24fps — halves GPU usage */
+        if (t - lastLightfallFrame < LIGHTFALL_INTERVAL) return;
+        lastLightfallFrame = t;
         uniforms.iTime.value = t * 0.001;
         if (mouseDampening > 0) {
           if (!lastTimeRef.current) lastTimeRef.current = t;

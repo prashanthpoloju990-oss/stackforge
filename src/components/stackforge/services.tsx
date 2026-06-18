@@ -15,7 +15,7 @@ const services: ServiceDetail[] = [
     tagline: "Launch fast, look sharp.",
     description:
       "A fast, clean website to get your business online. Perfect for MVPs, personal brands, and early-stage startups who need credibility without the overhead.",
-    price: "₹20K",
+    price: "₹1,999",
     priceNote: "starting at",
     features: [
       "1–5 page responsive site",
@@ -41,7 +41,7 @@ const services: ServiceDetail[] = [
     tagline: "For brands that are growing.",
     description:
       "A scalable website with custom design, backend integration, and all the features your business needs to convert visitors into customers.",
-    price: "₹80K",
+    price: "₹2,999",
     priceNote: "starting at",
     features: [
       "Custom UI/UX design",

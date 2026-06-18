@@ -10,10 +10,7 @@ export default function NotFound() {
         <h1
           className="text-fluid-display font-syne font-bold leading-none select-none"
           style={{
-            background: "linear-gradient(135deg, var(--forge-accent) 0%, var(--forge-accent) 40%, transparent 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
+            color: "var(--forge-accent)",
             opacity: 0.12,
           }}
           aria-hidden="true"

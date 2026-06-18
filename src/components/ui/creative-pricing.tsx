@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { BlobButton } from "@/components/ui/blob-button";
 import { Check, Layers, Rocket, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -114,8 +114,9 @@ function CreativePricing({
               </div>
 
               {/* CTA Button */}
-              <Button
+              <BlobButton
                 asChild
+                variant={tier.popular ? "popular" : "normal"}
                 className={cn(
                   "w-full h-fluid-btn font-syne font-bold text-fluid-btn uppercase tracking-wider relative",
                   "border-2 border-forge-text",
@@ -126,17 +127,17 @@ function CreativePricing({
                   "active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0px_0px]",
                   tier.popular
                     ? [
-                        "bg-forge-accent text-white hover:bg-[#e55f00]",
+                        "bg-forge-accent text-white",
                       ]
                     : [
-                        "bg-forge-bg text-forge-text hover:bg-forge-surface",
+                        "bg-forge-bg text-forge-text",
                       ]
                 )}
               >
-                <a href="#contact">
+                <a href="/start-project">
                   {tier.popular ? "Start Building" : "Get Started"}
                 </a>
-              </Button>
+              </BlobButton>
             </div>
           </div>
         ))}

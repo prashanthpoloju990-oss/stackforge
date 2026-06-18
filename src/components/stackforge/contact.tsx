@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { cn } from "@/lib/utils";
 import { ImageSlider } from "@/components/ui/image-slider";
@@ -79,10 +79,8 @@ const QUICK_SERVICES = [
 ];
 
 const IMAGES = [
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=900&auto=format&fit=crop&q=60",
-  "https://images.unsplash.com/photo-1504051771394-dd2e66b2e08f?w=900&auto=format&fit=crop&q=60",
-  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&auto=format&fit=crop&q=60",
-  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&auto=format&fit=crop&q=60",
+  "/images/team_handshake.png",
+  "/images/client_meeting.png",
 ];
 
 /* ── Field configurations ── */
@@ -459,15 +457,20 @@ export function Contact() {
 
     setIsSubmitting(true);
     try {
-      /* Convert files to base64 for submission */
+      /* Convert files to base64 for submission (browser-safe — no Buffer) */
       const fileData = await Promise.all(
         files.map(async (f) => {
           const buffer = await f.arrayBuffer();
+          const bytes = new Uint8Array(buffer);
+          let binary = "";
+          for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
           return {
             name: f.name,
             type: f.type,
             size: f.size,
-            data: Buffer.from(buffer).toString("base64"),
+            data: btoa(binary),
           };
         })
       );
@@ -479,6 +482,7 @@ export function Contact() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Submission failed");
+
       setIsSuccess(true);
       setForm(INITIAL_FORM);
       setFiles([]);
@@ -646,14 +650,14 @@ export function Contact() {
     <motion.div
       key="step-1"
       {...slideInRight}
-      className="space-y-5"
+      className="space-y-4"
     >
       {/* Quick service buttons */}
       <div>
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
           What do you need?
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3.5">
           {QUICK_SERVICES.map((service) => (
             <motion.button
               type="button"
@@ -686,7 +690,7 @@ export function Contact() {
       {STEP_1_FIELDS.map((field) => renderField(field))}
 
       {/* Continue button */}
-      <div className="pt-2">
+      <div className="pt-1">
         <Button
           type="button"
           onClick={handleNext}
@@ -712,14 +716,14 @@ export function Contact() {
     <motion.div
       key="step-2"
       {...(dir > 0 ? slideInRight : slideInLeft)}
-      className="space-y-5"
+      className="space-y-4"
     >
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
         Project specifics
       </p>
 
       {/* Select fields in 2-column grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {STEP_2_FIELDS.filter((f) => f.type === "select").map((field) => renderField(field))}
       </div>
 
@@ -849,7 +853,7 @@ export function Contact() {
       >
         <div className="w-full min-h-screen flex items-center justify-center bg-background p-4 py-12">
           <motion.div
-            className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border"
+            className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
@@ -860,13 +864,13 @@ export function Contact() {
             </div>
 
             {/* ── RIGHT: Form ── */}
-            <div className="w-full bg-card text-card-foreground flex flex-col items-center justify-start p-6 md:p-10 lg:p-12">
-              <div className="w-full max-w-md py-6 lg:py-4">
+            <div className="w-full bg-card text-card-foreground flex flex-col items-center justify-start p-5 md:p-8 lg:p-10">
+              <div className="w-full max-w-xl py-4 lg:py-2">
                 {/* Heading — always visible */}
-                <div className="mb-6">
-                  <h1 className="text-fluid-h1 font-bold tracking-tight mb-1 font-playfair">
+                <div className="mb-5">
+                  <h2 className="text-fluid-h1 font-bold tracking-tight mb-1 font-playfair">
                     Start Your Project
-                  </h1>
+                  </h2>
                   <p className="text-muted-foreground text-sm">
                     {currentStep === 1
                       ? "Tell us who you are — we'll handle the rest."

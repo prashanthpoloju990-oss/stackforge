@@ -48,19 +48,23 @@ const spaceMono = Space_Mono({
 
 const SITE_URL = "https://stackforge.dev";
 const SITE_DESCRIPTION =
-  "StackForge builds premium, high-performance web experiences with precision engineering and modern design systems.";
+  "StackForge is a premium digital engineering studio specializing in high-performance React & Next.js web applications. We build speed-optimized, conversion-focused websites with bespoke design systems.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "StackForge — Engineering Digital Experiences",
+  title: "StackForge | High-Performance React & Next.js Web Development Studio",
   description: SITE_DESCRIPTION,
   keywords: [
     "StackForge",
-    "web development",
-    "digital agency",
-    "React",
-    "Next.js",
-    "TypeScript",
+    "web development studio",
+    "digital engineering agency",
+    "custom web applications",
+    "React developers",
+    "Next.js specialists",
+    "TypeScript engineering",
+    "high-performance websites",
+    "conversion optimization",
+    "speed-optimized web studio"
   ],
   authors: [{ name: "StackForge" }],
   icons: {
@@ -74,25 +78,25 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "StackForge — Engineering Digital Experiences",
+    title: "StackForge | High-Performance React & Next.js Web Development Studio",
     description: SITE_DESCRIPTION,
     siteName: "StackForge",
     locale: "en_US",
     type: "website",
     images: [{
-      url: "/logo.jpg",
+      url: "/stackforge-logo.jpg",
       width: 1254,
       height: 1254,
-      alt: "StackForge — Engineering Digital Experiences",
+      alt: "StackForge | High-Performance React & Next.js Web Development Studio",
     }],
   },
   twitter: {
     card: "summary_large_image",
     creator: "@stackforge",
     site: "@stackforge",
-    title: "StackForge — Engineering Digital Experiences",
+    title: "StackForge | High-Performance React & Next.js Web Development Studio",
     description: SITE_DESCRIPTION,
-    images: ["/logo.jpg"],
+    images: ["/stackforge-logo.jpg"],
   },
 };
 
@@ -130,7 +134,7 @@ export default function RootLayout({
                 "@type": "Organization",
                 name: "StackForge",
                 url: SITE_URL,
-                logo: `${SITE_URL}/logo.jpg`,
+                logo: `${SITE_URL}/stackforge-logo.jpg`,
                 description: "Premium web development studio crafting high-performance digital experiences.",
                 address: {
                   "@type": "PostalAddress",
@@ -139,7 +143,7 @@ export default function RootLayout({
                 },
                 contactPoint: {
                   "@type": "ContactPoint",
-                  email: "hello@stackforge.dev",
+                  email: "support@stackforge.co.in",
                   contactType: "customer service",
                 },
                 sameAs: [],

@@ -50,6 +50,14 @@
   --color-forge-accent: var(--forge-accent);
   --color-forge-divider: var(--forge-divider);
   --color-forge-border: var(--forge-border);
+
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 }
 
 /* ── LIGHT THEME (default :root) ── */
@@ -93,6 +101,14 @@
   --sidebar-accent-foreground: #111827;
   --sidebar-border: #D1D5DB;
   --sidebar-ring: #FF6A00;
+
+  --destructive-foreground: var(--color-red-700);
+  --info: var(--color-blue-500);
+  --info-foreground: var(--color-blue-700);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-700);
+  --warning: var(--color-amber-500);
+  --warning-foreground: var(--color-amber-700);
 }
 
 /* ── DARK THEME ── */
@@ -129,6 +145,14 @@
   --sidebar-accent-foreground: #EAEAEA;
   --sidebar-border: #262626;
   --sidebar-ring: #FF6A00;
+
+  --destructive-foreground: var(--color-red-400);
+  --info: var(--color-blue-500);
+  --info-foreground: var(--color-blue-400);
+  --success: var(--color-emerald-500);
+  --success-foreground: var(--color-emerald-400);
+  --warning: var(--color-amber-500);
+  --warning-foreground: var(--color-amber-400);
 }
 
 @layer base {
@@ -143,10 +167,10 @@
   }
   html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   /* ── SMOOTH SCROLL OFFSET for sticky navbar ── */
   [id] {
@@ -159,12 +183,40 @@
   }
 }
 
-/* ── SCROLL PERFORMANCE: content-visibility for below-fold sections ── */
-@supports (content-visibility: auto) {
-  .section-contained {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 600px;
-  }
+/* ── PERFORMANCE: GPU compositor layers ── */
+
+/* Canvas elements (WebGL shaders) get their own GPU layer */
+canvas {
+  will-change: contents;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Fixed elements get promoted to compositor layer once — no repaints on scroll */
+header[class*="fixed"],
+[class*="fixed bottom"] {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Sections: GPU layer promotion without layout cost */
+.section-contained {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Avoid layout-triggering transitions — only transform and opacity */
+.transition-all {
+  transition-property: transform, opacity, background-color, border-color, color, box-shadow !important;
+}
+
+
+/* ── TOUCH SCROLL OPTIMIZATION ── */
+html {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+  touch-action: pan-y;
 }
 
 /* ── CUSTOM FONTS ── */
@@ -369,7 +421,6 @@
 /* ── SCROLL PERFORMANCE: promote compositor layers ── */
 html {
   /* Promote root to its own compositor layer for smoother scrolling */
-  transform: translateZ(0);
 }
 
 /* ── SKIP LINKS ──
@@ -431,7 +482,7 @@ html {
 
 /* ── HERO DOT GRID ── */
 .hero-dots {
-  background-image: radial-gradient(circle, var(--forge-text-secondary) 0.8px, transparent 0.8px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='0.8' fill='%239CA3AF'/%3E%3C/svg%3E");
   background-size: 20px 20px;
   opacity: 0.06;
 }
@@ -500,7 +551,7 @@ html {
   transform: scale(0.98);
 }
 /* ── BUTTON RIPPLE (CSS-only) ──
-   Radial gradient ::after expands on :active,
+   Flat ::after expands on :active,
    fades out on release via longer transition. */
 .btn-primary::after {
   content: "";
@@ -510,7 +561,7 @@ html {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  background: rgba(255, 255, 255, 0.15);
   transform: translate(-50%, -50%) scale(0);
   opacity: 0;
   transition: transform 0.5s ease, opacity 0.5s ease;
@@ -728,11 +779,11 @@ html {
 }
 
 /* ══════════════════════════════════════════════════
-   SUBMIT BUTTON — Neumorphic Gradient Reveal
+   SUBMIT BUTTON — Neumorphic Color Reveal
    (inspired by xueyuantan @ Uiverse.io)
    ══════════════════════════════════════════════════
 
-   Pill-shaped neumorphic button with a gradient
+   Pill-shaped neumorphic button with a solid color
    sweep that fills from left on hover.
    ══════════════════════════════════════════════════ */
 
@@ -773,11 +824,7 @@ html {
   width: 0;
   height: 100%;
   border-radius: 30em;
-  background-image: linear-gradient(
-    to right,
-    #FF6A00 0%,
-    #FFB347 100%
-  );
+  background: #FF6A00;
   z-index: -1;
   transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -844,7 +891,7 @@ html {
    ══════════════════════════════════════════════════
 
    Mouse-tracking glow that follows cursor around
-   card edges. Mesh gradient border + outer glow
+   card edges. Solid color border + outer glow
    + inner fill activated on hover.
    ══════════════════════════════════════════════════ */
 
@@ -893,56 +940,26 @@ html {
   transition: opacity 0.75s ease-in-out;
 }
 
-/* Colored mesh-gradient border */
+/* Colored solid border */
 .border-glow-card::before {
   border: 1px solid transparent;
   background:
-    linear-gradient(var(--card-bg, var(--forge-bg)) 0 100%) padding-box,
-    linear-gradient(rgb(255 255 255 / 0%) 0% 100%) border-box,
-    var(--gradient-one, radial-gradient(at 80% 55%, hsla(268, 100%, 76%, 1) 0px, transparent 50%)) border-box,
-    var(--gradient-two, radial-gradient(at 69% 34%, hsla(349, 100%, 74%, 1) 0px, transparent 50%)) border-box,
-    var(--gradient-three, radial-gradient(at 8% 6%, hsla(136, 100%, 78%, 1) 0px, transparent 50%)) border-box,
-    var(--gradient-four, radial-gradient(at 41% 38%, hsla(192, 100%, 64%, 1) 0px, transparent 50%)) border-box,
-    var(--gradient-five, radial-gradient(at 86% 85%, hsla(186, 100%, 74%, 1) 0px, transparent 50%)) border-box,
-    var(--gradient-six, radial-gradient(at 82% 18%, hsla(52, 100%, 65%, 1) 0px, transparent 50%)) border-box,
-    var(--gradient-seven, radial-gradient(at 51% 4%, hsla(12, 100%, 72%, 1) 0px, transparent 50%)) border-box,
-    var(--gradient-base, linear-gradient(#FF6A00 0 100%)) border-box;
+    var(--card-bg, var(--forge-bg)) padding-box,
+    var(--gradient-base-color, #FF6A00) border-box;
 
   opacity: calc((var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
 
-  mask-image:
-    conic-gradient(
-      from var(--cursor-angle) at center,
-      black calc(var(--cone-spread) * 1%),
-      transparent calc((var(--cone-spread) + 15) * 1%),
-      transparent calc((100 - var(--cone-spread) - 15) * 1%),
-      black calc((100 - var(--cone-spread)) * 1%)
-    );
+  mask-image: none;
 }
 
-/* Colored mesh-gradient background fill near edges */
+/* Colored solid background fill near edges */
 .border-glow-card::after {
   border: 1px solid transparent;
-  background:
-    var(--gradient-one, radial-gradient(at 80% 55%, hsla(268, 100%, 76%, 1) 0px, transparent 50%)) padding-box,
-    var(--gradient-two, radial-gradient(at 69% 34%, hsla(349, 100%, 74%, 1) 0px, transparent 50%)) padding-box,
-    var(--gradient-three, radial-gradient(at 8% 6%, hsla(136, 100%, 78%, 1) 0px, transparent 50%)) padding-box,
-    var(--gradient-four, radial-gradient(at 41% 38%, hsla(192, 100%, 64%, 1) 0px, transparent 50%)) padding-box,
-    var(--gradient-five, radial-gradient(at 86% 85%, hsla(186, 100%, 74%, 1) 0px, transparent 50%)) padding-box,
-    var(--gradient-six, radial-gradient(at 82% 18%, hsla(52, 100%, 65%, 1) 0px, transparent 50%)) padding-box,
-    var(--gradient-seven, radial-gradient(at 51% 4%, hsla(12, 100%, 72%, 1) 0px, transparent 50%)) padding-box,
-    var(--gradient-base, linear-gradient(#FF6A00 0 100%)) padding-box;
+  background: var(--gradient-base-color, #FF6A00);
 
-  mask-image:
-    linear-gradient(to bottom, black, black),
-    radial-gradient(ellipse at 50% 50%, black 40%, transparent 65%),
-    radial-gradient(ellipse at 66% 66%, black 5%, transparent 40%),
-    radial-gradient(ellipse at 33% 33%, black 5%, transparent 40%),
-    radial-gradient(ellipse at 66% 33%, black 5%, transparent 40%),
-    radial-gradient(ellipse at 33% 66%, black 5%, transparent 40%),
-    conic-gradient(from var(--cursor-angle) at center, transparent 5%, black 15%, black 85%, transparent 95%);
+  mask-image: none;
 
-  mask-composite: subtract, add, add, add, add, add;
+  mask-composite: exclude;
   opacity: calc(var(--fill-opacity, 0.4) * (var(--edge-proximity) - var(--color-sensitivity)) / (100 - var(--color-sensitivity)));
   mix-blend-mode: soft-light;
 }
@@ -953,10 +970,7 @@ html {
   pointer-events: none;
   z-index: 1;
 
-  mask-image:
-    conic-gradient(
-      from var(--cursor-angle) at center, black 2.5%, transparent 10%, transparent 90%, black 97.5%
-    );
+  mask-image: none;
 
   opacity: calc((var(--edge-proximity) - var(--edge-sensitivity)) / (100 - var(--edge-sensitivity)));
   mix-blend-mode: plus-lighter;
@@ -997,16 +1011,8 @@ html {
 }
 :root .border-glow-card::before {
   background:
-    linear-gradient(var(--card-bg, #FFFFFF) 0 100%) padding-box,
-    linear-gradient(rgb(0 0 0 / 0%) 0% 100%) border-box,
-    var(--gradient-one) border-box,
-    var(--gradient-two) border-box,
-    var(--gradient-three) border-box,
-    var(--gradient-four) border-box,
-    var(--gradient-five) border-box,
-    var(--gradient-six) border-box,
-    var(--gradient-seven) border-box,
-    var(--gradient-base) border-box;
+    var(--card-bg, #FFFFFF) padding-box,
+    var(--gradient-base-color, #FF6A00) border-box;
 }
 
 /* ══════════════════════════════════════════════════
@@ -1129,7 +1135,7 @@ html {
     transition-property: background-color, border-color, color, box-shadow, opacity !important;
   }
 
-  /* Neumorphic submit button: disable gradient sweep */
+  /* Neumorphic submit button: disable color sweep */
   .btn-forge-submit::before {
     display: none !important;
   }

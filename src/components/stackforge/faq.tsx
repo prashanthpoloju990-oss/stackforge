@@ -7,34 +7,34 @@ import { cn } from "@/lib/utils";
 
 const faqs = [
   {
-    question: "How long does a typical project take?",
+    question: "How do you achieve a 100/100 Lighthouse performance score?",
     answer:
-      "Most projects ship in 2\u20136 weeks. A simple landing page can be ready in 5\u20137 business days. A full web application typically takes 4\u20138 weeks depending on scope.",
+      "We write semantic, semantic-compliant HTML and build with Next.js App Router for optimal Server-Side Rendering (SSR). We optimize all assets dynamically via modern formats (WebP/AVIF), split code bundles at the component level, eliminate unused CSS, and defer third-party scripts. The result is a site that loads in milliseconds, directly boosting search rankings and conversion.",
   },
   {
-    question: "What's included in the pricing?",
+    question: "What technology stack do you specialize in?",
     answer:
-      "Design, development, responsive optimization, basic SEO, and deployment. Post-launch support and maintenance packages are available separately.",
+      "We are specialists in React, Next.js, and TypeScript for the frontend, styled with Tailwind CSS or custom CSS variables for light/dark mode adaptation. For the backend, we implement Node.js, PostgreSQL, or Supabase, using Prisma ORM for type-safe database queries. Everything is deployed to production-ready platforms like Vercel, Railway, or AWS.",
   },
   {
-    question: "Do you work with existing designs?",
+    question: "Do you build custom CMS integrations for content updates?",
     answer:
-      "Yes. We build from your Figma/Sketch designs, or create everything from scratch based on your brand guidelines and preferences.",
+      "Yes. We integrate headless CMS platforms like Sanity, Contentful, or Strapi so your marketing team can easily update copy, articles, and media without touch-editing code. We also build custom database-backed dashboards when standard CMS options are too restrictive.",
   },
   {
-    question: "What technologies do you use?",
+    question: "How do you handle animations and interactive WebGL elements?",
     answer:
-      "React, Next.js, TypeScript, Tailwind CSS for the frontend. Node.js, Prisma, PostgreSQL, or Supabase for backend and database. Hosted on Vercel.",
+      "We implement GPU-accelerated motion systems using Framer Motion, Three.js, or lightweight libraries like OGL for high-performance canvas effects. Animations are optimized to run at 60 FPS, react dynamically to scroll, and fully respect user preferences like prefers-reduced-motion.",
   },
   {
-    question: "Do you offer ongoing support?",
+    question: "How long does a typical custom build take from start to finish?",
     answer:
-      "Yes. Monthly maintenance packages covering bug fixes, performance monitoring, content updates, and feature enhancements.",
+      "A high-performance landing page or MVP takes about 2 weeks. Custom B2B platforms, SaaS dashboards, or complex web applications range between 4 to 8 weeks. We ship incrementally in weekly sprints so you can test features as we write them.",
   },
   {
-    question: "How do we get started?",
+    question: "Can you work with our existing Figma designs?",
     answer:
-      "Fill out the contact form or email us. We schedule a free 30-minute call to understand your needs and provide a tailored proposal within 48 hours.",
+      "Absolutely. We accept design specs from Figma or Sketch and translate them into pixel-perfect, accessible CSS structures. If you don't have designs, we can design your interface from scratch based on your brand identity.",
   },
 ];
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { X, Quote, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +19,8 @@ export interface CaseStudy {
   results: string;
   testimonial?: string;
   testimonialAuthor?: string;
+  link?: string;
+  slug: string;
 }
 
 interface CaseStudyModalProps {
@@ -146,7 +148,7 @@ export function CaseStudyModal({ study, open, onClose }: CaseStudyModalProps) {
                 sizes="(max-width: 768px) 100vw, 768px"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-forge-bg via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-forge-bg/40" />
             </div>
 
             {/* Content */}
@@ -227,20 +229,38 @@ export function CaseStudyModal({ study, open, onClose }: CaseStudyModalProps) {
                 </div>
               )}
 
-              {/* CTA */}
-              <a
-                href="#contact"
-                onClick={onClose}
-                className={cn(
-                  "inline-flex items-center gap-2 px-6 py-3 rounded-full",
-                  "bg-forge-accent text-white font-medium text-[14px]",
-                  "btn-primary",
-                  "transition-all duration-200"
+              {/* CTA Row */}
+              <div className="flex flex-wrap items-center gap-4 mt-8">
+                <a
+                  href="/start-project"
+                  onClick={onClose}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-6 py-3 rounded-full",
+                    "bg-forge-accent text-white font-medium text-[14px]",
+                    "btn-primary",
+                    "transition-all duration-200"
+                  )}
+                >
+                  Start a Similar Project
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+
+                {study.link && (
+                  <a
+                    href={study.link.startsWith("http") ? study.link : `https://${study.link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "inline-flex items-center gap-2 px-6 py-3 rounded-full",
+                      "border border-forge-border text-forge-text font-medium text-[14px]",
+                      "transition-all duration-200 hover:bg-forge-surface/40 hover:border-forge-accent/40"
+                    )}
+                  >
+                    Visit Live Site
+                    <ArrowRight className="w-4 h-4 rotate-[-45deg] transition-transform duration-200" />
+                  </a>
                 )}
-              >
-                Start a Similar Project
-                <ArrowRight className="w-4 h-4" />
-              </a>
+              </div>
             </div>
           </motion.div>
         </motion.div>

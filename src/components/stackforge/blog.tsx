@@ -136,11 +136,11 @@ export function Blog() {
               }}
               aria-label={`Read: ${post.title}`}
             >
-              {/* Thumbnail — gradient placeholder */}
+              {/* Thumbnail — color placeholder */}
               <div
                 className="relative w-full aspect-[16/9] overflow-hidden"
                 style={{
-                  background: `linear-gradient(135deg, ${post.color}18 0%, ${post.color}08 50%, transparent 100%)`,
+                  background: `${post.color}10`,
                 }}
               >
                 {/* Decorative geometric shapes */}

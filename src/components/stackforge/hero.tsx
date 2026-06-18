@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { HeroVisual } from "./hero-visual";
 import { AnimatedShaderBackground } from "@/components/ui/animated-shader-background";
+import { MagneticWrapper } from "@/components/ui/magnetic-button";
+import { BlobButton } from "@/components/ui/blob-button";
 
 function useCountUp(end: number, duration: number = 2000, startOnMount: boolean = true) {
   const [count, setCount] = useState(0);
@@ -56,6 +58,87 @@ const TRUST_LOGOS = [
   "CloudSync",
 ];
 
+/* Each word gets a unique depth multiplier so they shift at different rates */
+const KINETIC_WORDS = [
+  { text: "We build.", depth: 1.0, accent: false },
+  { text: "You grow.", depth: 1.8, accent: true },
+];
+
+function KineticHeadline({ mounted }: { mounted: boolean }) {
+  const containerRef = useRef<HTMLHeadingElement>(null);
+  const mouse = useRef({ x: 0.5, y: 0.5 });
+  const rafId = useRef<number | null>(null);
+  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      mouse.current = {
+        x: e.clientX / vw,
+        y: e.clientY / vh,
+      };
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+
+    const STRENGTH = 14; // max degrees of tilt
+    const LIFT = 8;     // max px vertical lift
+
+    const tick = () => {
+      const mx = mouse.current.x - 0.5; // -0.5 → 0.5
+      const my = mouse.current.y - 0.5;
+
+      wordRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const d = KINETIC_WORDS[i]?.depth ?? 1;
+        const rotY = mx * STRENGTH * d;
+        const rotX = -my * STRENGTH * 0.5 * d;
+        const ty = -my * LIFT * d;
+        el.style.transform = `perspective(600px) rotateY(${rotY}deg) rotateX(${rotX}deg) translateY(${ty}px)`;
+      });
+
+      rafId.current = requestAnimationFrame(tick);
+    };
+
+    rafId.current = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
+  }, []);
+
+  return (
+    <h1
+      ref={containerRef}
+      className={`text-fluid-display font-extrabold text-forge-text font-syne transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-100 select-none ${
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
+      }`}
+      style={{ transformStyle: "preserve-3d" }}
+    >
+      {/* Line 1: "We build." */}
+      <span className="block">
+        <span
+          ref={(el) => { wordRefs.current[0] = el; }}
+          className="inline-block transition-transform duration-[60ms] ease-out will-change-transform"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          We build.
+        </span>
+      </span>
+      {/* Line 2: "You grow." in accent */}
+      <span className="block mt-1">
+        <span
+          ref={(el) => { wordRefs.current[1] = el; }}
+          className="inline-block text-forge-accent font-curvy text-[0.82em] transition-transform duration-[60ms] ease-out will-change-transform"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          You grow.
+        </span>
+      </span>
+    </h1>
+  );
+}
+
 export function Hero() {
   const [mounted, setMounted] = useState(false);
 
@@ -72,16 +155,15 @@ export function Hero() {
       {/* Shader aurora background */}
       <AnimatedShaderBackground
         className="absolute inset-0 shader-bg"
-        opacity={0.3}
+        opacity={0.9}
         mixBlendMode="screen"
       />
 
-      {/* Ambient gradient overlay */}
+      {/* Ambient overlay */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 106, 0, 0.03) 0%, transparent 70%)",
+          background: "rgba(255, 106, 0, 0.04)",
         }}
       />
 
@@ -89,30 +171,8 @@ export function Hero() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* LEFT — Copy */}
           <div className="flex flex-col items-start">
-            {/* Eyebrow */}
-            <div
-              className={`flex items-center gap-2.5 mb-7 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent animate-pulse" />
-              <span className="text-[13px] text-forge-text-secondary/70 font-medium tracking-[0.14em] uppercase font-mono">
-                Web Dev Studio · Hyderabad
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h1
-              className={`text-fluid-display font-extrabold text-forge-text font-syne transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-100 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              }`}
-            >
-              We ship websites
-              <br />
-              <span className="text-forge-accent font-curvy text-[0.82em]">
-                that convert.
-              </span>
-            </h1>
+            {/* Kinetic Headline */}
+            <KineticHeadline mounted={mounted} />
 
             {/* Subline */}
             <p
@@ -130,19 +190,29 @@ export function Hero() {
                 mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
-              <a
-                href="#contact"
-                className="btn-primary inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
-              >
-                Start a Project
-              </a>
+              <MagneticWrapper>
+                <BlobButton
+                  asChild
+                  variant="popular"
+                  className="btn-primary inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
+                >
+                  <a href="/start-project">
+                    Start a Project
+                  </a>
+                </BlobButton>
+              </MagneticWrapper>
 
-              <a
-                href="#work"
-                className="btn-secondary inline-flex items-center justify-center h-fluid-btn px-fluid-btn border border-forge-border text-forge-text-secondary text-fluid-btn font-medium uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
-              >
-                See Our Work
-              </a>
+              <MagneticWrapper>
+                <BlobButton
+                  asChild
+                  variant="normal"
+                  className="btn-secondary inline-flex items-center justify-center h-fluid-btn px-fluid-btn border border-forge-border text-forge-text-secondary text-fluid-btn font-medium uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
+                >
+                  <a href="#work">
+                    See Our Work
+                  </a>
+                </BlobButton>
+              </MagneticWrapper>
             </div>
 
             {/* Trust indicators */}
@@ -151,7 +221,7 @@ export function Hero() {
                 mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
               }`}
             >
-              <CounterStat value={50} suffix="+" label="Projects Delivered" />
+              <CounterStat value={10} suffix="+" label="Projects Delivered" />
               <div className="w-px h-9 bg-forge-divider shrink-0" />
               <CounterStat value={99} suffix=".9%" label="Uptime SLA" />
               <div className="w-px h-9 bg-forge-divider shrink-0" />

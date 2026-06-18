@@ -31,33 +31,9 @@ function buildGlowVars(glowColor: string, intensity: number) {
   return vars;
 }
 
-const GRADIENT_POSITIONS = [
-  "80% 55%",
-  "69% 34%",
-  "8% 6%",
-  "41% 38%",
-  "86% 85%",
-  "82% 18%",
-  "51% 4%",
-];
-const GRADIENT_KEYS = [
-  "--gradient-one",
-  "--gradient-two",
-  "--gradient-three",
-  "--gradient-four",
-  "--gradient-five",
-  "--gradient-six",
-  "--gradient-seven",
-];
-const COLOR_MAP = [0, 1, 2, 0, 1, 2, 1];
-
-function buildGradientVars(colors: string[]) {
+function buildColorVars(colors: string[]) {
   const vars: Record<string, string> = {};
-  for (let i = 0; i < 7; i++) {
-    const c = colors[Math.min(COLOR_MAP[i], colors.length - 1)];
-    vars[GRADIENT_KEYS[i]] = `radial-gradient(at ${GRADIENT_POSITIONS[i]}, ${c} 0px, transparent 50%)`;
-  }
-  vars["--gradient-base"] = `linear-gradient(${colors[0]} 0 100%)`;
+  vars["--gradient-base-color"] = colors[0] || "#FF6A00";
   return vars;
 }
 
@@ -272,7 +248,7 @@ export function BorderGlow({
         "--cone-spread": coneSpread,
         "--fill-opacity": fillOpacity,
         ...glowVars,
-        ...buildGradientVars(colors),
+        ...buildColorVars(colors),
       } as React.CSSProperties}
     >
       <span className="edge-light" />

@@ -2,58 +2,83 @@
 
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { cn } from "@/lib/utils";
+import { Gauge, ShieldCheck, Zap } from "lucide-react";
 
-const TRUST_LOGOS = [
-  { name: "Vercel", abbr: "VC" },
-  { name: "Stripe", abbr: "ST" },
-  { name: "Shopify", abbr: "SH" },
-  { name: "Linear", abbr: "LN" },
-  { name: "Notion", abbr: "NT" },
-  { name: "Figma", abbr: "FG" },
-  { name: "Raycast", abbr: "RC" },
-  { name: "Arc", abbr: "AR" },
+const STANDARDS = [
+  {
+    icon: <Zap className="w-5 h-5 text-forge-accent" />,
+    value: "100/100",
+    label: "Lighthouse Speed Score",
+    description: "Zero template bloat. Every script and asset optimized for instantaneous load times.",
+  },
+  {
+    icon: <Gauge className="w-5 h-5 text-forge-accent" />,
+    value: "<1.2s",
+    label: "Largest Contentful Paint",
+    description: "Built for speed. LCP optimized to load key content almost instantly on any device.",
+  },
+  {
+    icon: <ShieldCheck className="w-5 h-5 text-forge-accent" />,
+    value: "100%",
+    label: "SEO & Access Standard",
+    description: "Semantic HTML structures and WCAG compliance for maximum search and human usability.",
+  },
 ];
 
 export function TrustStrip() {
-  const { ref, isVisible } = useScrollReveal();
+  const { ref, isVisible } = useScrollReveal({ threshold: 0.1 });
 
   return (
     <section
       ref={ref}
-      className="py-10 md:py-14 border-y border-forge-divider/30 overflow-hidden"
+      className="py-16 md:py-20 border-y border-forge-divider/30 bg-forge-surface/5 overflow-hidden"
     >
       <div
         className={cn(
-          "transition-all duration-700 ease-out",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          "mx-auto max-w-[1200px] px-6 md:px-20 transition-all duration-800 ease-out",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}
       >
-        <div className="flex items-center gap-3 mb-6 md:mb-8 justify-center">
-          <span className="text-[11px] text-forge-text-secondary/30 tracking-[0.14em] uppercase font-mono">
-            Trusted by teams at
+        {/* Core Value Statement */}
+        <div className="text-center max-w-[800px] mx-auto mb-12 md:mb-16">
+          <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
+            Our Standard
           </span>
+          <h3 className="text-fluid-h2 font-bold text-forge-text font-playfair leading-tight">
+            Obsessed with <span className="text-forge-accent/80">PageSpeed</span>,{" "}
+            <span className="text-forge-text">Core Web Vitals</span>, and{" "}
+            <span className="text-forge-accent/80">conversion rate</span> optimization.
+          </h3>
         </div>
-        {/* Marquee */}
-        <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-forge-bg to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-forge-bg to-transparent z-10 pointer-events-none" />
-          <div className="flex animate-marquee-scroll">
-            {[...TRUST_LOGOS, ...TRUST_LOGOS].map((logo, i) => (
-              <div
-                key={`${logo.name}-${i}`}
-                className="flex items-center gap-2.5 px-8 md:px-12 shrink-0"
-              >
-                <div className="w-8 h-8 rounded-lg bg-forge-surface/80 border border-forge-divider/40 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-forge-text-secondary/40 font-mono">
-                    {logo.abbr}
-                  </span>
-                </div>
-                <span className="text-[14px] font-medium text-forge-text-secondary/25 whitespace-nowrap">
-                  {logo.name}
-                </span>
+
+        {/* Engineering Standards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          {STANDARDS.map((std, i) => (
+            <div
+              key={std.label}
+              className="flex flex-col items-center text-center group"
+            >
+              {/* Icon Wrapper */}
+              <div className="w-12 h-12 rounded-full border border-forge-divider bg-forge-surface flex items-center justify-center mb-5 group-hover:border-forge-accent/30 transition-colors duration-300">
+                {std.icon}
               </div>
-            ))}
-          </div>
+              
+              {/* Value */}
+              <span className="text-fluid-h2 font-bold text-forge-text tracking-tight font-syne mb-1.5">
+                {std.value}
+              </span>
+              
+              {/* Label */}
+              <span className="text-[13px] font-semibold text-forge-accent uppercase tracking-wider mb-2 font-mono">
+                {std.label}
+              </span>
+              
+              {/* Description */}
+              <p className="text-fluid-body text-forge-text-secondary/60 max-w-[280px]">
+                {std.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

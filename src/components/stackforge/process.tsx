@@ -1,146 +1,90 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import { motion } from "motion/react";
+import { ContainerScroll, CardSticky } from "@/components/ui/cards-stack";
 
 const steps = [
   {
     number: "01",
-    title: "Discovery",
+    title: "Research and Analysis",
     description:
-      "We dig into your business, users, and goals. No templates — every project starts with a blank canvas and honest questions.",
+      "With your vision in mind, we enter the Research and Analysis phase. Here, we examine your competitors, industry trends, and user preferences. This informed approach ensures your website stands out and provides an excellent user experience.",
   },
   {
     number: "02",
-    title: "Design",
+    title: "Wireframing and Prototyping",
     description:
-      "Clean, purposeful interfaces. We design in Figma, iterate fast, and don't move forward until you love it.",
+      "We move on to Wireframing and Prototyping, where we create skeletal representations of your website's pages. These visual blueprints allow us to test and refine the user experience before diving into design.",
   },
   {
     number: "03",
-    title: "Build",
+    title: "Design Creation",
     description:
-      "Production-grade code with React, Next.js, and TypeScript. Fast, accessible, SEO-ready from the first commit.",
+      "Now, it's time for the Design Creation phase. Our talented designers bring your vision to life. We focus on aesthetics, ensuring your website not only looks stunning but also aligns perfectly with your brand identity.",
   },
   {
     number: "04",
-    title: "Launch",
+    title: "Development and Testing",
     description:
-      "We test everything, deploy to production, and stick around. Post-launch support is never an afterthought.",
+      "In the Development and Testing phase, our skilled developers turn designs into a fully functional website. Rigorous testing ensures everything works seamlessly, providing an exceptional user experience.",
+  },
+  {
+    number: "05",
+    title: "Launch and Support",
+    description:
+      "Our commitment continues beyond launch. We offer post-launch support to address questions, provide assistance, and ensure your website remains updated and optimized. The Website Design Process isn't just about creating a website; it's about crafting a digital experience that resonates, engages, and converts.",
   },
 ];
 
 export function Process() {
-  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal();
-  const { ref: stepsRef, isVisible: stepsVisible } = useScrollReveal({ threshold: 0.05 });
-  const { ref: lineRef, isVisible: lineVisible } = useScrollReveal({ threshold: 0.1 });
-
   return (
-    <section id="process" className="py-24 md:py-32 lg:py-[110px]">
+    <section id="process" className="py-24 md:py-32 lg:py-[110px] relative bg-forge-bg">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
-        {/* Section Header */}
-        <div
-          ref={headerRef}
-          className={cn(
-            "mb-16 md:mb-20 transition-all duration-600 ease-out",
-            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-          )}
-        >
-          <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
-            Process
-          </span>
-          <h2 className="text-fluid-h1 font-bold text-forge-text max-w-[550px] font-playfair">
-            Simple process.
-            <br />
-            <span className="text-forge-accent/70"> Serious results.</span>
-          </h2>
-        </div>
-
-        {/* Steps */}
-        <div ref={stepsRef} className="relative">
-          {/* Desktop connecting line — animates width 0→100% */}
-          <div
-            ref={lineRef}
-            className="hidden lg:block absolute top-[36px] left-[60px] right-[60px] h-px bg-forge-divider origin-left"
-            style={{
-              width: lineVisible ? "100%" : "0%",
-              transition: "width 1s cubic-bezier(0.22, 1, 0.36, 1) 200ms",
-            }}
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-0 relative">
-            {steps.map((step, index) => (
-              <div
-                key={step.number}
-                className={cn(
-                  "relative transition-all duration-600 ease-out",
-                  stepsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-                )}
-                style={{ transitionDelay: stepsVisible ? `${index * 100}ms` : "0ms" }}
-              >
-                {/* Mobile layout */}
-                <div className="lg:hidden flex items-start gap-5">
-                  {/* Step circle with scale animation */}
-                  <div
-                    className="flex items-center justify-center w-11 h-11 rounded-full border border-forge-divider bg-forge-bg shrink-0 relative z-10"
-                    style={{
-                      transform: stepsVisible ? "scale(1)" : "scale(0.8)",
-                      transition: `transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${200 + index * 100}ms`,
-                    }}
-                  >
-                    <span className="text-[14px] font-bold text-forge-text tracking-tight font-syne">
-                      {step.number}
-                    </span>
-                  </div>
-                  {/* Mobile vertical connecting line — animates scaleY 0→1 */}
-                  {index < steps.length - 1 && (
-                    <div
-                      className="absolute top-11 left-[21px] w-px h-[calc(100%+8px)] bg-forge-divider origin-top"
-                      style={{
-                        transform: stepsVisible ? "scaleY(1)" : "scaleY(0)",
-                        transition: `transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) ${300 + index * 100}ms`,
-                      }}
-                    />
-                  )}
-                  <div className="pb-10">
-                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
-                      {step.title}
-                    </h3>
-                    <p className="mt-2 text-fluid-body text-forge-text-secondary/60 max-w-[380px]">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Desktop layout */}
-                <div className="hidden lg:flex flex-col items-center text-center px-4">
-                  {/* Step circle with scale animation */}
-                  <div
-                    className="flex items-center justify-center w-[72px] h-[72px] rounded-full border border-forge-divider bg-forge-bg relative z-10 transition-all duration-300 hover:border-forge-accent/30 group"
-                    style={{
-                      transform: stepsVisible ? "scale(1)" : "scale(0.8)",
-                      transition: `border-color 0.3s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) ${200 + index * 100}ms`,
-                    }}
-                  >
-                    <span className="text-[22px] font-bold text-forge-text tracking-tight transition-colors duration-300 group-hover:text-forge-accent font-syne">
-                      {step.number}
-                    </span>
-                  </div>
-
-                  <div className="mt-5">
-                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
-                      {step.title}
-                    </h3>
-                    <p className="mt-2 text-fluid-body text-forge-text-secondary/60 max-w-[210px]">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div className="grid md:grid-cols-2 md:gap-8 xl:gap-16 items-start relative">
+          
+          {/* Left Column (Sticky) */}
+          <div className="left-0 top-[100px] md:sticky md:h-[calc(100vh-100px)] md:py-12 mb-16 md:mb-0 flex flex-col justify-start">
+            <span className="text-[12px] text-forge-accent/60 font-medium tracking-[0.16em] uppercase block mb-4 font-mono">
+              our process
+            </span>
+            <h2 className="mb-6 mt-4 text-fluid-h1 font-bold text-forge-text font-playfair max-w-[550px]">
+              Planning your
+              <br />
+              <span className="text-forge-accent/70"> project development journey</span>
+            </h2>
+            <p className="text-fluid-body text-forge-text-secondary/70 max-w-[420px]">
+              Our journey begins with a deep dive into your vision. In the Discovery phase, we engage in meaningful conversations to grasp your brand identity, goals, and the essence you want to convey. This phase sets the stage for all that follows.
+            </p>
           </div>
+          
+          {/* Right Column (Scrolling Stack) */}
+          <ContainerScroll className="min-h-[300vh] space-y-8 pb-[100px] md:pb-[30vh]">
+            {steps.map((step, index) => (
+              <CardSticky
+                key={step.number}
+                index={index + 8}
+                incrementY={14}
+                className="rounded-2xl border border-forge-divider/50 bg-forge-surface/30 p-8 md:p-10 shadow-2xl shadow-forge-bg/80 backdrop-blur-xl"
+              >
+                <div className="flex items-center justify-between gap-4 mb-6">
+                  <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
+                    {step.title}
+                  </h3>
+                  <h4 className="text-3xl font-bold text-forge-accent font-syne">
+                    {step.number}
+                  </h4>
+                </div>
+                <p className="text-fluid-body text-forge-text-secondary/70">
+                  {step.description}
+                </p>
+              </CardSticky>
+            ))}
+          </ContainerScroll>
+
         </div>
       </div>
     </section>
   );
 }
+

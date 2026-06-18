@@ -2,17 +2,22 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { useScrollPosition } from "@/hooks/use-scroll-position";
+import { MagneticWrapper } from "@/components/ui/magnetic-button";
+import { BlobButton } from "@/components/ui/blob-button";
 
 const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "Services", href: "#services" },
-  { label: "Work", href: "#work" },
-  { label: "About", href: "#about" },
-  { label: "Process", href: "#process" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "/" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Work", href: "/#work" },
+  { label: "About", href: "/#about" },
+  { label: "Process", href: "/#process" },
+  { label: "Blog", href: "/blog" },
+  { label: "Contact", href: "/start-project" },
+
 ];
 
 export function Navbar() {
@@ -97,42 +102,48 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 contain-layout",
         scrolled
-          ? "bg-forge-bg/85 backdrop-blur-md border-b border-forge-divider/60"
-          : "bg-transparent"
+          ? "bg-forge-bg/90 backdrop-blur-md border-b border-forge-divider/60 shadow-sm"
+          : "bg-forge-bg/60 backdrop-blur-sm border-b border-forge-divider/30"
       )}
     >
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         <nav className="flex items-center justify-between h-16 md:h-[72px]">
           {/* Logo */}
-          <a
-            href="#home"
+          <Link
+            href="/"
             className="flex items-center gap-2 text-forge-text font-semibold text-[18px] tracking-tight"
           >
-            <Image src="/logo.jpg" alt="StackForge" width={120} height={28} className="h-7 w-auto" priority />
-          </a>
+            <Image src="/stackforge-logo.jpg" alt="StackForge" width={48} height={48} className="h-10 md:h-12 w-auto object-contain" priority />
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className="relative text-[13px] text-forge-text-secondary/60 font-medium transition-colors duration-200 hover:text-forge-text link-underline"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
 
           {/* Desktop: CTA + Theme Toggle */}
           <div className="hidden md:flex items-center gap-2">
             <ThemeToggle />
-            <a
-              href="#contact"
-              className="btn-primary inline-flex items-center justify-center h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-md transition-all duration-200"
-            >
-              Get in Touch
-            </a>
+            <MagneticWrapper>
+              <BlobButton
+                asChild
+                variant="popular"
+                className="btn-primary inline-flex items-center justify-center h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-md transition-all duration-200"
+              >
+                <Link href="/start-project">
+
+                  Get in Touch
+                </Link>
+              </BlobButton>
+            </MagneticWrapper>
           </div>
 
           {/* Mobile: Theme Toggle + Hamburger */}
@@ -183,22 +194,30 @@ export function Navbar() {
       >
         <div className="flex flex-col items-center justify-center gap-6 pt-12 sm:pt-16">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
               className="text-fluid-h3 text-forge-text-secondary/60 font-medium tracking-[0.08em] transition-colors duration-200 hover:text-forge-text py-2"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#contact"
-            onClick={() => setMobileOpen(false)}
-            className="mt-4 inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg"
-          >
-            Start a Project
-          </a>
+          <MagneticWrapper>
+            <BlobButton
+              asChild
+              variant="popular"
+              className="mt-4 inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg"
+            >
+              <Link
+                href="/start-project"
+
+                onClick={() => setMobileOpen(false)}
+              >
+                Start a Project
+              </Link>
+            </BlobButton>
+          </MagneticWrapper>
         </div>
       </div>
     </header>
