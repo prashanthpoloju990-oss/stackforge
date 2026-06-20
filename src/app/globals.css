@@ -63,13 +63,13 @@
 /* ── LIGHT THEME (default :root) ── */
 :root {
   --radius: 0.625rem;
-  --forge-bg: #FFFFFF;
-  --forge-surface: #F3F4F6;
-  --forge-text: #111827;
-  --forge-text-secondary: #4B5563;
-  --forge-accent: #FF6A00;
-  --forge-divider: #E5E7EB;
-  --forge-border: #D1D5DB;
+  --forge-bg: #FAFAFA;
+  --forge-surface: #F0F1F3;
+  --forge-text: #0F172A;
+  --forge-text-secondary: #475569;
+  --forge-accent: #E85D04;
+  --forge-divider: #D4D7DD;
+  --forge-border: #C5C9D1;
   --background: #FFFFFF;
   --foreground: #111827;
   --card: #F3F4F6;
@@ -224,6 +224,7 @@ html {
 .font-playfair { font-family: var(--font-playfair); }
 .font-dancing { font-family: var(--font-dancing); }
 .font-curvy { font-family: var(--font-curvy); }
+.font-signature { font-family: var(--font-curvy); font-weight: 400; }
 
 /* ══════════════════════════════════════════════════
    FLUID TYPE SCALE — StackForge Liquid Display
@@ -392,7 +393,7 @@ html {
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.035;
+  opacity: 0.045;
   background-image: url("/grain.png");
   background-repeat: repeat;
   background-size: 128px 128px;
@@ -1007,12 +1008,28 @@ html {
 
 /* Light theme: soften the border for white backgrounds */
 :root .border-glow-card {
-  border-color: rgb(0 0 0 / 10%);
+  border-color: rgb(0 0 0 / 12%);
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 1px 2px,
+    rgba(0, 0, 0, 0.04) 0px 2px 4px,
+    rgba(0, 0, 0, 0.03) 0px 4px 8px,
+    rgba(0, 0, 0, 0.03) 0px 8px 16px;
 }
 :root .border-glow-card::before {
   background:
-    var(--card-bg, #FFFFFF) padding-box,
-    var(--gradient-base-color, #FF6A00) border-box;
+    var(--card-bg, #FAFAFA) padding-box,
+    var(--gradient-base-color, #E85D04) border-box;
+}
+
+/* ── LOGO LIGHT MODE FIX ── */
+.logo-adaptive {
+  filter: none;
+}
+:root .logo-adaptive {
+  filter: invert(1) hue-rotate(180deg) brightness(1.1) contrast(1.2);
+}
+.dark .logo-adaptive {
+  filter: none;
 }
 
 /* ══════════════════════════════════════════════════

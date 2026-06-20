@@ -194,6 +194,8 @@ export function BorderGlow({
     card.style.setProperty("--cursor-angle", `${angleStart}deg`);
 
     animateValue({
+      start: 0,
+      end: 100,
       duration: 500,
       onUpdate: (v) =>
         card.style.setProperty("--edge-proximity", `${v}`),

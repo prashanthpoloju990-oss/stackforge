@@ -4,10 +4,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 import { cn } from "@/lib/utils";
 
-interface MagneticWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode;
+interface MagneticWrapperProps extends React.ComponentPropsWithoutRef<typeof motion.div> {
   strength?: number;
-  className?: string;
 }
 
 export const MagneticWrapper = React.forwardRef<HTMLDivElement, MagneticWrapperProps>(

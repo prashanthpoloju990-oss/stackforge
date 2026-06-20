@@ -31,11 +31,11 @@ const VALID_SERVICES = [
 ];
 
 const VALID_BUDGETS = [
-  "$100 – $300",
-  "$300 – $700",
-  "$700 – $1,500",
-  "$1,500 – $5,000",
-  "$5,000+",
+  "Under ₹2,500",
+  "₹2,500 – ₹5,000",
+  "₹5,000 – ₹15,000",
+  "₹15,000 – ₹50,000",
+  "₹50,000+",
 ];
 
 const VALID_TIMELINES = [
@@ -172,22 +172,26 @@ export async function POST(request: NextRequest) {
     /* ── Simple rate limiting by contact info ── */
     // No strict rate limit for localhost/dev, just log
     if (process.env.NODE_ENV !== "development") {
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-      const recentCount = await db.contactSubmission.count({
-        where: {
-          createdAt: { gte: fiveMinutesAgo },
-          contact: sanitizedContact, // Rate-limit by contact info instead of IP
-        },
-      });
-
-      if (recentCount >= 3) {
-        return NextResponse.json(
-          {
-            error:
-              "Too many submissions. Please wait a few minutes before trying again.",
+      try {
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const recentCount = await db.contactSubmission.count({
+          where: {
+            createdAt: { gte: fiveMinutesAgo },
+            contact: sanitizedContact, // Rate-limit by contact info instead of IP
           },
-          { status: 429 }
-        );
+        });
+
+        if (recentCount >= 3) {
+          return NextResponse.json(
+            {
+              error:
+                "Too many submissions. Please wait a few minutes before trying again.",
+            },
+            { status: 429 }
+          );
+        }
+      } catch (rateLimitErr) {
+        console.error("[RATE-LIMIT] Database check failed, bypassing rate limit:", rateLimitErr);
       }
     }
 
@@ -238,18 +242,24 @@ export async function POST(request: NextRequest) {
     }
 
     /* ── Save to database ── */
-    const submission = await db.contactSubmission.create({
-      data: {
-        name: sanitizedName,
-        contact: sanitizedContact,
-        businessType: sanitizedBT,
-        serviceNeed: sanitizedService,
-        budget: sanitizedBudget,
-        timeline: sanitizedTimeline,
-        details: sanitizedDetails,
-        attachments: attachmentsJson,
-      },
-    });
+    let submissionId = "inquiry_" + Math.random().toString(36).substring(2, 9);
+    try {
+      const submission = await db.contactSubmission.create({
+        data: {
+          name: sanitizedName,
+          contact: sanitizedContact,
+          businessType: sanitizedBT,
+          serviceNeed: sanitizedService,
+          budget: sanitizedBudget,
+          timeline: sanitizedTimeline,
+          details: sanitizedDetails,
+          attachments: attachmentsJson,
+        },
+      });
+      submissionId = submission.id;
+    } catch (dbErr) {
+      console.error("[DATABASE] Failed to save contact submission:", dbErr);
+    }
 
     /* ── Send Email using Nodemailer ── */
     try {
@@ -328,7 +338,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        id: submission.id,
+        id: submissionId,
         message: "Your inquiry has been received. We'll get back to you within 12 hours.",
       },
       { status: 201 }

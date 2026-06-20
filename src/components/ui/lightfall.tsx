@@ -360,7 +360,7 @@ const Lightfall = React.forwardRef<HTMLDivElement, LightfallProps>(
         if (canvas.parentElement === container) {
           container.removeChild(canvas);
         }
-        const callIfFn = (obj: Record<string, unknown> | null, key: string) => {
+        const callIfFn = (obj: any, key: string) => {
           if (obj && typeof obj[key] === "function") {
             (obj[key] as () => void).call(obj);
           }
@@ -401,7 +401,7 @@ const Lightfall = React.forwardRef<HTMLDivElement, LightfallProps>(
         className={`lightfall-container ${className ?? ""}`}
         style={{
           ...(mixBlendMode && { mixBlendMode }),
-        }}
+        } as React.CSSProperties}
       />
     );
   }

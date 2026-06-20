@@ -150,7 +150,7 @@ const FIELDS: FieldConfig[] = [
     required: true,
     icon: DollarSign,
     type: "select",
-    options: ["$100 – $300", "$300 – $700", "$700 – $1,500", "$1,500 – $5,000", "$5,000+"],
+    options: ["Under ₹2,500", "₹2,500 – ₹5,000", "₹5,000 – ₹15,000", "₹15,000 – ₹50,000", "₹50,000+"],
     validate: (v) => {
       if (!v) return "Please select a budget range";
       return undefined;
@@ -312,9 +312,21 @@ export function Contact() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFiles = (newFiles: File[]) => {
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    const validFiles = newFiles.filter((f) => f.size <= maxSize);
-    setFiles((prev) => [...prev, ...validFiles].slice(0, 5)); // Max 5 files
+    const maxSize = 3 * 1024 * 1024; // 3MB (Vercel payload limit is 4.5MB)
+    const totalLimit = 3.5 * 1024 * 1024; // 3.5MB total combined size
+    
+    setFiles((prev) => {
+      const combined = [...prev];
+      for (const f of newFiles) {
+        if (f.size <= maxSize) {
+          const currentTotal = combined.reduce((acc, file) => acc + file.size, 0);
+          if (currentTotal + f.size <= totalLimit && combined.length < 3) {
+            combined.push(f);
+          }
+        }
+      }
+      return combined;
+    });
   };
 
   const removeFile = (index: number) => {
@@ -328,6 +340,38 @@ export function Contact() {
       return () => clearTimeout(t);
     }
   }, [isVisible, currentStep, isSuccess]);
+
+  /* Auto-fill package and price based on URL query parameter */
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const plan = params.get("plan");
+      if (plan) {
+        const t = setTimeout(() => {
+          if (plan === "launch-kit") {
+            setForm((p) => ({
+              ...p,
+              budget: "Under ₹2,500",
+              serviceNeed: "New Website",
+            }));
+          } else if (plan === "growth-pack") {
+            setForm((p) => ({
+              ...p,
+              budget: "₹2,500 – ₹5,000",
+              serviceNeed: "New Website",
+            }));
+          } else if (plan === "enterprise-bag" || plan === "enterprise") {
+            setForm((p) => ({
+              ...p,
+              budget: "₹50,000+",
+              serviceNeed: "Full Stack App",
+            }));
+          }
+        }, 0);
+        return () => clearTimeout(t);
+      }
+    }
+  }, []);
 
   /* Auto-clear submit error */
   React.useEffect(() => {
@@ -460,17 +504,20 @@ export function Contact() {
       /* Convert files to base64 for submission (browser-safe — no Buffer) */
       const fileData = await Promise.all(
         files.map(async (f) => {
-          const buffer = await f.arrayBuffer();
-          const bytes = new Uint8Array(buffer);
-          let binary = "";
-          for (let i = 0; i < bytes.byteLength; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
+          const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(f);
+            reader.onload = () => {
+              const base64 = (reader.result as string).split(",")[1];
+              resolve(base64);
+            };
+            reader.onerror = (err) => reject(err);
+          });
           return {
             name: f.name,
             type: f.type,
             size: f.size,
-            data: btoa(binary),
+            data: base64Data,
           };
         })
       );
@@ -498,10 +545,12 @@ export function Contact() {
     }
   };
 
-  const handleQuickService = (value: string) => {
-    handleChange("serviceNeed", value);
-    nameRef.current?.focus();
-  };
+  const handleQuickService = React.useCallback((value: string) => {
+    handleChange( "serviceNeed", value);
+    requestAnimationFrame(() => {
+      nameRef.current?.focus();
+    });
+  }, [handleChange]);
 
   /* ── Render field ── */
   const renderField = (field: FieldConfig) => {
@@ -769,7 +818,7 @@ export function Contact() {
             Drop files here or <span className="text-forge-accent/70">browse</span>
           </p>
           <p className="text-[11px] text-forge-text-secondary/30 mt-1">
-            PDF, PNG, JPG, GIF up to 10MB each
+            PDF, PNG, JPG, GIF up to 3MB each (max 3.5MB total)
           </p>
         </div>
 

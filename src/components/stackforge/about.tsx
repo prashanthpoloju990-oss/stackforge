@@ -62,6 +62,13 @@ const team = [
     avatar: "/team/anil.jpg",
     link: "https://linkedin.com",
   },
+  {
+    name: "Akshitha",
+    role: "UI/UX Developer & Designer",
+    bio: "Brings a sharp eye for design and hands-on development experience from previous projects. Specializes in crafting intuitive interfaces and pixel-perfect user experiences.",
+    avatar: "/team/akshitha.jpg",
+    link: "https://linkedin.com",
+  },
 ];
 
 export function About() {
@@ -122,7 +129,7 @@ export function About() {
                 </p>
                 <p>
                   What started as a two-person operation working from a cafe table
-                  has grown into a tight-knit team of four — shipping production-grade
+                  has grown into a tight-knit team of five — shipping production-grade
                   websites, dashboards, and SaaS platforms for businesses across India
                   and beyond.
                 </p>
@@ -160,7 +167,7 @@ export function About() {
                 </div>
                 <div className="text-center">
                   <span className="text-fluid-hero font-bold text-forge-text font-syne block">
-                    4
+                    5
                   </span>
                   <span className="text-fluid-micro text-forge-text-secondary/60 block mt-1 uppercase tracking-wider">
                     Members
@@ -331,7 +338,7 @@ export function About() {
           </div>
 
           {/* Rest of the team — Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
             {team.slice(1).map((member, index) => (
               <div
                 key={member.name}

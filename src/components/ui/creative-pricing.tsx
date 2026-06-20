@@ -134,7 +134,7 @@ function CreativePricing({
                       ]
                 )}
               >
-                <a href="/start-project">
+                <a href={`/start-project?plan=${tier.name.toLowerCase().replace(/\s+/g, "-")}`}>
                   {tier.popular ? "Start Building" : "Get Started"}
                 </a>
               </BlobButton>

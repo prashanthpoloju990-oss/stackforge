@@ -82,9 +82,12 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
     return () => cancelAnimationFrame(frame);
   }, [spacing, speed, ready]);
 
+  const [isDragging, setIsDragging] = useState(false);
+
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!interactive) return;
     dragRef.current = true;
+    setIsDragging(true);
     lastXRef.current = e.clientX;
     velRef.current = 0;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -110,10 +113,11 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
   const endDrag = () => {
     if (!interactive) return;
     dragRef.current = false;
+    setIsDragging(false);
     dirRef.current = velRef.current > 0 ? 'right' : 'left';
   };
 
-  const cursorStyle = interactive ? (dragRef.current ? 'grabbing' : 'grab') : 'auto';
+  const cursorStyle = interactive ? (isDragging ? 'grabbing' : 'grab') : 'auto';
 
   return (
     <div

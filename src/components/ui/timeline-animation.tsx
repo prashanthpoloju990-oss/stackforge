@@ -28,7 +28,7 @@ export function TimelineContent({
   const isInView = useInView(ref, {
     once: true,
     margin: "-80px 0px",
-    root: null,
+    root: undefined,
   });
 
   const defaultVariants: {
@@ -52,9 +52,7 @@ export function TimelineContent({
     },
   };
 
-  const MotionComponent = motion.create(Component as string) as React.ComponentType<
-    React.ComponentProps<"div"> & { variants?: Variants; custom?: number }
-  >;
+  const MotionComponent = motion.create(Component as any) as any;
 
   return (
     <MotionComponent

@@ -38,9 +38,9 @@ class x {
   #t: any;
   size = { width: 0, height: 0, wWidth: 0, wHeight: 0, ratio: 0, pixelRatio: 0 };
   render = this.#i;
-  onBeforeRender: (h: { elapsed: number; delta: number }) => void = () => {};
-  onAfterRender: (h: { elapsed: number; delta: number }) => void = () => {};
-  onAfterResize: (size: { width: number; height: number; wWidth: number; wHeight: number; ratio: number; pixelRatio: number }) => void = () => {};
+  onBeforeRender: (h: { elapsed: number; delta: number }) => void = () => { };
+  onAfterRender: (h: { elapsed: number; delta: number }) => void = () => { };
+  onAfterResize: (size: { width: number; height: number; wWidth: number; wHeight: number; ratio: number; pixelRatio: number }) => void = () => { };
   #s = false;
   #n = false;
   isDisposed = false;
@@ -155,13 +155,14 @@ class x {
     this.camera.fov = 2 * o.radToDeg(Math.atan(t));
   }
   updateWorldSize() {
-    if (this.camera.isPerspectiveCamera) {
-      const e = (this.camera.fov * Math.PI) / 180;
-      this.size.wHeight = 2 * Math.tan(e / 2) * this.camera.position.length();
-      this.size.wWidth = this.size.wHeight * this.camera.aspect;
-    } else if (this.camera.isOrthographicCamera) {
-      this.size.wHeight = this.camera.top - this.camera.bottom;
-      this.size.wWidth = this.camera.right - this.camera.left;
+    const cam = this.camera as any;
+    if (cam.isPerspectiveCamera) {
+      const e = (cam.fov * Math.PI) / 180;
+      this.size.wHeight = 2 * Math.tan(e / 2) * cam.position.length();
+      this.size.wWidth = this.size.wHeight * cam.aspect;
+    } else if (cam.isOrthographicCamera) {
+      this.size.wHeight = cam.top - cam.bottom;
+      this.size.wWidth = cam.right - cam.left;
     }
   }
   #b() {
@@ -188,7 +189,7 @@ class x {
     const animate = () => {
       this.#l = requestAnimationFrame(animate);
       this.#h.delta = this.#c.getDelta();
-      this.#h.elapsed += this.#h.delta;
+      this.#h.elapsed = this.#c.getElapsedTime();
       this.onBeforeRender(this.#h);
       this.render();
       this.onAfterRender(this.#h);
@@ -242,10 +243,10 @@ function S(e: any) {
     nPosition: new r(),
     hover: false,
     touching: false,
-    onEnter(t?: any) {},
-    onMove(t?: any) {},
-    onClick(t?: any) {},
-    onLeave(t?: any) {},
+    onEnter(t?: any) { },
+    onMove(t?: any) { },
+    onClick(t?: any) { },
+    onLeave(t?: any) { },
     ...e
   };
   (function (e, t) {
@@ -603,7 +604,7 @@ class Z extends d {
   constructor(e: any, t = {}) {
     const i = { ...X, ...t };
     const s = new z();
-    const n = new p(e, 0.04).fromScene(s).texture;
+    const n = new p(e).fromScene(s).texture;
     const o = new g();
     const r = new Y({ envMap: n, ...i.materialParams });
     r.envMapRotation.x = -Math.PI / 2;

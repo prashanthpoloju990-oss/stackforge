@@ -22,11 +22,13 @@ export function ScrollProgress() {
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
         rafId = 0;
+        const currentBar = barRef.current;
+        if (!currentBar) return;
         const scrollY = window.scrollY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
         const progress = docHeight > 0 ? Math.min((scrollY / docHeight) * 100, 100) : 0;
-        bar.style.width = `${progress}%`;
-        bar.style.opacity = progress > 0 ? "1" : "0";
+        currentBar.style.width = `${progress}%`;
+        currentBar.style.opacity = progress > 0 ? "1" : "0";
       });
     }
 
