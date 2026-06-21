@@ -47,5 +47,7 @@ model ContactSubmission {
   timeline     String?
   details      String?
   attachments  String?
+  pageCount    Int?
+  features     String?
   createdAt    DateTime @default(now())
 }

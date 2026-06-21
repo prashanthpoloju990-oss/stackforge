@@ -26,8 +26,8 @@ export function ScrollProgress() {
         if (!currentBar) return;
         const scrollY = window.scrollY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = docHeight > 0 ? Math.min((scrollY / docHeight) * 100, 100) : 0;
-        currentBar.style.width = `${progress}%`;
+        const progress = docHeight > 0 ? Math.min(scrollY / docHeight, 1) : 0;
+        currentBar.style.transform = `scaleX(${progress})`;
         currentBar.style.opacity = progress > 0 ? "1" : "0";
       });
     }
@@ -46,13 +46,14 @@ export function ScrollProgress() {
     >
       <div
         ref={barRef}
-        className="h-full"
+        className="h-full w-full"
         style={{
-          width: "0%",
+          transform: "scaleX(0)",
+          transformOrigin: "left",
           opacity: 0,
           background: "var(--forge-accent, #FF6A00)",
-          transition: "width 50ms linear, opacity 100ms linear",
-          willChange: "width",
+          transition: "opacity 100ms linear",
+          willChange: "transform, opacity",
         }}
       />
     </div>

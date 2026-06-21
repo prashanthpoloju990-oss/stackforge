@@ -11,13 +11,13 @@ import { BlobButton } from "@/components/ui/blob-button";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Pricing", href: "/#pricing" },
   { label: "Work", href: "/#work" },
-  { label: "About", href: "/#about" },
   { label: "Process", href: "/#process" },
+  { label: "About", href: "/#about" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/start-project" },
-
 ];
 
 export function Navbar() {
@@ -97,65 +97,115 @@ export function Navbar() {
     };
   }, [mobileOpen, closeMenu]);
 
+  const isFloating = scrolled && !mobileOpen;
+
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 contain-layout",
-        scrolled
-          ? "bg-forge-bg/90 backdrop-blur-md border-b border-forge-divider/60 shadow-sm"
-          : "bg-forge-bg/60 backdrop-blur-sm border-b border-forge-divider/30"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none flex justify-center contain-layout",
+        isFloating ? "pt-4" : "pt-0"
       )}
     >
-      <div className="mx-auto max-w-[1200px] px-6 md:px-20">
-        <nav className="flex items-center justify-between h-16 md:h-[72px]">
-          {/* Logo */}
+      <div
+        className={cn(
+          "pointer-events-auto transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between relative",
+          isFloating
+            ? "w-full max-w-[1200px] bg-transparent border-none shadow-none px-6 md:px-20 h-14 pointer-events-none"
+            : "w-full max-w-[1200px] rounded-none border-b border-forge-divider/30 bg-forge-bg/60 backdrop-blur-sm px-6 md:px-20 h-16 md:h-[72px]"
+        )}
+      >
+        {/* Logo Capsule */}
+        <div
+          className={cn(
+            "pointer-events-auto flex items-center justify-center transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] absolute top-1/2 -translate-y-1/2 left-6 md:left-20",
+            isFloating
+              ? "w-[50px] h-[50px] md:w-[54px] md:h-[54px] rounded-full border border-forge-divider/80 bg-forge-bg/75 backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/25"
+              : "w-10 h-10 md:w-12 md:h-12 rounded-none border-transparent bg-transparent shadow-none"
+          )}
+        >
           <Link
             href="/"
-            className="flex items-center gap-2 text-forge-text font-semibold text-[18px] tracking-tight"
+            className="flex items-center justify-center"
           >
-            <Image src="/stackforge-logo.jpg" alt="StackForge" width={48} height={48} className="h-10 md:h-12 w-auto object-contain" priority />
+            <Image
+              src="/stackforge-logo.jpg"
+              alt="StackForge"
+              width={48}
+              height={48}
+              className={cn(
+                "rounded-full object-cover border border-forge-divider transition-all duration-[1200ms]",
+                isFloating ? "h-9 w-9 md:h-10 md:w-10" : "h-10 w-10 md:h-12 md:w-12"
+              )}
+              priority
+            />
           </Link>
+        </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="relative text-[13px] text-forge-text-secondary/60 font-medium transition-colors duration-200 hover:text-forge-text link-underline"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Desktop: CTA + Theme Toggle */}
-          <div className="hidden md:flex items-center gap-2">
-            <ThemeToggle />
-            <MagneticWrapper>
-              <BlobButton
-                asChild
-                variant="popular"
-                className="btn-primary inline-flex items-center justify-center h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-md transition-all duration-200"
-              >
-                <Link href="/start-project">
-
-                  Get in Touch
-                </Link>
-              </BlobButton>
-            </MagneticWrapper>
-          </div>
-
-          {/* Mobile: Theme Toggle + Hamburger */}
-          <div className="md:hidden flex items-center gap-2">
-            <ThemeToggle />
-            <button
-              ref={hamburgerRef}
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="flex flex-col items-center justify-center w-11 h-11 gap-[5px] text-forge-text -mr-1"
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileOpen}
+        {/* Desktop Navigation Capsule */}
+        <div
+          className={cn(
+            "hidden md:flex items-center transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] justify-center absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 pointer-events-auto",
+            isFloating
+              ? "h-[54px] rounded-full border border-forge-divider/80 bg-forge-bg/75 backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/25 px-8 gap-6"
+              : "h-[72px] rounded-none border-transparent bg-transparent shadow-none px-0 gap-8"
+          )}
+        >
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="relative text-forge-text-secondary/60 transition-colors duration-200 hover:text-forge-text link-underline font-mono tracking-widest text-[11px] font-semibold uppercase"
             >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Desktop Actions Capsule */}
+        <div
+          className={cn(
+            "hidden md:flex items-center transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] justify-center absolute top-1/2 -translate-y-1/2 right-6 md:right-20 pointer-events-auto",
+            isFloating
+              ? "h-[54px] rounded-full border border-forge-divider/80 bg-forge-bg/75 backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/25 px-5 gap-3"
+              : "h-[72px] rounded-none border-transparent bg-transparent shadow-none px-0 gap-2"
+          )}
+        >
+          <ThemeToggle />
+          <MagneticWrapper>
+            <BlobButton
+              asChild
+              variant="popular"
+              className={cn(
+                "btn-primary inline-flex items-center justify-center bg-forge-accent text-white font-semibold uppercase rounded-md transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
+                isFloating
+                  ? "h-9 px-4 text-[10px] tracking-wider"
+                  : "h-fluid-btn-sm px-5 text-fluid-btn"
+              )}
+            >
+              <Link href="/start-project">
+                Get in Touch
+              </Link>
+            </BlobButton>
+          </MagneticWrapper>
+        </div>
+
+        {/* Mobile Actions Capsule */}
+        <div
+          className={cn(
+            "md:hidden flex items-center transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] justify-center absolute top-1/2 -translate-y-1/2 right-6 pointer-events-auto",
+            isFloating
+              ? "h-[50px] rounded-full border border-forge-divider/80 bg-forge-bg/75 backdrop-blur-md shadow-lg px-3 gap-2"
+              : "h-10 rounded-none border-transparent bg-transparent shadow-none px-0 gap-2"
+          )}
+        >
+          <ThemeToggle />
+          <button
+            ref={hamburgerRef}
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-forge-text transition-all duration-300"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
             <span
               className={cn(
                 "block w-[18px] h-[1.5px] bg-current transition-all duration-300 origin-center",
@@ -174,9 +224,8 @@ export function Navbar() {
                 mobileOpen && "-rotate-45 -translate-y-[3.25px]"
               )}
             />
-            </button>
-          </div>
-        </nav>
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}
@@ -211,7 +260,6 @@ export function Navbar() {
             >
               <Link
                 href="/start-project"
-
                 onClick={() => setMobileOpen(false)}
               >
                 Start a Project

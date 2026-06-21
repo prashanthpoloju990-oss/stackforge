@@ -1,16 +1,40 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import {
+  ContainerAnimated,
+  ContainerStagger,
+  GalleryGrid,
+  GalleryGridCell,
+} from "@/components/ui/cta-section-with-gallery";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import Link from "next/link";
+
+const IMAGES = [
+  "https://images.unsplash.com/photo-1455849318743-b2233052fcff?q=80&w=600&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1733680958774-39a0e8a64a54?q=80&w=600&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1548783307-f63adc3f200b?q=80&w=600&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1703622377707-29bc9409aaf2?q=80&w=600&auto=format&fit=crop&q=80",
+];
 
 export function CtaBanner() {
-  const { ref, isVisible } = useScrollReveal({ threshold: 0.15 });
-
   return (
-    <section className="relative flex min-h-[80vh] md:h-[90vh] w-full items-center justify-center overflow-hidden border-y border-forge-divider bg-black">
+    <section className="relative w-full bg-black overflow-hidden py-24 md:py-32 flex items-center justify-center">
+      {/* Top smooth gradient fade */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-10"
+        style={{
+          background: "linear-gradient(to bottom, var(--forge-bg) 0%, rgba(0,0,0,0) 100%)"
+        }}
+      />
+
+      {/* Bottom smooth gradient fade */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none z-10"
+        style={{
+          background: "linear-gradient(to top, var(--forge-bg) 0%, rgba(0,0,0,0) 100%)"
+        }}
+      />
+
       {/* Structural Grid lines - responsive */}
       <div className="absolute inset-0 z-10 size-full pointer-events-none opacity-20 dark:opacity-40">
         <div className="grid w-full h-full grid-cols-6 md:grid-cols-12 divide-x divide-white/10">
@@ -29,54 +53,42 @@ export function CtaBanner() {
         </div>
       </div>
 
-      {/* Immersive background image with parallax and overlay */}
-      <div
-        className="absolute inset-0 bg-center bg-cover scale-105 transition-transform duration-[10s] ease-out hover:scale-100"
-        style={{
-          backgroundImage:
-            "url(https://images.cnippet.dev/image/upload/v1770400411/img_14002.jpg)",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/60 md:bg-black/50" />
-      </div>
+      <div className="relative z-20 mx-auto grid w-full max-w-[1200px] grid-cols-1 items-center gap-12 px-6 md:px-20 md:grid-cols-2">
+        <ContainerStagger className="flex flex-col items-start text-left">
+          <ContainerAnimated className="mb-4 block text-xs font-semibold text-forge-accent tracking-[0.16em] uppercase font-mono">
+            Innovate & Grow
+          </ContainerAnimated>
+          <ContainerAnimated className="text-3xl sm:text-4xl md:text-[2.4rem] font-bold tracking-tight text-white leading-tight font-playfair">
+            Scale Your Business <br className="hidden sm:block" />
+            Through <span className="text-forge-accent font-syne font-extrabold">Innovation.</span>
+          </ContainerAnimated>
+          <ContainerAnimated className="my-6 text-fluid-body-lg text-white/70 leading-relaxed max-w-[480px]">
+            Transform your startup&apos;s potential through innovative solutions
+            and strategic growth. We help businesses adapt, evolve, and thrive
+            in today&apos;s competitive marketplace.
+          </ContainerAnimated>
+          <ContainerAnimated>
+            <Link href="/start-project" passHref>
+              <Button className="bg-forge-accent hover:bg-forge-accent/90 text-white font-semibold uppercase tracking-wider text-[12px] h-fluid-btn px-fluid-btn rounded-lg cursor-pointer active:scale-95 transition-all">
+                Start Scaling Today
+              </Button>
+            </Link>
+          </ContainerAnimated>
+        </ContainerStagger>
 
-      {/* Content */}
-      <div
-        ref={ref}
-        className={cn(
-          "relative z-20 max-w-5xl px-6 text-center text-white transition-all duration-700 ease-out",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        )}
-      >
-        {/* Eyebrow */}
-        <span className="text-[12px] text-forge-accent font-medium tracking-[0.16em] uppercase mb-6 block font-mono">
-          Ready to Elevate?
-        </span>
-
-        {/* Title */}
-        <h2 className="text-center font-playfair font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white tracking-tight leading-tight mb-6">
-          Your Next Website Should <br />
-          <span className="text-[#e1fcad]">Actually Perform.</span>
-        </h2>
-
-        {/* Description */}
-        <p className="mx-auto mb-10 max-w-2xl text-center font-light text-base md:text-lg text-white/80 leading-relaxed">
-          Stop settling for slow, generic templates. Let&apos;s build a custom, speed-optimized 
-          Next.js experience designed to capture leads, rank on Google, and grow your brand.
-        </p>
-
-        {/* Action Button */}
-        <Link href="/start-project" className="inline-block group focus:outline-none">
-          <Button className="group not-disabled:inset-shadow-none mx-auto flex cursor-pointer items-center justify-center gap-0 rounded-full border-none bg-transparent px-0 py-5 font-normal shadow-none hover:bg-transparent [:hover,[data-pressed]]:bg-transparent">
-            <span className="rounded-full bg-[#e1fcad] px-6 py-3.5 text-black duration-500 ease-in-out group-hover:bg-[#122023] group-hover:text-[#e1fcad] group-hover:transition-colors text-sm font-semibold uppercase tracking-wider">
-              Start a Project
-            </span>
-            <div className="relative flex h-fit cursor-pointer items-center overflow-hidden rounded-full bg-[#e1fcad] p-5.5 text-black duration-500 ease-in-out group-hover:bg-[#122023] group-hover:text-[#e1fcad] group-hover:transition-colors">
-              <ArrowUpRight className="absolute h-5 w-5 -translate-x-1/2 transition-all duration-500 ease-in-out group-hover:translate-x-10" />
-              <ArrowUpRight className="absolute h-5 w-5 -translate-x-10 transition-all duration-500 ease-in-out group-hover:-translate-x-1/2" />
-            </div>
-          </Button>
-        </Link>
+        <GalleryGrid className="w-full max-w-[460px] mx-auto md:mr-0">
+          {IMAGES.map((imageUrl, index) => (
+            <GalleryGridCell index={index} key={index} className="border border-white/10">
+              <img
+                className="size-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                width="100%"
+                height="100%"
+                src={imageUrl}
+                alt={`StackForge Studio Gallery ${index + 1}`}
+              />
+            </GalleryGridCell>
+          ))}
+        </GalleryGrid>
       </div>
     </section>
   );

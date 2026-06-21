@@ -44,6 +44,8 @@ interface FormData {
   budget: string;
   timeline: string;
   details: string;
+  pageCount: number;
+  features: string[];
 }
 
 type FormFieldKey = keyof FormData;
@@ -69,6 +71,8 @@ const INITIAL_FORM: FormData = {
   budget: "",
   timeline: "",
   details: "",
+  pageCount: 1,
+  features: [],
 };
 
 const QUICK_SERVICES = [
@@ -293,6 +297,130 @@ function StepIndicator({
   );
 }
 
+/* ── Scope & Cost Estimator Types & Logic ── */
+interface EstimateResult {
+  complexityScore: number; // 0 to 100
+  priceMin: number;
+  priceMax: number;
+  timelineMin: number; // in days
+  timelineMax: number; // in days
+  timelineUnit: "days" | "weeks";
+  recommendedPlan: string;
+  budgetOption: string;
+  timelineOption: string;
+}
+
+const FEATURE_VALUES: Record<string, { price: number; complexity: number; days: number; name: string }> = {
+  db: { price: 15000, complexity: 25, days: 10, name: "Database & CMS" },
+  auth: { price: 10000, complexity: 15, days: 5, name: "User Auth" },
+  stripe: { price: 12000, complexity: 15, days: 5, name: "Stripe Payments" },
+  motion: { price: 8000, complexity: 10, days: 4, name: "Bespoke Animations" },
+  seo: { price: 5000, complexity: 8, days: 3, name: "SEO & Audit" },
+};
+
+function calculateEstimate(serviceNeed: string, pageCount: number, features: string[]): EstimateResult {
+  let basePrice = 1200;
+  let baseComplexity = 10;
+  let baseDays = 2;
+  
+  switch (serviceNeed) {
+    case "Landing Page":
+      basePrice = 1800;
+      baseComplexity = 15;
+      baseDays = 3;
+      break;
+    case "New Website":
+      basePrice = 2200;
+      baseComplexity = 20;
+      baseDays = 5;
+      break;
+    case "Website Redesign":
+      basePrice = 2000;
+      baseComplexity = 15;
+      baseDays = 4;
+      break;
+    case "UI/UX Design":
+      basePrice = 1500;
+      baseComplexity = 12;
+      baseDays = 4;
+      break;
+    case "Full Stack App":
+      basePrice = 8000;
+      baseComplexity = 40;
+      baseDays = 14;
+      break;
+    default:
+      basePrice = 1500;
+      baseComplexity = 15;
+      baseDays = 5;
+  }
+
+  const pageMultiplier = Math.max(1, pageCount);
+  const pagePriceFactor = pageMultiplier * 800;
+  const pageComplexityFactor = pageMultiplier * 2.5;
+  const pageDaysFactor = pageMultiplier * 1; 
+
+  let featuresPrice = 0;
+  let featuresComplexity = 0;
+  let featuresDays = 0;
+
+  features.forEach(feat => {
+    const val = FEATURE_VALUES[feat];
+    if (val) {
+      featuresPrice += val.price;
+      featuresComplexity += val.complexity;
+      featuresDays += val.days;
+    }
+  });
+
+  const totalPrice = basePrice + pagePriceFactor + featuresPrice;
+  const totalComplexity = Math.min(100, Math.round(baseComplexity + pageComplexityFactor + featuresComplexity));
+  const totalDays = baseDays + pageDaysFactor + featuresDays;
+
+  let recommendedPlan = "Launch Kit";
+  if (totalComplexity > 65 || totalPrice >= 50000) {
+    recommendedPlan = "Enterprise Bag";
+  } else if (totalComplexity > 30 || totalPrice >= 5000) {
+    recommendedPlan = "Growth Pack";
+  }
+
+  let budgetOption = "Under ₹2,500";
+  if (totalPrice >= 50000) {
+    budgetOption = "₹50,000+";
+  } else if (totalPrice >= 15000) {
+    budgetOption = "₹15,000 – ₹50,000";
+  } else if (totalPrice >= 5000) {
+    budgetOption = "₹5,000 – ₹15,000";
+  } else if (totalPrice >= 2500) {
+    budgetOption = "₹2,500 – ₹5,000";
+  }
+
+  let timelineOption = "Flexible";
+  if (totalDays <= 3) {
+    timelineOption = "Urgent (1–3 days)";
+  } else if (totalDays <= 7) {
+    timelineOption = "This week";
+  } else if (totalDays <= 30) {
+    timelineOption = "This month";
+  } else if (totalDays > 30 && totalDays <= 90) {
+    timelineOption = "Flexible";
+  } else {
+    timelineOption = "3+ months";
+  }
+
+  return {
+    complexityScore: totalComplexity,
+    priceMin: Math.round(totalPrice * 0.9),
+    priceMax: Math.round(totalPrice * 1.1),
+    timelineMin: Math.max(1, Math.round(totalDays * 0.85)),
+    timelineMax: Math.round(totalDays * 1.15),
+    timelineUnit: totalDays > 14 ? "weeks" : "days",
+    recommendedPlan,
+    budgetOption,
+    timelineOption
+  };
+}
+
 /* ══════════════════════════════════════════════════
    Main Component
    ══════════════════════════════════════════════════ */
@@ -349,23 +477,39 @@ export function Contact() {
       if (plan) {
         const t = setTimeout(() => {
           if (plan === "launch-kit") {
-            setForm((p) => ({
-              ...p,
-              budget: "Under ₹2,500",
-              serviceNeed: "New Website",
-            }));
+            setForm((p) => {
+              const next = {
+                ...p,
+                serviceNeed: "New Website",
+              };
+              const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
+              next.budget = est.budgetOption;
+              next.timeline = est.timelineOption;
+              return next;
+            });
           } else if (plan === "growth-pack") {
-            setForm((p) => ({
-              ...p,
-              budget: "₹2,500 – ₹5,000",
-              serviceNeed: "New Website",
-            }));
+            setForm((p) => {
+              const next = {
+                ...p,
+                serviceNeed: "New Website",
+                pageCount: 5,
+              };
+              const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
+              next.budget = est.budgetOption;
+              next.timeline = est.timelineOption;
+              return next;
+            });
           } else if (plan === "enterprise-bag" || plan === "enterprise") {
-            setForm((p) => ({
-              ...p,
-              budget: "₹50,000+",
-              serviceNeed: "Full Stack App",
-            }));
+            setForm((p) => {
+              const next = {
+                ...p,
+                serviceNeed: "Full Stack App",
+              };
+              const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
+              next.budget = est.budgetOption;
+              next.timeline = est.timelineOption;
+              return next;
+            });
           }
         }, 0);
         return () => clearTimeout(t);
@@ -380,6 +524,8 @@ export function Contact() {
       return () => clearTimeout(t);
     }
   }, [submitError]);
+
+  // Budget and timeline are automatically synchronized in state update handlers.
 
   /* ── Per-field validation ── */
   const validateField = React.useCallback(
@@ -444,10 +590,19 @@ export function Contact() {
   }, [filledCount, allRequiredFields]);
 
   /* ── Handlers ── */
-  const handleChange = (field: FormFieldKey, value: string) => {
-    setForm((p) => ({ ...p, [field]: value }));
+  const handleChange = (field: FormFieldKey, value: any) => {
+    setForm((p) => {
+      const next = { ...p, [field]: value };
+      if (field === "serviceNeed" || field === "pageCount" || field === "features") {
+        const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
+        next.budget = est.budgetOption;
+        next.timeline = est.timelineOption;
+      }
+      return next;
+    });
+
     if (touched[field] && errors[field]) {
-      const err = FIELDS.find((f) => f.key === field)?.validate?.(value);
+      const err = FIELDS.find((f) => f.key === field)?.validate?.(String(value));
       setErrors((p) => {
         const n = { ...p };
         if (!err) delete n[field];
@@ -771,13 +926,82 @@ export function Contact() {
         Project specifics
       </p>
 
-      {/* Select fields in 2-column grid */}
+      {/* Core selects: Business Type & Service Needed */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {STEP_2_FIELDS.filter((f) => f.type === "select").map((field) => renderField(field))}
+        {renderField(FIELDS.find((f) => f.key === "businessType")!)}
+        {renderField(FIELDS.find((f) => f.key === "serviceNeed")!)}
       </div>
 
-      {/* Textarea */}
-      {STEP_2_FIELDS.filter((f) => f.type === "textarea").map((field) => renderField(field))}
+      {/* Estimator Inputs: Page Count Slider */}
+      <div className="space-y-2 bg-forge-surface/30 border border-forge-divider/50 rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="pageCount" className="text-sm font-semibold text-foreground/90">
+            Number of Pages
+          </Label>
+          <span className="text-xs font-mono font-bold text-white px-2 py-0.5 bg-forge-accent rounded shadow-[1px_1px_0px_0px_var(--forge-text)]">
+            {form.pageCount === 20 ? "20+ Pages" : `${form.pageCount} ${form.pageCount === 1 ? 'Page' : 'Pages'}`}
+          </span>
+        </div>
+        <input
+          id="pageCount"
+          type="range"
+          min="1"
+          max="20"
+          value={form.pageCount}
+          onChange={(e) => handleChange("pageCount", parseInt(e.target.value, 10) as any)}
+          className="w-full h-1.5 rounded-lg bg-muted appearance-none cursor-pointer accent-forge-accent mt-2 focus:outline-none"
+        />
+      </div>
+
+      {/* Estimator Inputs: Add-on Integrations */}
+      <div className="space-y-2 bg-forge-surface/30 border border-forge-divider/50 rounded-xl p-4">
+        <Label className="text-sm font-semibold text-foreground/90 block mb-1">
+          Add-on Integrations
+        </Label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {[
+            { id: "db", label: "Database / CMS", desc: "Structured data" },
+            { id: "auth", label: "User Accounts", desc: "Secure logins" },
+            { id: "stripe", label: "Payments", desc: "Stripe checkout" },
+            { id: "motion", label: "Animations", desc: "Micro-motion" },
+            { id: "seo", label: "SEO & Audit", desc: "100/100 Speed" },
+          ].map((feat) => {
+            const selected = form.features.includes(feat.id);
+            return (
+              <button
+                type="button"
+                key={feat.id}
+                onClick={() => {
+                  setForm((prev) => {
+                    const nextFeatures = prev.features.includes(feat.id)
+                      ? prev.features.filter((id) => id !== feat.id)
+                      : [...prev.features, feat.id];
+                    const est = calculateEstimate(prev.serviceNeed, prev.pageCount, nextFeatures);
+                    return {
+                      ...prev,
+                      features: nextFeatures,
+                      budget: est.budgetOption,
+                      timeline: est.timelineOption,
+                    };
+                  });
+                }}
+                className={cn(
+                  "flex flex-col items-start text-left p-2.5 rounded-lg border text-xs transition-all duration-200 cursor-pointer w-full select-none",
+                  selected
+                    ? "bg-forge-accent/15 border-forge-accent text-forge-text shadow-[2px_2px_0px_0px_var(--forge-accent)]"
+                    : "bg-background text-foreground/60 border-input hover:border-forge-accent/40"
+                )}
+              >
+                <span className="font-bold text-[11px] block">{feat.label}</span>
+                <span className="text-[9px] text-muted-foreground mt-0.5 leading-none">{feat.desc}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Details Textarea */}
+      {renderField(FIELDS.find((f) => f.key === "details")!)}
 
       {/* File Upload Area */}
       <div className="space-y-2">
@@ -846,6 +1070,27 @@ export function Contact() {
         )}
       </div>
 
+      {/* Mobile-only compact estimator summary */}
+      <div className="block lg:hidden">
+        <EstimatorSummaryCardCompact form={form} />
+      </div>
+
+      {/* Sync Outputs: Budget Range & Timeline */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-forge-surface/20 border border-forge-divider/50 rounded-xl p-4">
+        <div className="relative">
+          <span className="absolute -top-2.5 left-3 bg-card px-1.5 text-[9px] font-bold text-forge-accent uppercase font-mono border border-forge-divider rounded z-10">
+            Auto-Selected Budget
+          </span>
+          {renderField(FIELDS.find((f) => f.key === "budget")!)}
+        </div>
+        <div className="relative">
+          <span className="absolute -top-2.5 left-3 bg-card px-1.5 text-[9px] font-bold text-forge-accent uppercase font-mono border border-forge-divider rounded z-10">
+            Auto-Selected Timeline
+          </span>
+          {renderField(FIELDS.find((f) => f.key === "timeline")!)}
+        </div>
+      </div>
+
       {/* Navigation buttons */}
       <div className="flex items-center gap-3 pt-2">
         <Button
@@ -902,14 +1147,38 @@ export function Contact() {
       >
         <div className="w-full min-h-screen flex items-center justify-center bg-background p-4 py-12">
           <motion.div
-            className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border"
+            className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl border border-forge-border"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            {/* ── LEFT: Image Slider ── */}
-            <div className="hidden lg:block min-h-[600px] lg:min-h-0">
-              <ImageSlider images={IMAGES} interval={4000} />
+            {/* ── LEFT: Image Slider or Live Estimator Panel ── */}
+            <div className="hidden lg:block min-h-[600px] lg:min-h-0 relative border-r border-forge-divider">
+              <AnimatePresence mode="wait">
+                {currentStep === 1 ? (
+                  <motion.div
+                    key="slider"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full h-full"
+                  >
+                    <ImageSlider images={IMAGES} interval={4000} />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="estimator"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    className="w-full h-full bg-gradient-to-br from-forge-surface to-background p-8 flex flex-col justify-between"
+                  >
+                    <EstimatorSummaryCard form={form} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* ── RIGHT: Form ── */}
@@ -917,7 +1186,7 @@ export function Contact() {
               <div className="w-full max-w-xl py-4 lg:py-2">
                 {/* Heading — always visible */}
                 <div className="mb-5">
-                  <h2 className="text-fluid-h1 font-bold tracking-tight mb-1 font-playfair">
+                  <h2 className="text-fluid-h1 font-bold tracking-tight mb-1 font-playfair text-forge-text">
                     Start Your Project
                   </h2>
                   <p className="text-muted-foreground text-sm">
@@ -1003,17 +1272,67 @@ export function Contact() {
   );
 }
 
-/* ── Success State ── */
+/* ── Success State with Particle Confetti ── */
 function SuccessState() {
+  const [particles] = React.useState<{ id: number; style: React.CSSProperties }[]>(() => {
+    const colors = ["#FF6A00", "#FFB347", "#FF9F43", "#10B981", "#6366F1", "#8B5CF6"];
+    return Array.from({ length: 60 }).map((_, i) => {
+      const angle = Math.random() * Math.PI * 2;
+      const velocity = 80 + Math.random() * 120;
+      const duration = 1 + Math.random() * 1.5;
+      const size = 6 + Math.random() * 8;
+      const delay = Math.random() * 0.2;
+      
+      const style: React.CSSProperties = {
+        position: "absolute",
+        left: "50%",
+        top: "50%",
+        width: `${size}px`,
+        height: `${size}px`,
+        backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+        borderRadius: Math.random() > 0.5 ? "50%" : "3px",
+        transform: "translate(-50%, -50%)",
+        animation: `confetti-fall-${i % 4} ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s forwards`,
+        pointerEvents: "none",
+        zIndex: 20,
+      };
+
+      return { id: i, style };
+    });
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="py-10 text-center"
+      className="py-10 text-center relative overflow-hidden"
     >
-      <div className="mb-6 flex justify-center">
-        <div className="relative h-16 w-16">
+      <style>{`
+        @keyframes confetti-fall-0 {
+          0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+          100% { transform: translate(calc(-50% - 150px), calc(-50% + 200px)) rotate(360deg); opacity: 0; }
+        }
+        @keyframes confetti-fall-1 {
+          0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+          100% { transform: translate(calc(-50% + 150px), calc(-50% + 200px)) rotate(-360deg); opacity: 0; }
+        }
+        @keyframes confetti-fall-2 {
+          0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+          100% { transform: translate(calc(-50% - 80px), calc(-50% + 250px)) rotate(720deg); opacity: 0; }
+        }
+        @keyframes confetti-fall-3 {
+          0% { transform: translate(-50%, -50%) rotate(0deg); opacity: 1; }
+          100% { transform: translate(calc(-50% + 80px), calc(-50% + 250px)) rotate(-720deg); opacity: 0; }
+        }
+      `}</style>
+      
+      {particles.map((p) => (
+        <div key={p.id} style={p.style} />
+      ))}
+      
+      <div className="mb-6 flex justify-center relative">
+        <div className="relative h-16 w-16 z-10">
           <div className="animate-check-circle absolute inset-0 rounded-full border border-green-500/30 bg-green-500/10" />
           <svg className="absolute inset-0 h-16 w-16" viewBox="0 0 64 64" fill="none">
             <path
@@ -1027,12 +1346,161 @@ function SuccessState() {
           </svg>
         </div>
       </div>
-      <h3 className="text-fluid-h2 font-bold font-playfair">
+      <h3 className="text-fluid-h2 font-bold font-playfair text-forge-text">
         You&apos;re all set!
       </h3>
       <p className="text-muted-foreground mx-auto mt-3 max-w-[300px] text-sm">
         We&apos;ve received your inquiry and will get back to you within 12 hours.
       </p>
     </motion.div>
+  );
+}
+
+/* ── Estimator Summary Card (Desktop Left Column) ── */
+function EstimatorSummaryCard({ form }: { form: FormData }) {
+  const est = calculateEstimate(form.serviceNeed, form.pageCount, form.features);
+
+  return (
+    <div className="flex flex-col h-full justify-between select-none text-left">
+      <div className="space-y-6">
+        <div>
+          <span className="text-[10px] font-mono font-bold tracking-[0.16em] text-forge-accent uppercase block mb-1">
+            Live Estimate
+          </span>
+          <h3 className="text-fluid-h2 font-bold font-playfair text-forge-text">
+            Project Scope Summary
+          </h3>
+        </div>
+
+        {/* Complexity visualizer */}
+        <div className="space-y-2 bg-forge-surface/40 border border-forge-divider p-4 rounded-xl">
+          <div className="flex justify-between items-baseline">
+            <span className="text-xs text-forge-text-secondary/80">Project Complexity</span>
+            <span className="text-sm font-mono font-bold text-forge-accent">{est.complexityScore}/100</span>
+          </div>
+          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{
+                width: `${est.complexityScore}%`,
+                backgroundColor:
+                  est.complexityScore < 35
+                    ? "#22c55e"
+                    : est.complexityScore < 70
+                      ? "var(--forge-accent, #FF6A00)"
+                      : "#8b5cf6",
+              }}
+            />
+          </div>
+          <p className="text-[10px] text-muted-foreground/60 leading-tight mt-1">
+            {est.complexityScore < 35
+              ? "Simple & straightforward MVP project."
+              : est.complexityScore < 70
+                ? "Standard website with database integrations."
+                : "Highly custom, enterprise-grade application."}
+          </p>
+        </div>
+
+        {/* Recommended Package */}
+        <div className="flex items-center justify-between p-4 bg-forge-surface/40 border border-forge-divider rounded-xl">
+          <span className="text-xs text-forge-text-secondary/80">Recommended Pack</span>
+          <span className="text-xs font-mono font-bold uppercase px-2.5 py-1 bg-forge-accent text-white border border-forge-text rounded shadow-[2px_2px_0px_0px_var(--forge-text)]">
+            {est.recommendedPlan}
+          </span>
+        </div>
+
+        {/* Deliverables details */}
+        <div className="space-y-2.5 pl-1">
+          <span className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase block">
+            Items Included:
+          </span>
+          <ul className="space-y-2 text-xs text-forge-text-secondary/80">
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent" />
+              {form.serviceNeed || "General Website"} Scope
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent" />
+              {form.pageCount} Custom Designed {form.pageCount === 1 ? "Page" : "Pages"}
+            </li>
+            {form.features.map(f => {
+              const info = FEATURE_VALUES[f];
+              return (
+                <li key={f} className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-forge-accent animate-pulse" />
+                  Integration: {info?.name || f}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+
+      {/* Pricing / Timeline estimation */}
+      <div className="mt-8 pt-6 border-t border-forge-divider/60 space-y-4">
+        <div className="flex justify-between items-baseline">
+          <span className="text-xs text-forge-text-secondary/70">Estimated Cost</span>
+          <div className="text-right">
+            <span className="text-fluid-h2 font-bold text-forge-accent font-syne">
+              {est.priceMin === est.priceMax ? "Custom" : `₹${est.priceMin.toLocaleString()} – ₹${est.priceMax.toLocaleString()}`}
+            </span>
+            {est.priceMin === est.priceMax && <p className="text-[10px] text-muted-foreground">tailored proposal</p>}
+          </div>
+        </div>
+
+        <div className="flex justify-between items-baseline">
+          <span className="text-xs text-forge-text-secondary/70">Estimated Duration</span>
+          <span className="text-sm font-mono font-bold text-forge-text">
+            {est.timelineMin}–{est.timelineMax} {est.timelineUnit}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Estimator Summary Card Compact (Mobile) ── */
+function EstimatorSummaryCardCompact({ form }: { form: FormData }) {
+  const est = calculateEstimate(form.serviceNeed, form.pageCount, form.features);
+
+  return (
+    <div className="border border-forge-divider bg-forge-surface/30 rounded-xl p-4 space-y-3 shadow-sm select-none text-left">
+      <div className="flex items-center justify-between border-b border-forge-divider/40 pb-2">
+        <span className="text-xs font-bold text-forge-text font-syne">Live Project Estimate</span>
+        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-forge-accent/15 text-forge-accent rounded">
+          {est.recommendedPlan}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div>
+          <span className="text-[10px] text-muted-foreground block">Estimated Cost</span>
+          <span className="font-bold text-forge-accent font-syne">
+            {est.priceMin === est.priceMax ? "Custom" : `₹${est.priceMin.toLocaleString()} – ₹${est.priceMax.toLocaleString()}`}
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-[10px] text-muted-foreground block">Duration</span>
+          <span className="font-mono font-bold text-forge-text">
+            {est.timelineMin}–{est.timelineMax} {est.timelineUnit}
+          </span>
+        </div>
+      </div>
+
+      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{
+            width: `${est.complexityScore}%`,
+            backgroundColor:
+              est.complexityScore < 35
+                ? "#22c55e"
+                : est.complexityScore < 70
+                  ? "var(--forge-accent, #FF6A00)"
+                  : "#8b5cf6",
+          }}
+        />
+      </div>
+    </div>
   );
 }

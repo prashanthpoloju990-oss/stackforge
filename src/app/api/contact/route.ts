@@ -79,6 +79,8 @@ export async function POST(request: NextRequest) {
       timeline,
       details,
       files,
+      pageCount,
+      features,
     } = body;
 
     /* ── Required field checks ── */
@@ -242,6 +244,13 @@ export async function POST(request: NextRequest) {
     }
 
     /* ── Save to database ── */
+    const parsedPageCount = pageCount ? parseInt(String(pageCount), 10) : null;
+    const sanitizedFeatures = Array.isArray(features)
+      ? features.map((f: any) => sanitize(String(f))).join(",")
+      : typeof features === "string"
+      ? sanitize(features)
+      : null;
+
     let submissionId = "inquiry_" + Math.random().toString(36).substring(2, 9);
     try {
       const submission = await db.contactSubmission.create({
@@ -254,6 +263,8 @@ export async function POST(request: NextRequest) {
           timeline: sanitizedTimeline,
           details: sanitizedDetails,
           attachments: attachmentsJson,
+          pageCount: parsedPageCount,
+          features: sanitizedFeatures,
         },
       });
       submissionId = submission.id;
@@ -275,7 +286,7 @@ export async function POST(request: NextRequest) {
         from: '"StackForge Contact" <no-reply@stackforge.co>',
         to: "stackforge.co@gmail.com",
         subject: `New Project Inquiry: ${sanitizedService} - ${sanitizedName}`,
-        text: `New Inquiry Details:\nName: ${sanitizedName}\nContact: ${sanitizedContact}\nBusiness Type: ${sanitizedBT}\nService Needed: ${sanitizedService}\nBudget: ${sanitizedBudget}\nTimeline: ${sanitizedTimeline}\nDetails: ${sanitizedDetails || "None"}\nAttachments: ${attachmentsJson || "None"}`,
+        text: `New Inquiry Details:\nName: ${sanitizedName}\nContact: ${sanitizedContact}\nBusiness Type: ${sanitizedBT}\nService Needed: ${sanitizedService}\nEstimated Pages: ${parsedPageCount || "Not specified"}\nSelected Add-ons: ${sanitizedFeatures ? sanitizedFeatures.split(",").map(f => f.toUpperCase()).join(", ") : "None"}\nBudget: ${sanitizedBudget}\nTimeline: ${sanitizedTimeline}\nDetails: ${sanitizedDetails || "None"}\nAttachments: ${attachmentsJson || "None"}`,
         html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
           <div style="background-color: #1a1a1a; padding: 24px; text-align: center; border-bottom: 4px solid #FF6A00;">
@@ -298,6 +309,14 @@ export async function POST(request: NextRequest) {
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Service Needed</td>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedService}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Estimated Pages</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${parsedPageCount || "Not specified"}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Selected Add-ons</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedFeatures ? sanitizedFeatures.split(",").map(f => f.toUpperCase()).join(", ") : "None"}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Budget</td>

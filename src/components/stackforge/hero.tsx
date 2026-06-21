@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { HeroVisual } from "./hero-visual";
 import { AnimatedShaderBackground } from "@/components/ui/animated-shader-background";
 import { MagneticWrapper } from "@/components/ui/magnetic-button";
 import { BlobButton } from "@/components/ui/blob-button";
+import { motion } from "motion/react";
+import { VerticalCutReveal } from "@/components/ui/vertical-cut-reveal";
 
 function useCountUp(end: number, duration: number = 2000, startOnMount: boolean = true) {
   const [count, setCount] = useState(0);
@@ -110,30 +111,44 @@ function KineticHeadline({ mounted }: { mounted: boolean }) {
   return (
     <h1
       ref={containerRef}
-      className={`text-fluid-display font-extrabold text-forge-text font-syne transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-100 select-none ${
-        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
+      className={`text-fluid-display font-extrabold text-forge-text font-syne select-none text-center flex flex-col items-center justify-center ${
+        mounted ? "opacity-100" : "opacity-0"
       }`}
       style={{ transformStyle: "preserve-3d" }}
     >
       {/* Line 1: "We build." */}
-      <span className="block">
-        <span
-          ref={(el) => { wordRefs.current[0] = el; }}
-          className="inline-block transition-transform duration-[60ms] ease-out will-change-transform"
-          style={{ transformStyle: "preserve-3d" }}
+      <span className="block overflow-hidden pb-1">
+        <motion.span
+          initial={{ y: "100%", opacity: 0 }}
+          animate={mounted ? { y: 0, opacity: 1 } : {}}
+          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          className="inline-block"
         >
-          We build.
-        </span>
+          <span
+            ref={(el) => { wordRefs.current[0] = el; }}
+            className="inline-block transition-transform duration-[60ms] ease-out will-change-transform"
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            We build.
+          </span>
+        </motion.span>
       </span>
       {/* Line 2: "You grow." in accent */}
-      <span className="block mt-1">
-        <span
-          ref={(el) => { wordRefs.current[1] = el; }}
-          className="inline-block text-forge-accent font-curvy text-[0.82em] transition-transform duration-[60ms] ease-out will-change-transform"
-          style={{ transformStyle: "preserve-3d" }}
+      <span className="block overflow-hidden pb-1 mt-1">
+        <motion.span
+          initial={{ y: "100%", opacity: 0 }}
+          animate={mounted ? { y: 0, opacity: 1 } : {}}
+          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.25 }}
+          className="inline-block"
         >
-          You grow.
-        </span>
+          <span
+            ref={(el) => { wordRefs.current[1] = el; }}
+            className="inline-block text-forge-accent font-curvy text-[0.82em] transition-transform duration-[60ms] ease-out will-change-transform"
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            You grow.
+          </span>
+        </motion.span>
       </span>
     </h1>
   );
@@ -167,72 +182,93 @@ export function Hero() {
         }}
       />
 
-      <div className="mx-auto max-w-[1200px] w-full px-6 md:px-20 py-16 md:py-20 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {/* LEFT — Copy */}
-          <div className="flex flex-col items-start">
-            {/* Kinetic Headline */}
-            <KineticHeadline mounted={mounted} />
+      <div className="mx-auto max-w-[1200px] w-full px-6 md:px-20 py-20 md:py-28 relative z-10 flex flex-col items-center justify-center text-center">
+        {/* Copy Container */}
+        <div className="flex flex-col items-center justify-center text-center max-w-[800px] mx-auto w-full">
+          {/* Kinetic Headline */}
+          <KineticHeadline mounted={mounted} />
 
-            {/* Subline */}
-            <p
-              className={`mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[440px] transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-200 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              }`}
+          {/* Subline */}
+          {mounted ? (
+            <VerticalCutReveal
+              splitBy="words"
+              staggerDuration={0.02}
+              transition={{
+                type: "spring",
+                stiffness: 140,
+                damping: 18,
+                delay: 0.2,
+              }}
+              containerClassName="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[540px] mx-auto justify-center text-center"
+              elementLevelClassName="inline-block"
             >
-              React &amp; Next.js specialists. We build fast, scalable, SEO-ready
-              digital products for startups and growing brands.
+              React & Next.js specialists. We build fast, scalable, SEO-ready digital products for startups and growing brands.
+            </VerticalCutReveal>
+          ) : (
+            <p className="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[540px] mx-auto text-center opacity-0">
+              React & Next.js specialists. We build fast, scalable, SEO-ready digital products for startups and growing brands.
             </p>
+          )}
 
-            {/* CTA Buttons */}
-            <div
-              className={`flex flex-col sm:flex-row items-start gap-3 mt-9 md:mt-10 transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-300 ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              }`}
-            >
-              <MagneticWrapper>
-                <BlobButton
-                  asChild
-                  variant="popular"
-                  className="btn-primary inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
-                >
-                  <a href="/start-project">
-                    Start a Project
-                  </a>
-                </BlobButton>
-              </MagneticWrapper>
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={mounted ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.45 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-9 md:mt-10 mx-auto"
+          >
+            <MagneticWrapper>
+              <BlobButton
+                asChild
+                variant="popular"
+                className="btn-primary inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
+              >
+                <a href="/start-project">
+                  Start a Project
+                </a>
+              </BlobButton>
+            </MagneticWrapper>
 
-              <MagneticWrapper>
-                <BlobButton
-                  asChild
-                  variant="normal"
-                  className="btn-secondary inline-flex items-center justify-center h-fluid-btn px-fluid-btn border border-forge-border text-forge-text-secondary text-fluid-btn font-medium uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
-                >
-                  <a href="#work">
-                    See Our Work
-                  </a>
-                </BlobButton>
-              </MagneticWrapper>
-            </div>
+            <MagneticWrapper>
+              <BlobButton
+                asChild
+                variant="normal"
+                className="btn-secondary inline-flex items-center justify-center h-fluid-btn px-fluid-btn border border-forge-border text-forge-text-secondary text-fluid-btn font-medium uppercase rounded-lg transition-all duration-200 active:scale-[0.98]"
+              >
+                <a href="#work">
+                  See Our Work
+                </a>
+              </BlobButton>
+            </MagneticWrapper>
+          </motion.div>
 
-            {/* Trust indicators */}
-            <div
-              className={`flex items-center gap-4 sm:gap-7 mt-11 transition-all duration-800 ease-[cubic-bezier(0.22,1,0.36,1)] delay-[400ms] overflow-x-auto scrollbar-none ${
-                mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              }`}
-            >
+          {/* Trust indicators */}
+          <motion.div
+            initial="hidden"
+            animate={mounted ? "visible" : "hidden"}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.08,
+                  delayChildren: 0.6,
+                },
+              },
+            }}
+            className="flex items-center justify-center gap-4 sm:gap-7 mt-11 overflow-x-auto scrollbar-none mx-auto"
+          >
+            <motion.div variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.6, ease: "easeOut" }}>
               <CounterStat value={10} suffix="+" label="Projects Delivered" />
-              <div className="w-px h-9 bg-forge-divider shrink-0" />
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} transition={{ duration: 0.4 }} className="w-px h-9 bg-forge-divider shrink-0" />
+            <motion.div variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.6, ease: "easeOut" }}>
               <CounterStat value={99} suffix=".9%" label="Uptime SLA" />
-              <div className="w-px h-9 bg-forge-divider shrink-0" />
+            </motion.div>
+            <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }} transition={{ duration: 0.4 }} className="w-px h-9 bg-forge-divider shrink-0" />
+            <motion.div variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.6, ease: "easeOut" }}>
               <CounterStat value={24} suffix="h" label="Avg. Response" />
-            </div>
-          </div>
-
-          {/* RIGHT — Abstract Visual */}
-          <div className="relative hidden md:block">
-            <HeroVisual />
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
 

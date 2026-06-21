@@ -8,6 +8,7 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useCountUp } from "@/hooks/use-count-up";
 import { CaseStudyModal, type CaseStudy } from "@/components/ui/case-study-modal";
 import { projects } from "@/lib/projects-data";
+import { motion, AnimatePresence } from "motion/react";
 
 const STATS = [
   { value: 50, suffix: "+", label: "Projects Shipped" },
@@ -54,6 +55,7 @@ export function Work() {
   const { ref: gridRef, isVisible: gridVisible } = useScrollReveal({ threshold: 0.03 });
 
   const [selectedStudy, setSelectedStudy] = useState<CaseStudy | null>(null);
+  const displayedProjects = projects.slice(0, 2);
 
   const openStudy = (project: CaseStudy) => {
     setSelectedStudy(project);
@@ -116,103 +118,138 @@ export function Work() {
         </div>
 
         {/* Project Cards Grid */}
-        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-          {projects.map((project, index) => (
-            <div
-              key={project.title}
-              className={cn(
-                "group block rounded-xl border border-forge-divider bg-forge-surface/30 overflow-hidden card-hover",
-                gridVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              )}
-              style={{ transitionDelay: gridVisible ? `${index * 100}ms` : "0ms" }}
-            >
-              {/* Image */}
-              <div className="relative w-full aspect-[16/10] overflow-hidden">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  loading="lazy"
-                  placeholder="blur"
-                  blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqPwfAAzwBfK5z+5nAAAAAElFTkSuQmCC"
-                />
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
-                {/* Metric badge */}
-                <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                  <div className="flex items-baseline gap-1.5 bg-black/60 backdrop-blur-sm rounded-md px-3 py-1.5 border border-white/10">
-                    <span className="text-[16px] font-bold text-forge-accent font-tabular-nums">
-                      {project.metric}
-                    </span>
-                    <span className="text-fluid-micro text-white/60">{project.metricLabel}</span>
+        <motion.div ref={gridRef} layout className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+          <AnimatePresence mode="popLayout">
+            {displayedProjects.map((project, index) => (
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
+                key={project.title}
+                className={cn(
+                  "group block rounded-xl border border-forge-divider bg-forge-surface/30 overflow-hidden card-hover transition-all duration-300 hover:-translate-y-1 hover:border-forge-accent/25 hover:shadow-lg",
+                  gridVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
+                )}
+                style={{ transitionDelay: gridVisible ? `${index * 80}ms` : "0ms" }}
+              >
+                {/* Image */}
+                <div className="relative w-full aspect-[16/9.2] overflow-hidden">
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    loading="lazy"
+                    placeholder="blur"
+                    blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqPwfAAzwBfK5z+5nAAAAAElFTkSuQmCC"
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
+                  {/* Metric badge */}
+                  <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                    <div className="flex items-baseline gap-1 bg-black/75 backdrop-blur-sm rounded px-2.5 py-1 border border-white/10">
+                      <span className="text-[14px] font-bold text-forge-accent font-tabular-nums">
+                        {project.metric}
+                      </span>
+                      <span className="text-[10px] text-white/70">{project.metricLabel}</span>
+                    </div>
                   </div>
-                </div>
-                {/* Arrow icon — top right, opens case study page */}
-                <Link
-                  href={`/work/${project.slug}`}
-                  className="absolute top-3 right-3 w-10 h-10 rounded-full border border-white/20 backdrop-blur-sm bg-white/10 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-forge-accent/80 hover:border-forge-accent/80 cursor-pointer"
-                  aria-label={`View ${project.title} case study`}
-                >
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none" className="text-white">
-                    <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Link>
-              </div>
-
-              {/* Content */}
-              <div className="p-5 md:p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[12px] text-forge-text-secondary/60 tracking-[0.08em] uppercase font-mono mb-1.5">
-                      {project.subtitle}
-                    </p>
-                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne">
-                      {project.title}
-                    </h3>
-                  </div>
+                  {/* Arrow icon — top right, opens case study page */}
                   <Link
                     href={`/work/${project.slug}`}
-                    className="shrink-0 w-10 h-10 rounded-full border border-forge-divider flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 group-hover:border-forge-accent/30 mt-1 cursor-pointer hover:bg-forge-accent/10"
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full border border-white/20 backdrop-blur-sm bg-white/10 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-forge-accent/80 hover:border-forge-accent/80 cursor-pointer"
                     aria-label={`View ${project.title} case study`}
                   >
-                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" className="text-forge-accent/70">
+                    <svg width="10" height="10" viewBox="0 0 14 14" fill="none" className="text-white">
                       <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </Link>
                 </div>
 
-                <p className="mt-2.5 text-fluid-body text-forge-text-secondary/60">
-                  {project.description}
-                </p>
-
-                {/* Tech Tags */}
-                <div className="flex flex-wrap items-center gap-1.5 mt-4">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center px-2.5 py-0.5 rounded text-fluid-micro font-medium tracking-wide text-forge-text-secondary/60 bg-forge-bg/80 border border-forge-divider/40"
+                {/* Content */}
+                <div className="p-4 md:p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] text-forge-text-secondary/50 tracking-[0.08em] uppercase font-mono mb-1">
+                        {project.subtitle}
+                      </p>
+                      <h3 className="text-[18px] md:text-[20px] font-bold text-forge-text font-syne leading-tight">
+                        {project.title}
+                      </h3>
+                    </div>
+                    <Link
+                      href={`/work/${project.slug}`}
+                      className="shrink-0 w-8 h-8 rounded-full border border-forge-divider flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 group-hover:border-forge-accent/30 mt-0.5 cursor-pointer hover:bg-forge-accent/10"
+                      aria-label={`View ${project.title} case study`}
                     >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                      <svg width="10" height="10" viewBox="0 0 14 14" fill="none" className="text-forge-accent/70">
+                        <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </Link>
+                  </div>
 
-                {/* View Case Study Link — visible on mobile, hover-reveal on desktop */}
-                <Link
-                  href={`/work/${project.slug}`}
-                  className="inline-flex items-center gap-1.5 text-forge-accent text-[13px] font-medium mt-4 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:gap-2.5 cursor-pointer"
-                >
-                  View Case Study
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                    <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+                  <p className="mt-2 text-[13px] text-forge-text-secondary/60 line-clamp-2 leading-relaxed">
+                    {project.description}
+                  </p>
+
+                  {/* Tech Tags */}
+                  <div className="flex flex-wrap items-center gap-1 mt-3">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide text-forge-text-secondary/60 bg-forge-bg/80 border border-forge-divider/40"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* View Case Study Link — visible on mobile, hover-reveal on desktop */}
+                  <Link
+                    href={`/work/${project.slug}`}
+                    className="inline-flex items-center gap-1 text-forge-accent text-[12px] font-medium mt-3.5 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:gap-2 cursor-pointer"
+                  >
+                    View Case Study
+                    <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+                      <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {/* View More Button */}
+        {projects.length > 2 && (
+          <div className="flex justify-center mt-12 md:mt-16">
+            <Link
+              href="/work"
+              className="inline-flex items-center gap-2 px-6 h-12 rounded-full border border-forge-divider bg-forge-surface/20 hover:bg-forge-surface/40 text-forge-text font-semibold uppercase tracking-wider text-[13px] transition-all duration-300 cursor-pointer active:scale-95 shadow-md hover:border-forge-accent/40"
+              aria-label="View all projects"
+            >
+              <span>View More Projects</span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="text-forge-text-secondary"
+              >
+                <path
+                  d="M6 4L10 8L6 12"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Case Study Modal */}

@@ -29,7 +29,6 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
   const textPathRef = useRef<SVGTextPathElement | null>(null);
   const pathRef = useRef<SVGPathElement | null>(null);
   const [spacing, setSpacing] = useState(0);
-  const [offset, setOffset] = useState(0);
   const uid = useId();
   const pathId = `curve-${uid.replace(/:/g, '')}`;
   const pathD = `M-100,40 Q500,${40 + curveAmount} 1540,40`;
@@ -51,14 +50,7 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
     if (measureRef.current) setSpacing(measureRef.current.getComputedTextLength());
   }, [text, className]);
 
-  useEffect(() => {
-    if (!spacing) return;
-    if (textPathRef.current) {
-      const initial = -spacing;
-      textPathRef.current.setAttribute('startOffset', initial + 'px');
-      setOffset(initial);
-    }
-  }, [spacing]);
+
 
   useEffect(() => {
     if (!spacing || !ready) return;
@@ -74,7 +66,6 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
         if (newOffset > 0) newOffset -= wrapPoint;
 
         textPathRef.current.setAttribute('startOffset', newOffset + 'px');
-        setOffset(newOffset);
       }
       frame = requestAnimationFrame(step);
     };
@@ -107,7 +98,6 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
     if (newOffset > 0) newOffset -= wrapPoint;
 
     textPathRef.current.setAttribute('startOffset', newOffset + 'px');
-    setOffset(newOffset);
   };
 
   const endDrag = () => {
@@ -162,7 +152,7 @@ const CurvedLoop: React.FC<CurvedLoopProps> = ({
         </defs>
         {ready && (
           <text fontWeight="bold" xmlSpace="preserve" className={className}>
-            <textPath ref={textPathRef} href={`#${pathId}`} startOffset={offset + 'px'} xmlSpace="preserve">
+            <textPath ref={textPathRef} href={`#${pathId}`} startOffset={-spacing + 'px'} xmlSpace="preserve">
               {totalText}
             </textPath>
           </text>

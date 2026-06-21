@@ -1,6 +1,8 @@
 "use client";
 
 import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
+import { useTheme } from "next-themes";
+import { useEffect, useRef } from "react";
 
 /**
  * SmoothScrollProvider
@@ -12,5 +14,15 @@ import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
  */
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   useSmoothScroll();
+  const { setTheme } = useTheme();
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!initialized.current) {
+      initialized.current = true;
+      setTheme("light");
+    }
+  }, [setTheme]);
+
   return <>{children}</>;
 }

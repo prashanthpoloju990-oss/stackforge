@@ -118,7 +118,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${syne.variable} ${playfair.variable} ${dancing.variable} ${greatVibes.variable} ${spaceMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange
         >

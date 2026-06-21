@@ -16,6 +16,7 @@ import { StickyCta } from "@/components/stackforge/sticky-cta";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { BackToTop } from "@/components/ui/back-to-top";
 import { CookieConsent } from "@/components/ui/cookie-consent";
+import { SignalButton } from "@/components/ui/signal-button";
 
 export default function Home() {
   return (
@@ -44,17 +45,18 @@ export default function Home() {
         <Process />
         <SectionDivider />
         <div className="section-contained"><About /></div>
-        <SectionDivider />
         <div className="section-contained"><TechStack /></div>
-        <div className="section-contained"><FAQ /></div>
         <SectionDivider />
         <div id="pricing-container" className="section-contained"><LazyPricing /></div>
         <div className="section-contained"><LazyCtaBanner /></div>
+        <SectionDivider />
+        <div className="section-contained"><FAQ /></div>
 
       </main>
 
       <Footer />
       <BackToTop />
+      <SignalButton />
       <CookieConsent />
       <StickyCta />
     </div>

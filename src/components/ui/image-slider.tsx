@@ -36,10 +36,10 @@ const ImageSlider = React.forwardRef<HTMLDivElement, ImageSliderProps>(
             key={currentIndex}
             src={images[currentIndex]}
             alt={`Slide ${currentIndex + 1}`}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+            initial={{ opacity: 0, scale: 1.2 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
             className="absolute top-0 left-0 w-full h-full object-cover"
           />
         </AnimatePresence>

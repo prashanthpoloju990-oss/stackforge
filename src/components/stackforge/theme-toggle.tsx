@@ -17,51 +17,26 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const mounted = useHasMounted();
 
-  // Prevent flash of wrong icon on first render
+  // Prevent flash of wrong state on first render
   if (!mounted) {
     return (
-      <div className="w-9 h-9 rounded-md border border-forge-divider flex items-center justify-center">
-        <div className="w-4 h-4" />
-      </div>
+      <div className="w-6 h-6 rounded-md border-3 border-forge-text bg-forge-surface shadow-[3px_3px_0px_var(--forge-text)] opacity-30" />
     );
   }
 
   const isDark = theme === "dark";
 
   return (
-    <button
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="w-9 h-9 rounded-md border border-forge-divider flex items-center justify-center text-forge-text-secondary/50 hover:text-forge-text hover:border-forge-border transition-all duration-200 cursor-pointer"
+    <label
+      className="theme-checkbox-container inline-block"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {isDark ? (
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="5" />
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-        </svg>
-      ) : (
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-      )}
-    </button>
+      <input
+        type="checkbox"
+        checked={isDark}
+        onChange={() => setTheme(isDark ? "light" : "dark")}
+      />
+      <div className="theme-checkbox-checkmark"></div>
+    </label>
   );
 }
