@@ -32,7 +32,7 @@ function MockTerminal() {
         <div className="flex"><span className="text-[#8B949E] w-6 select-none">3</span>  <span className="text-[#79C0FF]">minify</span><span className="text-[#FF7B72]">:</span> <span className="text-[#79C0FF]">true</span><span className="text-[#E6EDF0]">,</span></div>
         <div className="flex"><span className="text-[#8B949E] w-6 select-none">4</span>  <span className="text-[#79C0FF]">features</span><span className="text-[#FF7B72]">:</span> <span className="text-[#E6EDF0]">{`[`}</span><span className="text-[#A5D6FF]">"dynamic-imports"</span><span className="text-[#E6EDF0]">, </span><span className="text-[#A5D6FF]">"edge-caching"</span><span className="text-[#E6EDF0]">{`]`}</span></div>
         <div className="flex"><span className="text-[#8B949E] w-6 select-none">5</span><span className="text-[#E6EDF0]">{`});`}</span></div>
-        
+
         {/* Terminal Output */}
         <div className="mt-3 pt-3 border-t border-[#21262D]/60 font-mono text-[10px]">
           <div className="text-slate-500 mb-1">$ bun run build</div>
@@ -41,7 +41,7 @@ function MockTerminal() {
           <div className="text-[#238636] flex items-center gap-1 mt-0.5">
             <span>✔</span> <span>compiled 147 modules in 0.18s</span>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-x-4 mt-2 pt-2 border-t border-[#21262D]/40 text-slate-400 font-semibold">
             <div>
               <span className="text-slate-500">Route (app)</span>
@@ -54,7 +54,7 @@ function MockTerminal() {
               <div className="text-[#2EA043]">2.4 KB</div>
             </div>
           </div>
-          
+
           <div className="mt-2 text-[10px] text-slate-500 border-t border-[#21262D]/40 pt-1 flex items-center justify-between">
             <span>Lighthouse Performance Score:</span>
             <span className="text-[#2EA043] font-bold">100 / 100</span>
@@ -250,7 +250,10 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
           alt={member.name}
           width={280}
           height={420}
-          className="transition-all duration-500"
+          className={cn(
+            "transition-all duration-500",
+            member.name.includes("Prashanth") ? "prashanth-avatar" : ""
+          )}
           loading="lazy"
         />
       </div>
@@ -272,7 +275,7 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
           onClick={(e) => e.stopPropagation()}
         >
           <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
           </svg>
           <span>Follow</span>
           <ExternalLink className="w-2.5 h-2.5 opacity-50" />
@@ -327,9 +330,9 @@ export function About() {
               </h3>
               <div className="space-y-4 text-fluid-body-lg text-forge-text-secondary/70">
                 <p>
-                  StackForge was founded in April 2026 by a group of passionate students 
-                  from <span className="text-forge-text font-medium">Malla Reddy University</span>. 
-                  It was born out of frustration—we kept seeing businesses burned by agencies 
+                  StackForge was founded in April 2026 by a group of passionate students
+                  from <span className="text-forge-text font-medium">Malla Reddy University</span>.
+                  It was born out of frustration—we kept seeing businesses burned by agencies
                   that delivered beautiful mockups but broken products.
                 </p>
                 <p>

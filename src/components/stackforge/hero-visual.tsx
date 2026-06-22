@@ -29,18 +29,24 @@ export function HeroVisual() {
   const { scrollY } = useScrollPosition();
 
   useEffect(() => {
+    let rAFId: number;
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      // Calculate normalized mouse positions (-0.5 to 0.5) relative to the container
-      const x = (e.clientX - rect.left) / rect.width - 0.5;
-      const y = (e.clientY - rect.top) / rect.height - 0.5;
-      setMousePos({ x, y });
+      cancelAnimationFrame(rAFId);
+      rAFId = requestAnimationFrame(() => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        // Calculate normalized mouse positions (-0.5 to 0.5) relative to the container
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        setMousePos({ x, y });
+      });
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(rAFId);
     };
   }, []);
 

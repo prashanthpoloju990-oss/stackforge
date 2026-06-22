@@ -265,7 +265,7 @@ export function Footer() {
             </Link>
           </div>
           <span className="text-[10px] text-forge-text-secondary/40 font-mono">
-            Built with Next.js & Tailwind
+            Built with passion and love
           </span>
         </div>
       </div>

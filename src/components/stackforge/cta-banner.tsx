@@ -10,10 +10,10 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const IMAGES = [
-  "https://images.unsplash.com/photo-1455849318743-b2233052fcff?q=80&w=600&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1733680958774-39a0e8a64a54?q=80&w=600&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1548783307-f63adc3f200b?q=80&w=600&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1703622377707-29bc9409aaf2?q=80&w=600&auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600&auto=format&fit=crop",
+  "/images/cta-operator.png",
+  "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=600&auto=format&fit=crop",
 ];
 
 export function CtaBanner() {

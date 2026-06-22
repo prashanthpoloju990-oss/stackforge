@@ -1953,6 +1953,16 @@ html {
   transform: scale(1.04);
 }
 
+/* Prashanth avatar specific scaling (zoomed out just a bit) */
+.profile-card > .card-image-wrap img.prashanth-avatar {
+  transform: scale(0.97);
+}
+
+.profile-card:hover > .card-image-wrap img.prashanth-avatar,
+.profile-card:focus-within > .card-image-wrap img.prashanth-avatar {
+  transform: scale(1.01);
+}
+
 /* Text section */
 .profile-card > section {
   margin: 0.65rem 0.5rem 0.4rem;
@@ -2133,6 +2143,33 @@ header div.pointer-events-auto {
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     inset 0 -1px 0 rgba(94, 181, 255, 0.05);
 }
+/* ══════════════════════════════════════════════════
+   FPS & RENDERING OPTIMIZATIONS — 60Hz to 120Hz+
+   ══════════════════════════════════════════════════ */
 
+/* Force hardware accelerated layers for scrolling & cursor interactions */
+html, body {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+  backface-visibility: hidden;
+}
 
+/* Promote components with heavy shadows or transforms to compositor layers */
+.profile-card,
+.border-glow-card,
+.follow-btn-glass,
+.hero-dots {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
 
+/* Below the fold content-visibility layout optimization to prevent scroll lag */
+#pricing-container,
+#about,
+#work,
+#faq {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 600px;
+}

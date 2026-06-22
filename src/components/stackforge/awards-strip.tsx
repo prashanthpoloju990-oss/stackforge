@@ -5,39 +5,46 @@ import { cn } from "@/lib/utils";
 
 const AWARDS = [
   {
-    platform: "CSSDA",
-    title: "Best UI/UX Design",
-    project: "NovaPay Portal",
-    year: "2026",
-    icon: <Trophy className="w-4 h-4 text-forge-accent" />,
-  },
-  {
-    platform: "Awwwards",
-    title: "Mobile Excellence",
-    project: "Lustara Hotel",
-    year: "2026",
-    icon: <Award className="w-4 h-4 text-forge-accent" />,
-  },
-  {
-    platform: "FWA",
-    title: "Site of the Day",
-    project: "Vertex Analytics",
-    year: "2025",
-    icon: <Star className="w-4 h-4 text-forge-accent" />,
-  },
-  {
-    platform: "Behance",
-    title: "Featured in Web Dev",
-    project: "Vijaya Outdoors",
-    year: "2025",
+    platform: "CONVERSION",
+    title: "120% Average Conversion Lift",
+    project: "for migrated platforms",
+    year: "Metrics",
     icon: <Sparkles className="w-4 h-4 text-forge-accent" />,
   },
   {
-    platform: "CSSDA",
-    title: "Special Kudos",
-    project: "ElevateHR System",
-    year: "2025",
+    platform: "PRICING",
+    title: "85% Cheaper than Traditional Agencies",
+    project: "efficient startup rates",
+    year: "Value",
+    icon: <Award className="w-4 h-4 text-forge-accent" />,
+  },
+  {
+    platform: "PERFORMANCE",
+    title: "Sub-Second Page Loads (LCP < 1.2s)",
+    project: "optimized core web vitals",
+    year: "Speed",
+    icon: <Star className="w-4 h-4 text-forge-accent" />,
+  },
+  {
+    platform: "OWNERSHIP",
+    title: "100% IP & Code Ownership",
+    project: "perpetual software license",
+    year: "License",
     icon: <Trophy className="w-4 h-4 text-forge-accent" />,
+  },
+  {
+    platform: "CODE QUALITY",
+    title: "Zero Template Bloat",
+    project: "tailored Next.js 16 builds",
+    year: "Code",
+    icon: <Sparkles className="w-4 h-4 text-forge-accent" />,
+  },
+  {
+    platform: "PARTNERSHIP",
+    title: "Direct Developer Access",
+    project: "zero account manager filters",
+    year: "Partners",
+    icon: <Award className="w-4 h-4 text-forge-accent" />,
   },
 ];
 
@@ -51,7 +58,7 @@ export function AwardsStrip() {
       <div className="max-w-[1200px] mx-auto px-6 mb-4 flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-forge-accent animate-pulse" />
         <span className="text-[11px] font-mono font-bold tracking-widest text-forge-text-secondary/70 uppercase">
-          Industry Recognition & Credentials
+          Our Core Guarantees & Values
         </span>
       </div>
 
