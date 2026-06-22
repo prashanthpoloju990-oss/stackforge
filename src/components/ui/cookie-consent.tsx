@@ -42,8 +42,8 @@ export function CookieConsent() {
     consentListeners.forEach((l) => l());
   }, []);
 
-  // Don't render until we've checked localStorage, or if already consented/dismissed
-  if (consent === undefined || consent !== null) {
+  // Don't render until we've checked localStorage
+  if (consent === undefined) {
     return null;
   }
 

@@ -243,7 +243,7 @@ export function Footer() {
                 Contact
               </span>
               <a
-                href="mailto:support@stackforge.co.in"
+                href="mailto:support@stackforge.co.in?subject=Inquiry%20regarding%20Web%20Development%20Services%20-%20StackForge&body=Hello%20StackForge%20Team%2C%0A%0AI%20would%20like%20to%20inquire%20about%20your%20web%20development%20services.%20%0A%0AHere%20are%20some%20details%20about%20my%20project%3A%0A-%20Project%20Name%3A%20%0A-%20Project%20Type%20(e.g.%20Website%2C%20Web%20App%2C%20E-commerce)%3A%20%0A-%20Target%20Timeline%3A%20%0A-%20Estimated%20Budget%3A%20%0A-%20Any%20specific%20features%20or%20requirements%3A%20%0A%0ALooking%20forward%20to%20hearing%20from%20you.%0A%0ABest%20regards%2C%0A%5BYour%20Name%5D%0A%5BYour%20Company%5D%0A%5BYour%20Phone%20Number%5D"
                 className="text-[12px] text-forge-text-secondary/50 hover:text-forge-text transition-colors duration-200 py-0.5 break-all leading-tight"
               >
                 support@stackforge.co.in

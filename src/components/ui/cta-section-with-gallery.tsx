@@ -19,11 +19,13 @@ const SPRING_TRANSITION_CONFIG = {
 const filterVariants: Variants = {
   hidden: {
     opacity: 0,
-    filter: "blur(10px)",
+    filter: "blur(6px)",
+    y: 8,
   },
   visible: {
     opacity: 1,
     filter: "blur(0px)",
+    y: 0,
   },
 };
 
@@ -65,8 +67,8 @@ export const ContainerAnimated = React.forwardRef<
       ref={ref}
       variants={filterVariants}
       transition={{
-        ...SPRING_TRANSITION_CONFIG,
-        duration: 0.3,
+        duration: 0.6,
+        ease: [0.25, 0.1, 0.25, 1], // premium cubic-bezier ease transition
         ...transition,
       }}
       {...props}

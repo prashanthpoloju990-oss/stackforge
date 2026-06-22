@@ -12,9 +12,8 @@ import { LazyCtaBanner } from "@/components/stackforge/lazy-cta-banner";
 
 import { About } from "@/components/stackforge/about";
 import { Footer } from "@/components/stackforge/footer";
-import { StickyCta } from "@/components/stackforge/sticky-cta";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
-import { BackToTop } from "@/components/ui/back-to-top";
+import { StickyCta } from "@/components/stackforge/sticky-cta";
 import { CookieConsent } from "@/components/ui/cookie-consent";
 import { SignalButton } from "@/components/ui/signal-button";
 
@@ -55,7 +54,6 @@ export default function Home() {
       </main>
 
       <Footer />
-      <BackToTop />
       <SignalButton />
       <CookieConsent />
       <StickyCta />

@@ -30,6 +30,7 @@ import {
   ChevronRight,
   Upload,
   X,
+  Check,
 } from "lucide-react";
 
 /* ══════════════════════════════════════════════════
@@ -46,6 +47,7 @@ interface FormData {
   details: string;
   pageCount: number;
   features: string[];
+  website: string;
 }
 
 type FormFieldKey = keyof FormData;
@@ -73,6 +75,7 @@ const INITIAL_FORM: FormData = {
   details: "",
   pageCount: 1,
   features: [],
+  website: "",
 };
 
 const QUICK_SERVICES = [
@@ -116,9 +119,19 @@ const FIELDS: FieldConfig[] = [
     validate: (v) => {
       if (!v.trim()) return "Contact is required";
       const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
-      const isWA = /^\+?\d[\d\s-]{9,}$/.test(v.replace(/\s/g, ""));
-      if (!isEmail && !isWA) return "Enter a valid email or WhatsApp number";
-      return undefined;
+      if (v.includes("@") || isEmail) {
+        if (!isEmail) return "Enter a valid email address";
+        return undefined;
+      } else {
+        const digits = v.replace(/\D/g, "");
+        if (digits.length === 0) {
+          return "Enter a valid email or 10-digit phone number";
+        }
+        if (digits.length !== 10) {
+          return `Phone number must be exactly 10 digits (you entered ${digits.length})`;
+        }
+        return undefined;
+      }
     },
   },
   {
@@ -439,6 +452,14 @@ export function Contact() {
   const [isDragging, setIsDragging] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  // OTP Verification States
+  const [showOtpView, setShowOtpView] = React.useState(false);
+  const [otpEmail, setOtpEmail] = React.useState("");
+  const [otpCode, setOtpCode] = React.useState("");
+  const [otpSent, setOtpSent] = React.useState(false);
+  const [otpLoading, setOtpLoading] = React.useState(false);
+  const [otpError, setOtpError] = React.useState<string | null>(null);
+
   const handleFiles = (newFiles: File[]) => {
     const maxSize = 3 * 1024 * 1024; // 3MB (Vercel payload limit is 4.5MB)
     const totalLimit = 3.5 * 1024 * 1024; // 3.5MB total combined size
@@ -591,8 +612,20 @@ export function Contact() {
 
   /* ── Handlers ── */
   const handleChange = (field: FormFieldKey, value: any) => {
+    let formattedValue = value;
+    if (field === "contact") {
+      if (!value.includes("@") && /^[0-9+\s\-()]*$/.test(value)) {
+        const digits = value.replace(/\D/g, "");
+        if (digits.length > 10) {
+          const truncated = digits.slice(0, 10);
+          const hasPlus = value.startsWith("+");
+          formattedValue = (hasPlus ? "+" : "") + truncated;
+        }
+      }
+    }
+
     setForm((p) => {
-      const next = { ...p, [field]: value };
+      const next = { ...p, [field]: formattedValue };
       if (field === "serviceNeed" || field === "pageCount" || field === "features") {
         const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
         next.budget = est.budgetOption;
@@ -602,7 +635,7 @@ export function Contact() {
     });
 
     if (touched[field] && errors[field]) {
-      const err = FIELDS.find((f) => f.key === field)?.validate?.(String(value));
+      const err = FIELDS.find((f) => f.key === field)?.validate?.(String(formattedValue));
       setErrors((p) => {
         const n = { ...p };
         if (!err) delete n[field];
@@ -635,13 +668,35 @@ export function Contact() {
     setCurrentStep(1);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const sendOtp = async (email: string) => {
+    setOtpLoading(true);
+    setOtpError(null);
+    try {
+      const res = await fetch("/api/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send code");
+      setOtpSent(true);
+      setOtpEmail(email);
+      setShowOtpView(true);
+    } catch (err: any) {
+      setOtpError(err.message || "Failed to send verification code");
+      setShowOtpView(true);
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleTriggerOtpVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
 
     if (!validateStep(STEP_2_KEYS)) return;
 
-    /* Also double-check step 1 fields */
+    /* Double-check step 1 */
     const step1Errs: FormErrors = {};
     STEP_1_KEYS.forEach((key) => {
       const err = validateField(key);
@@ -654,18 +709,34 @@ export function Contact() {
       return;
     }
 
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.contact.trim());
+    if (isEmail) {
+      await sendOtp(form.contact.trim());
+    } else {
+      // If WhatsApp number was entered, trigger OTP view to ask for email
+      setShowOtpView(true);
+      setOtpSent(false);
+    }
+  };
+
+  const handleVerifyAndSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOtpError(null);
+
+    if (otpCode.trim().length !== 4) {
+      setOtpError("Please enter a valid 4-digit code");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      /* Convert files to base64 for submission (browser-safe — no Buffer) */
+      /* Convert files to base64 for submission */
       const fileData = await Promise.all(
         files.map(async (f) => {
           const base64Data = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(f);
-            reader.onload = () => {
-              const base64 = (reader.result as string).split(",")[1];
-              resolve(base64);
-            };
+            reader.onload = () => resolve((reader.result as string).split(",")[1]);
             reader.onerror = (err) => reject(err);
           });
           return {
@@ -680,7 +751,12 @@ export function Contact() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, files: fileData }),
+        body: JSON.stringify({
+          ...form,
+          files: fileData,
+          otpCode: otpCode.trim(),
+          otpEmail: otpEmail.trim().toLowerCase(),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Submission failed");
@@ -691,10 +767,12 @@ export function Contact() {
       setTouched({});
       setErrors({});
       setCurrentStep(1);
-    } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again."
-      );
+      setShowOtpView(false);
+      setOtpSent(false);
+      setOtpCode("");
+      setOtpEmail("");
+    } catch (err: any) {
+      setOtpError(err.message || "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -1070,9 +1148,9 @@ export function Contact() {
         )}
       </div>
 
-      {/* Mobile-only compact estimator summary */}
+      {/* Mobile price comparison hint */}
       <div className="block lg:hidden">
-        <EstimatorSummaryCardCompact form={form} />
+        <PriceComparisonCardCompact serviceNeed={form.serviceNeed} />
       </div>
 
       {/* Sync Outputs: Budget Range & Timeline */}
@@ -1152,7 +1230,7 @@ export function Contact() {
             animate={isVisible ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           >
-            {/* ── LEFT: Image Slider or Live Estimator Panel ── */}
+            {/* ── LEFT: Image Slider or Price Comparison Panel ── */}
             <div className="hidden lg:block min-h-[600px] lg:min-h-0 relative border-r border-forge-divider">
               <AnimatePresence mode="wait">
                 {currentStep === 1 ? (
@@ -1168,14 +1246,14 @@ export function Contact() {
                   </motion.div>
                 ) : (
                   <motion.div
-                    key="estimator"
+                    key="price-compare"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full h-full bg-gradient-to-br from-forge-surface to-background p-8 flex flex-col justify-between"
+                    className="w-full h-full bg-gradient-to-br from-forge-surface to-background p-8 flex flex-col justify-center"
                   >
-                    <EstimatorSummaryCard form={form} />
+                    <PriceComparisonCard serviceNeed={form.serviceNeed} />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -1229,9 +1307,168 @@ export function Contact() {
 
                 {isSuccess ? (
                   <SuccessState />
+                ) : showOtpView ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="space-y-6 py-4"
+                  >
+                    {!otpSent ? (
+                      /* If they entered a WhatsApp number, ask for email to send OTP */
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (otpEmail) sendOtp(otpEmail);
+                        }}
+                        className="space-y-4"
+                      >
+                        <div className="space-y-2">
+                          <Label htmlFor="otpEmailInput">
+                            Verification Email
+                            <span className="ml-1 text-red-400/60">*</span>
+                          </Label>
+                          <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                            Since you entered a phone number, please provide an email address where we can transmit your 4-digit verification code.
+                          </p>
+                          <div className="relative">
+                            <Input
+                              id="otpEmailInput"
+                              type="email"
+                              placeholder="you@example.com"
+                              value={otpEmail}
+                              onChange={(e) => setOtpEmail(e.target.value)}
+                              className="ps-10 h-11"
+                              required
+                            />
+                            <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3">
+                              <AtSignIcon className="size-4" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {otpError && (
+                          <p className="text-xs text-red-400 flex items-center gap-1">
+                            <AlertCircle className="size-3.5" />
+                            {otpError}
+                          </p>
+                        )}
+
+                        <div className="flex gap-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setShowOtpView(false)}
+                            className="h-11 px-5"
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={otpLoading || !otpEmail}
+                            className="flex-1 h-11 bg-forge-accent hover:bg-forge-accent/90 text-white font-semibold"
+                          >
+                            {otpLoading ? "Sending Code..." : "Send Verification Code"}
+                          </Button>
+                        </div>
+                      </form>
+                    ) : (
+                      /* Enter 4-digit OTP Code view */
+                      <form onSubmit={handleVerifyAndSubmit} className="space-y-5">
+                        <div className="space-y-2 text-center sm:text-left">
+                          <Label className="text-sm font-bold text-foreground">
+                            Enter 4-Digit Verification Code
+                          </Label>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            A verification code has been dispatched to <strong className="text-white">{otpEmail}</strong>. 
+                            Prove you are a carbon-based lifeform and not a smart toaster.
+                          </p>
+
+                          <div className="flex justify-center sm:justify-start gap-3 mt-4">
+                            <Input
+                              type="text"
+                              maxLength={4}
+                              placeholder="0000"
+                              value={otpCode}
+                              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                              className="h-12 text-center text-xl font-bold tracking-[8px] max-w-[140px] focus-visible:ring-forge-accent"
+                              autoFocus
+                            />
+                          </div>
+                        </div>
+
+                        {otpError && (
+                          <p className="text-xs text-red-400 flex items-center gap-1.5 justify-center sm:justify-start">
+                            <AlertCircle className="size-3.5" />
+                            {otpError}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                          <span>Didn't receive it?</span>
+                          <button
+                            type="button"
+                            onClick={() => sendOtp(otpEmail)}
+                            disabled={otpLoading}
+                            className="text-forge-accent hover:underline font-semibold cursor-pointer disabled:opacity-50"
+                          >
+                            {otpLoading ? "Sending..." : "Resend Code"}
+                          </button>
+                        </div>
+
+                        <div className="flex gap-3 pt-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              const isOrigEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.contact.trim());
+                              if (isOrigEmail) {
+                                setShowOtpView(false);
+                              } else {
+                                setOtpSent(false);
+                              }
+                            }}
+                            className="h-11 px-5"
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={isSubmitting || otpCode.length !== 4}
+                            className="flex-1 h-11 bg-forge-accent hover:bg-forge-accent/90 text-white font-semibold flex items-center justify-center gap-2"
+                          >
+                            {isSubmitting ? (
+                              <>
+                                <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                </svg>
+                                Verifying...
+                              </>
+                            ) : (
+                              <>
+                                <Check className="size-4" />
+                                Verify & Submit
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </form>
+                    )}
+                  </motion.div>
                 ) : (
                   <>
-                    <form onSubmit={handleSubmit} noValidate>
+                    <form onSubmit={handleTriggerOtpVerify} noValidate>
+                      {/* Honeypot field for spam protection */}
+                      <div className="hidden" aria-hidden="true">
+                        <input
+                          type="text"
+                          name="website"
+                          value={form.website}
+                          onChange={(e) => handleChange("website", e.target.value)}
+                          tabIndex={-1}
+                          autoComplete="off"
+                        />
+                      </div>
                       <AnimatePresence mode="wait">
                         {currentStep === 1
                           ? renderStep1()
@@ -1356,151 +1593,137 @@ function SuccessState() {
   );
 }
 
-/* ── Estimator Summary Card (Desktop Left Column) ── */
-function EstimatorSummaryCard({ form }: { form: FormData }) {
-  const est = calculateEstimate(form.serviceNeed, form.pageCount, form.features);
+/* ── Others vs Our Price comparison data ── */
+const PRICE_COMPARISON: Record<string, { others: string; ours: string; savings: string }> = {
+  "New Website": { others: "₹25,000 – ₹80,000", ours: "₹2,500 – ₹15,000", savings: "Up to 85%" },
+  "Website Redesign": { others: "₹20,000 – ₹60,000", ours: "₹2,000 – ₹12,000", savings: "Up to 80%" },
+  "Landing Page": { others: "₹10,000 – ₹30,000", ours: "₹1,800 – ₹5,000", savings: "Up to 83%" },
+  "UI/UX Design": { others: "₹15,000 – ₹50,000", ours: "₹1,500 – ₹10,000", savings: "Up to 80%" },
+  "Full Stack App": { others: "₹1,00,000 – ₹5,00,000", ours: "₹8,000 – ₹50,000", savings: "Up to 90%" },
+  "Not sure yet": { others: "₹20,000 – ₹80,000", ours: "₹2,500 – ₹15,000", savings: "Up to 85%" },
+};
+
+/* ── Price Comparison Card (Desktop Left Column) ── */
+function PriceComparisonCard({ serviceNeed }: { serviceNeed: string }) {
+  const comparison = PRICE_COMPARISON[serviceNeed] || PRICE_COMPARISON["Not sure yet"];
+  const service = serviceNeed || "Web Development";
 
   return (
-    <div className="flex flex-col h-full justify-between select-none text-left">
-      <div className="space-y-6">
-        <div>
-          <span className="text-[10px] font-mono font-bold tracking-[0.16em] text-forge-accent uppercase block mb-1">
-            Live Estimate
-          </span>
-          <h3 className="text-fluid-h2 font-bold font-playfair text-forge-text">
-            Project Scope Summary
-          </h3>
-        </div>
+    <div className="flex flex-col h-full justify-center select-none text-left space-y-8">
+      <div>
+        <span className="text-[10px] font-mono font-bold tracking-[0.16em] text-forge-accent uppercase block mb-1">
+          Price Transparency
+        </span>
+        <h3 className="text-fluid-h2 font-bold font-playfair text-forge-text leading-tight">
+          Why Pay More?
+        </h3>
+        <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-[380px]">
+          Most agencies charge premium rates for the same stack we use. Here's how <strong className="text-forge-accent">StackForge</strong> compares.
+        </p>
+      </div>
 
-        {/* Complexity visualizer */}
-        <div className="space-y-2 bg-forge-surface/40 border border-forge-divider p-4 rounded-xl">
-          <div className="flex justify-between items-baseline">
-            <span className="text-xs text-forge-text-secondary/80">Project Complexity</span>
-            <span className="text-sm font-mono font-bold text-forge-accent">{est.complexityScore}/100</span>
+      {/* Comparison Card */}
+      <div className="space-y-4">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground block">
+          For: {service}
+        </span>
+
+        {/* Others */}
+        <div className="relative border border-red-500/20 bg-red-500/[0.03] rounded-xl p-4 space-y-1">
+          <div className="absolute -top-2.5 left-3 bg-card px-2 text-[9px] font-bold text-red-400 uppercase font-mono border border-red-500/20 rounded">
+            Other Agencies
           </div>
-          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{
-                width: `${est.complexityScore}%`,
-                backgroundColor:
-                  est.complexityScore < 35
-                    ? "#22c55e"
-                    : est.complexityScore < 70
-                      ? "var(--forge-accent, #FF6A00)"
-                      : "#8b5cf6",
-              }}
-            />
+          <motion.p
+            key={`others-${serviceNeed}`}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-lg font-black text-red-400 font-mono line-through decoration-red-400/40"
+          >
+            {comparison.others}
+          </motion.p>
+          <p className="text-[10px] text-muted-foreground/60">Average Indian agency pricing for {service.toLowerCase()}</p>
+        </div>
+
+        {/* Ours */}
+        <div className="relative border border-green-500/30 bg-green-500/[0.04] rounded-xl p-4 space-y-1 shadow-sm shadow-green-500/5">
+          <div className="absolute -top-2.5 left-3 bg-card px-2 text-[9px] font-bold text-green-500 uppercase font-mono border border-green-500/25 rounded flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            StackForge
           </div>
-          <p className="text-[10px] text-muted-foreground/60 leading-tight mt-1">
-            {est.complexityScore < 35
-              ? "Simple & straightforward MVP project."
-              : est.complexityScore < 70
-                ? "Standard website with database integrations."
-                : "Highly custom, enterprise-grade application."}
-          </p>
-        </div>
-
-        {/* Recommended Package */}
-        <div className="flex items-center justify-between p-4 bg-forge-surface/40 border border-forge-divider rounded-xl">
-          <span className="text-xs text-forge-text-secondary/80">Recommended Pack</span>
-          <span className="text-xs font-mono font-bold uppercase px-2.5 py-1 bg-forge-accent text-white border border-forge-text rounded shadow-[2px_2px_0px_0px_var(--forge-text)]">
-            {est.recommendedPlan}
-          </span>
-        </div>
-
-        {/* Deliverables details */}
-        <div className="space-y-2.5 pl-1">
-          <span className="text-[10px] font-mono font-bold tracking-wider text-muted-foreground uppercase block">
-            Items Included:
-          </span>
-          <ul className="space-y-2 text-xs text-forge-text-secondary/80">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent" />
-              {form.serviceNeed || "General Website"} Scope
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent" />
-              {form.pageCount} Custom Designed {form.pageCount === 1 ? "Page" : "Pages"}
-            </li>
-            {form.features.map(f => {
-              const info = FEATURE_VALUES[f];
-              return (
-                <li key={f} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-forge-accent animate-pulse" />
-                  Integration: {info?.name || f}
-                </li>
-              );
-            })}
-          </ul>
+          <motion.p
+            key={`ours-${serviceNeed}`}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-lg font-black text-green-500 font-mono"
+          >
+            {comparison.ours}
+          </motion.p>
+          <p className="text-[10px] text-muted-foreground/60">Same quality. Startup-friendly pricing.</p>
         </div>
       </div>
 
-      {/* Pricing / Timeline estimation */}
-      <div className="mt-8 pt-6 border-t border-forge-divider/60 space-y-4">
-        <div className="flex justify-between items-baseline">
-          <span className="text-xs text-forge-text-secondary/70">Estimated Cost</span>
-          <div className="text-right">
-            <span className="text-fluid-h2 font-bold text-forge-accent font-syne">
-              {est.priceMin === est.priceMax ? "Custom" : `₹${est.priceMin.toLocaleString()} – ₹${est.priceMax.toLocaleString()}`}
-            </span>
-            {est.priceMin === est.priceMax && <p className="text-[10px] text-muted-foreground">tailored proposal</p>}
-          </div>
-        </div>
-
-        <div className="flex justify-between items-baseline">
-          <span className="text-xs text-forge-text-secondary/70">Estimated Duration</span>
-          <span className="text-sm font-mono font-bold text-forge-text">
-            {est.timelineMin}–{est.timelineMax} {est.timelineUnit}
-          </span>
-        </div>
+      {/* Savings Badge */}
+      <div className="flex items-center gap-3 pt-2">
+        <motion.div
+          key={`savings-${serviceNeed}`}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-forge-accent/10 border border-forge-accent/25 rounded-full"
+        >
+          <span className="text-xs font-black text-forge-accent font-mono uppercase">{comparison.savings} Savings</span>
+        </motion.div>
+        <span className="text-[10px] text-muted-foreground">
+          Same stack · Same quality
+        </span>
       </div>
     </div>
   );
 }
 
-/* ── Estimator Summary Card Compact (Mobile) ── */
-function EstimatorSummaryCardCompact({ form }: { form: FormData }) {
-  const est = calculateEstimate(form.serviceNeed, form.pageCount, form.features);
+/* ── Price Comparison Card Compact (Mobile) ── */
+function PriceComparisonCardCompact({ serviceNeed }: { serviceNeed: string }) {
+  const comparison = PRICE_COMPARISON[serviceNeed] || PRICE_COMPARISON["Not sure yet"];
 
   return (
     <div className="border border-forge-divider bg-forge-surface/30 rounded-xl p-4 space-y-3 shadow-sm select-none text-left">
       <div className="flex items-center justify-between border-b border-forge-divider/40 pb-2">
-        <span className="text-xs font-bold text-forge-text font-syne">Live Project Estimate</span>
-        <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-forge-accent/15 text-forge-accent rounded">
-          {est.recommendedPlan}
-        </span>
+        <span className="text-xs font-bold text-forge-text font-syne">Others vs Our Price</span>
+        <motion.span
+          key={`savings-compact-${serviceNeed}`}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-green-500/15 text-green-500 rounded inline-block"
+        >
+          {comparison.savings} less
+        </motion.span>
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div>
-          <span className="text-[10px] text-muted-foreground block">Estimated Cost</span>
-          <span className="font-bold text-forge-accent font-syne">
-            {est.priceMin === est.priceMax ? "Custom" : `₹${est.priceMin.toLocaleString()} – ₹${est.priceMax.toLocaleString()}`}
-          </span>
+          <span className="text-[10px] text-muted-foreground block">Others Charge</span>
+          <motion.span
+            key={`others-compact-${serviceNeed}`}
+            initial={{ opacity: 0, y: -2 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="font-bold text-red-400 font-mono inline-block line-through decoration-red-400/40"
+          >
+            {comparison.others}
+          </motion.span>
         </div>
         <div className="text-right">
-          <span className="text-[10px] text-muted-foreground block">Duration</span>
-          <span className="font-mono font-bold text-forge-text">
-            {est.timelineMin}–{est.timelineMax} {est.timelineUnit}
-          </span>
+          <span className="text-[10px] text-muted-foreground block">We Charge</span>
+          <motion.span
+            key={`ours-compact-${serviceNeed}`}
+            initial={{ opacity: 0, y: -2 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="font-bold text-green-500 font-mono inline-block"
+          >
+            {comparison.ours}
+          </motion.span>
         </div>
-      </div>
-
-      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-300"
-          style={{
-            width: `${est.complexityScore}%`,
-            backgroundColor:
-              est.complexityScore < 35
-                ? "#22c55e"
-                : est.complexityScore < 70
-                  ? "var(--forge-accent, #FF6A00)"
-                  : "#8b5cf6",
-          }}
-        />
       </div>
     </div>
   );
 }
+

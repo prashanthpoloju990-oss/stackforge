@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { BorderGlow } from "@/components/ui/border-glow";
 import { TextRevealByWord } from "@/components/ui/text-reveal";
-import { Users, CheckCircle2 } from "lucide-react";
+import { Users, CheckCircle2, ExternalLink } from "lucide-react";
 
 function MockTerminal() {
   return (
@@ -186,7 +186,7 @@ const team = [
     role: "Co-Founder & Backend Lead",
     bio: "Architects robust and scalable backend systems, ensuring high availability, peak performance, and clean API designs.",
     avatar: "/team/uttej.jpg",
-    link: "https://linkedin.com",
+    link: "https://www.linkedin.com/in/jinnaram-uttej-b0877837b/",
     followers: "1.2K",
     verified: true,
   },
@@ -195,7 +195,7 @@ const team = [
     role: "DevOps & Backend Eng",
     bio: "Manages all hosting, deployment, and cloud infrastructure while contributing to backend services and database optimizations.",
     avatar: "/team/varshith.jpg",
-    link: "https://linkedin.com",
+    link: "https://www.linkedin.com/in/varshith-code/",
     followers: "850",
     verified: false,
   },
@@ -204,7 +204,7 @@ const team = [
     role: "CEO & Founder",
     bio: "CEO and Founder of StackForge. Specializes in building modern front-end architectures that are lightning-fast and visually stunning.",
     avatar: "/team/prashanth.jpg",
-    link: "https://linkedin.com",
+    link: "https://www.linkedin.com/in/prashanthpoloju/",
     followers: "1.8K",
     verified: true,
   },
@@ -213,7 +213,7 @@ const team = [
     role: "Social Media Manager",
     bio: "Handles social media channels, brand outreach, and curates high-quality resources and assets for the development workflows.",
     avatar: "/team/anil-updated.jpg",
-    link: "https://linkedin.com",
+    link: "https://www.linkedin.com/in/anil-ganji-84321937b",
     followers: "2.4K",
     verified: false,
   },
@@ -222,7 +222,7 @@ const team = [
     role: "UI/UX Developer",
     bio: "Brings a sharp eye for design and hands-on development experience. Specializes in crafting intuitive interfaces and pixel-perfect user experiences.",
     avatar: "/team/akshitha.jpg",
-    link: "https://linkedin.com",
+    link: "https://www.linkedin.com/in/akshitha-linga-466aba389",
     followers: "940",
     verified: false,
   },
@@ -240,10 +240,7 @@ interface TeamMember {
 
 function TeamMemberCard({ member }: { member: TeamMember }) {
   return (
-    <a
-      href={member.link}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="profile-card block"
       aria-label={`${member.name} - ${member.role}`}
     >
@@ -269,8 +266,22 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
         </div>
         <p className="role">{member.role}</p>
         <p className="bio">{member.bio}</p>
+        {/* Liquid Glass Follow Button — visible when NOT hovered */}
+        <a
+          href={member.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="follow-btn-glass"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+          </svg>
+          <span>Follow</span>
+          <ExternalLink className="w-2.5 h-2.5 opacity-50" />
+        </a>
       </section>
-    </a>
+    </div>
   );
 }
 

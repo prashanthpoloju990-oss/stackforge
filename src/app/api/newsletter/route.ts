@@ -1,6 +1,7 @@
-import { db } from "@/lib/db";
 import nodemailer from "nodemailer";
 import path from "path";
+import { supabase } from "@/lib/supabase";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /* ── 5 randomised funny-yet-informative email templates ── */
 const TEMPLATES = [
@@ -61,6 +62,8 @@ const TEMPLATES = [
   },
 ];
 
+
+
 function createTransporter() {
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -110,7 +113,7 @@ function buildHtml(template: (typeof TEMPLATES)[number]): string {
           <!-- Thank-you image -->
           <tr>
             <td style="padding:8px 32px 24px; text-align:center;">
-              <img src="cid:thankyou-img" alt="Thank You from StackForge!" style="max-width:100%; height:auto; border-radius:10px; display:block; margin:0 auto;" />
+              <img src="https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=560&auto=format&fit=crop&q=80" alt="Thank You from StackForge!" style="max-width:100%; height:auto; border-radius:10px; display:block; margin:0 auto;" />
             </td>
           </tr>
 
@@ -143,6 +146,37 @@ function buildHtml(template: (typeof TEMPLATES)[number]): string {
 
 export async function POST(request: Request) {
   try {
+    /* ── DoS Protection: Payload Size Check ── */
+    const contentLength = parseInt(request.headers.get("content-length") || "0", 10);
+    if (contentLength > 50 * 1024) { // 50KB limit
+      return Response.json({ error: "Payload too large. Max limit is 50KB." }, { status: 413 });
+    }
+
+    /* ── CSRF Protection: Origin Check ── */
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host") || "";
+    if (origin) {
+      try {
+        const originUrl = new URL(origin);
+        if (originUrl.host !== host) {
+          return Response.json({ error: "Forbidden: CSRF check failed" }, { status: 403 });
+        }
+      } catch (e) {
+        return Response.json({ error: "Forbidden: Invalid origin header" }, { status: 403 });
+      }
+    }
+
+    /* ── IP-Based Rate Limiting ── */
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
+    const clientIp = ip.split(",")[0].trim();
+    const isAllowed = await checkRateLimit(`ip:newsletter-subscribe:${clientIp}`, 5, 10 * 60 * 1000); // 5 requests per 10 minutes
+    if (!isAllowed) {
+      return Response.json(
+        { error: "Too many subscription attempts from this IP. Please try again after 10 minutes." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 
@@ -155,7 +189,19 @@ export async function POST(request: Request) {
       return Response.json({ error: "Invalid email address" }, { status: 400 });
     }
 
-    await db.newsletter.create({ data: { email: trimmed } });
+    const { error: supabaseErr } = await supabase
+      .from("Newsletter")
+      .insert([{ email: trimmed }]);
+
+    if (supabaseErr) {
+      if (supabaseErr.code === "23505" || supabaseErr.message?.includes("duplicate key") || supabaseErr.message?.includes("unique constraint")) {
+        return Response.json(
+          { error: "You're already subscribed!" },
+          { status: 409 }
+        );
+      }
+      throw supabaseErr;
+    }
 
     // Pick a random template
     const template = TEMPLATES[Math.floor(Math.random() * TEMPLATES.length)];
@@ -174,18 +220,11 @@ export async function POST(request: Request) {
         html: buildHtml(template),
         // Plain-text fallback (improves deliverability & avoids spam filters)
         text: `Welcome to StackForge!\n\n${template.headline}\n\nThank you for subscribing. Stay tuned for updates from the StackForge team.\n\n— The StackForge Team\nstackforge.co.in`,
-        attachments: [
-          {
-            filename: "thankyou.png",
-            path: path.join(process.cwd(), "public", "thankyou.png"),
-            cid: "thankyou-img",
-          },
-        ],
         headers: {
-          // Improve deliverability — mark as transactional, not bulk
-          "X-Priority": "1",
-          "X-Mailer": "StackForge-Mailer/1.0",
+          "Precedence": "list",
+          "List-ID": "stackforge-welcome",
           "List-Unsubscribe": `<mailto:${process.env.SMTP_USER}?subject=unsubscribe>`,
+          "X-Auto-Response-Suppress": "All",
         },
       });
 

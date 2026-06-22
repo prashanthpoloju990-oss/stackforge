@@ -646,6 +646,13 @@ html {
 .animate-marquee-scroll {
   animation: marquee-scroll 35s linear infinite;
 }
+@keyframes marquee-smooth {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee-smooth {
+  animation: marquee-smooth 30s linear infinite;
+}
 
 /* ── TABULAR NUMS ── */
 .font-tabular-nums {
@@ -1130,7 +1137,8 @@ html {
   .float,
   .float-slow,
   .float-drift { animation: none !important; }
-  .animate-marquee-scroll { animation: none !important; }
+  .animate-marquee-scroll,
+  .animate-marquee-smooth { animation: none !important; }
   [class*="reveal-up"],
   [class*="reveal-morph"],
   .reveal-morph { animation: none !important; opacity: 1 !important; transform: none !important; }
@@ -1177,7 +1185,8 @@ html {
   .float-drift {
     animation: none !important;
   }
-  .animate-marquee-scroll {
+  .animate-marquee-scroll,
+  .animate-marquee-smooth {
     animation: none !important;
   }
   [class*="reveal-up"],
@@ -2005,3 +2014,131 @@ header div.pointer-events-auto {
   will-change: transform, opacity, background-color, border-color, box-shadow;
   transform: translateZ(0);
 }
+
+/* ── LIQUID GLASS FOLLOW BUTTON ── */
+.follow-btn-glass {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #0a66c2;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+
+  /* Liquid Glass Effect */
+  background: linear-gradient(
+    135deg,
+    rgba(10, 102, 194, 0.08) 0%,
+    rgba(10, 102, 194, 0.04) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(10, 102, 194, 0.18);
+  box-shadow:
+    0 2px 12px -2px rgba(10, 102, 194, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(10, 102, 194, 0.04);
+
+  /* Smooth transitions */
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+    translate 0.3s cubic-bezier(0.25, 1, 0.5, 1),
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+/* Glass shimmer overlay */
+.follow-btn-glass::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.follow-btn-glass:hover::before {
+  left: 100%;
+}
+
+.follow-btn-glass:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(10, 102, 194, 0.14) 0%,
+    rgba(10, 102, 194, 0.08) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border-color: rgba(10, 102, 194, 0.32);
+  box-shadow:
+    0 4px 20px -4px rgba(10, 102, 194, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(10, 102, 194, 0.06);
+  transform: translateY(-1px);
+  color: #0a66c2;
+}
+
+.follow-btn-glass:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Dark mode adjustments */
+.dark .follow-btn-glass {
+  color: #5eb5ff;
+  background: linear-gradient(
+    135deg,
+    rgba(94, 181, 255, 0.06) 0%,
+    rgba(94, 181, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  border-color: rgba(94, 181, 255, 0.15);
+  box-shadow:
+    0 2px 12px -2px rgba(94, 181, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(94, 181, 255, 0.03);
+}
+
+.dark .follow-btn-glass:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(94, 181, 255, 0.12) 0%,
+    rgba(94, 181, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  border-color: rgba(94, 181, 255, 0.28);
+  box-shadow:
+    0 4px 20px -4px rgba(94, 181, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(94, 181, 255, 0.05);
+}
+
+/* ── HIDE Follow button on profile card hover (bio slides in instead) ── */
+.profile-card:hover > section .follow-btn-glass,
+.profile-card:focus-within > section .follow-btn-glass {
+  opacity: 0;
+  translate: 0 6px;
+  pointer-events: none;
+}
+

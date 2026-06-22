@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
 
 // Block list of malicious referrers, hosts, or keywords
 const BLOCKED_REFERRERS = ['hackerai.co', 'hackerai.com', 'hackerai'];
@@ -20,7 +21,7 @@ const BLOCKED_USER_AGENTS = [
   'hydra',
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const userAgent = request.headers.get('user-agent')?.toLowerCase() || '';
   const referrer = request.headers.get('referer')?.toLowerCase() || '';
   const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
@@ -54,7 +55,56 @@ export function middleware(request: NextRequest) {
     return new NextResponse('Access Denied: Path not allowed.', { status: 403 });
   }
 
-  // 4. Add security headers to the response
+  // 4. Admin Route Guard
+  const rawPathname = request.nextUrl.pathname;
+  if (rawPathname.startsWith('/admin')) {
+    const token = request.cookies.get('admin_session')?.value;
+    if (token) {
+      try {
+        const JWT_SECRET = new TextEncoder().encode(
+          process.env.SUPABASE_SECRET_KEY || "stackforge-fallback-secret-2026-safe-key-value"
+        );
+        const { payload } = await jwtVerify(token, JWT_SECRET);
+        if (!payload || payload.role !== 'admin') {
+          throw new Error('Invalid role');
+        }
+      } catch (err) {
+        // Invalid or expired token: clear cookie and redirect to /admin to trigger login form
+        console.warn(`[SECURITY] Invalid admin session token on /admin path. Clearing cookie.`);
+        const response = NextResponse.redirect(new URL('/admin', request.url));
+        response.cookies.delete('admin_session');
+        return response;
+      }
+    }
+  }
+
+  if (rawPathname === '/api/admin') {
+    const url = new URL(request.url);
+    const action = url.searchParams.get('action');
+    const isLogin = request.method === 'POST' && action !== 'logout';
+
+    if (!isLogin) {
+      const token = request.cookies.get('admin_session')?.value;
+      if (!token) {
+        console.warn(`[SECURITY] Unauthorized API request to /api/admin (missing token)`);
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      try {
+        const JWT_SECRET = new TextEncoder().encode(
+          process.env.SUPABASE_SECRET_KEY || "stackforge-fallback-secret-2026-safe-key-value"
+        );
+        const { payload } = await jwtVerify(token, JWT_SECRET);
+        if (!payload || payload.role !== 'admin') {
+          throw new Error('Invalid role');
+        }
+      } catch (err) {
+        console.warn(`[SECURITY] Unauthorized API request to /api/admin (invalid/expired token)`);
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+    }
+  }
+
+  // 5. Add security headers to the response
   const response = NextResponse.next();
   
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -63,7 +113,7 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://images.unsplash.com https://images.pexels.com https://dl.oqens.me; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://auth.oqens.me https://dl.oqens.me; frame-ancestors 'none';"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://images.unsplash.com https://images.pexels.com https://dl.oqens.me; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://auth.oqens.me https://dl.oqens.me; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
   );
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');

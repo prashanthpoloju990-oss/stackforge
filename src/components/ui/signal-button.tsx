@@ -21,7 +21,7 @@ export function SignalButton() {
 
   if (!mounted) return null;
 
-  const signalUrl = "https://signal.me/#eu/-qRYXT4JZ710su48YfIlse522mstZQ75JXB9ShjJBC472vbnvWtAVKgxdsu7KTmu";
+  const signalUrl = "https://signal.me/#eu/vXAfWJm-3LDKVubyXXmPQswPsgzysazJ9pUkDx_P7QN_NlGhpJpBAIeABLeUaj1q";
   
   const messageTemplate = "Hello StackForge! I would like to inquire about building a custom web project with you. Could you share details regarding your services, pricing, and average delivery timeline?";
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import nodemailer from "nodemailer";
+import { supabase } from "@/lib/supabase";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 /* ── Validation rules ── */
 const REQUIRED_FIELDS = [
@@ -51,23 +52,76 @@ function isEmail(str: string): boolean {
 }
 
 function isWhatsApp(str: string): boolean {
-  return /^\+?\d[\d\s-]{9,}$/.test(str.replace(/\s/g, ""));
+  const digits = str.replace(/\D/g, "");
+  return digits.length === 10;
 }
 
 function isValidFieldLength(value: string, min: number, max: number): boolean {
   return value.trim().length >= min && value.trim().length <= max;
 }
 
-/* Sanitize string — strip HTML tags and trim */
+/* Hardened Sanitize string — strip HTML, JS protocols, event handlers, and escape HTML */
 function sanitize(str: string): string {
   return str
-    .replace(/<[^>]*>/g, "") // strip HTML
+    .replace(/<[^>]*>/g, "") // strip HTML tags
     .replace(/\p{C}/gu, "")   // strip control characters
+    .replace(/javascript:/gi, "") // strip javascript protocols
+    .replace(/onload|onerror|onmouseover|onclick/gi, "") // strip event handlers
+    .replace(/[&<>"']/g, (m) => {
+      const map: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;'
+      };
+      return map[m];
+    })
     .trim();
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 export async function POST(request: NextRequest) {
   try {
+    /* ── DoS Protection: Payload Size Check ── */
+    const contentLength = parseInt(request.headers.get("content-length") || "0", 10);
+    if (contentLength > 5 * 1024 * 1024) { // 5MB limit
+      return NextResponse.json({ error: "Payload too large. Max limit is 5MB." }, { status: 413 });
+    }
+
+    /* ── CSRF Protection: Origin Check ── */
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host") || "";
+    if (origin) {
+      try {
+        const originUrl = new URL(origin);
+        if (originUrl.host !== host) {
+          return NextResponse.json({ error: "Forbidden: CSRF check failed" }, { status: 403 });
+        }
+      } catch (e) {
+        return NextResponse.json({ error: "Forbidden: Invalid origin header" }, { status: 403 });
+      }
+    }
+
+    /* ── IP-Based Rate Limiting ── */
+    const ip = request.ip || request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
+    const clientIp = ip.split(",")[0].trim();
+    const isAllowed = await checkRateLimit(`ip:contact-form:${clientIp}`, 3, 5 * 60 * 1000); // 3 requests per 5 minutes
+    if (!isAllowed) {
+      return NextResponse.json(
+        { error: "Too many requests from this IP. Please try again after 5 minutes." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
 
     const {
@@ -81,7 +135,65 @@ export async function POST(request: NextRequest) {
       files,
       pageCount,
       features,
+      website,
+      otpCode,
+      otpEmail,
     } = body;
+
+    /* ── Honeypot Spam Bot Protection ── */
+    if (website && website.trim().length > 0) {
+      console.warn(`[SPAM DETECTION] Honeypot field filled by bot: "${website}"`);
+      return NextResponse.json(
+        {
+          success: true,
+          id: "inquiry_spam_" + Math.random().toString(36).substring(2, 9),
+          message: "Your inquiry has been received. We'll get back to you within 12 hours.",
+        },
+        { status: 201 }
+      );
+    }
+
+    /* ── OTP Verification ── */
+    if (!otpCode || !otpEmail) {
+      return NextResponse.json(
+        { error: "Verification key is missing. Please request a verification code." },
+        { status: 400 }
+      );
+    }
+
+    // Verify OTP in Supabase
+    const { data: verifyRecord, error: verifyErr } = await supabase
+      .from("OtpVerification")
+      .select("*")
+      .eq("email", otpEmail.trim().toLowerCase())
+      .single();
+
+    if (verifyErr || !verifyRecord) {
+      return NextResponse.json(
+        { error: "Verification code not found. Please request a new one." },
+        { status: 400 }
+      );
+    }
+
+    if (new Date() > new Date(verifyRecord.expiresAt)) {
+      return NextResponse.json(
+        { error: "Verification code has expired. Please request a new one." },
+        { status: 400 }
+      );
+    }
+
+    if (verifyRecord.code !== otpCode.trim()) {
+      return NextResponse.json(
+        { error: "Incorrect verification code. Please check your inbox and try again." },
+        { status: 400 }
+      );
+    }
+
+    // Delete verified OTP to prevent replay attacks
+    await supabase
+      .from("OtpVerification")
+      .delete()
+      .eq("email", otpEmail.trim().toLowerCase());
 
     /* ── Required field checks ── */
     const missing: string[] = [];
@@ -176,12 +288,13 @@ export async function POST(request: NextRequest) {
     if (process.env.NODE_ENV !== "development") {
       try {
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-        const recentCount = await db.contactSubmission.count({
-          where: {
-            createdAt: { gte: fiveMinutesAgo },
-            contact: sanitizedContact, // Rate-limit by contact info instead of IP
-          },
-        });
+        const { count: recentCount, error: rateLimitErr } = await supabase
+          .from("ContactSubmission")
+          .select("*", { count: "exact", head: true })
+          .eq("contact", sanitizedContact)
+          .gte("createdAt", fiveMinutesAgo.toISOString());
+
+        if (rateLimitErr) throw rateLimitErr;
 
         if (recentCount >= 3) {
           return NextResponse.json(
@@ -203,10 +316,42 @@ export async function POST(request: NextRequest) {
       const apiKey = process.env.OQENS_API_KEY;
       const cloudId = process.env.OQENS_CLOUD_ID;
 
+      const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.txt', '.doc', '.docx', '.zip'];
+      const ALLOWED_MIME_TYPES = [
+        'application/pdf',
+        'image/png',
+        'image/jpeg',
+        'image/jpg',
+        'image/gif',
+        'text/plain',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/zip'
+      ];
+
       if (apiKey && cloudId) {
         const uploadedAttachments = [];
         for (const file of files) {
           try {
+            // Validate file structure
+            if (!file || typeof file !== "object" || !file.name || !file.type || !file.data) {
+              return NextResponse.json({ error: "Invalid file attachment structure." }, { status: 400 });
+            }
+
+            // Validate file extension and MIME type
+            const lastDotIndex = file.name.lastIndexOf('.');
+            const extension = lastDotIndex !== -1 ? file.name.substring(lastDotIndex).toLowerCase() : "";
+            if (!ALLOWED_EXTENSIONS.includes(extension) || !ALLOWED_MIME_TYPES.includes(file.type)) {
+              console.warn(`[SECURITY] Disallowed file upload attempt: name="${file.name}", type="${file.type}"`);
+              return NextResponse.json({ error: `File type not allowed: ${file.name}. Only documents, images, and zip archives are permitted.` }, { status: 400 });
+            }
+
+            // Size safeguard: limit base64 decoded size to 3.5MB max
+            const decodedSize = file.data.length * 0.75;
+            if (decodedSize > 3.5 * 1024 * 1024) {
+              return NextResponse.json({ error: `File is too large (maximum 3.5MB): ${file.name}` }, { status: 400 });
+            }
+
             const buffer = Buffer.from(file.data, "base64");
             const blob = new Blob([buffer], { type: file.type });
             const uniqueKey = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
@@ -253,23 +398,32 @@ export async function POST(request: NextRequest) {
 
     let submissionId = "inquiry_" + Math.random().toString(36).substring(2, 9);
     try {
-      const submission = await db.contactSubmission.create({
-        data: {
-          name: sanitizedName,
-          contact: sanitizedContact,
-          businessType: sanitizedBT,
-          serviceNeed: sanitizedService,
-          budget: sanitizedBudget,
-          timeline: sanitizedTimeline,
-          details: sanitizedDetails,
-          attachments: attachmentsJson,
-          pageCount: parsedPageCount,
-          features: sanitizedFeatures,
-        },
-      });
-      submissionId = submission.id;
+      const { data: newSubmission, error: supabaseErr } = await supabase
+        .from("ContactSubmission")
+        .insert([
+          {
+            id: submissionId,
+            name: sanitizedName,
+            contact: sanitizedContact,
+            businessType: sanitizedBT,
+            serviceNeed: sanitizedService,
+            budget: sanitizedBudget,
+            timeline: sanitizedTimeline,
+            details: sanitizedDetails,
+            attachments: attachmentsJson,
+            pageCount: parsedPageCount,
+            features: sanitizedFeatures,
+          },
+        ])
+        .select()
+        .single();
+
+      if (supabaseErr) throw supabaseErr;
+      if (newSubmission) {
+        submissionId = newSubmission.id;
+      }
     } catch (dbErr) {
-      console.error("[DATABASE] Failed to save contact submission:", dbErr);
+      console.error("[DATABASE] Failed to save contact submission to Supabase:", dbErr);
     }
 
     /* ── Send Email using Nodemailer ── */
@@ -281,6 +435,16 @@ export async function POST(request: NextRequest) {
           pass: process.env.SMTP_PASS || "dummypass",
         },
       });
+
+      const escapedName = escapeHtml(sanitizedName);
+      const escapedContact = escapeHtml(sanitizedContact);
+      const escapedBT = escapeHtml(sanitizedBT);
+      const escapedService = escapeHtml(sanitizedService);
+      const escapedBudget = escapeHtml(sanitizedBudget);
+      const escapedTimeline = escapeHtml(sanitizedTimeline);
+      const escapedDetails = sanitizedDetails ? escapeHtml(sanitizedDetails) : "No additional details provided.";
+      const escapedFeatures = sanitizedFeatures ? sanitizedFeatures.split(",").map(f => escapeHtml(f).toUpperCase()).join(", ") : "None";
+      const escapedAttachments = attachmentsJson && attachmentsJson !== "[]" ? escapeHtml(attachmentsJson) : "None provided";
 
       const mailOptions = {
         from: '"StackForge Contact" <no-reply@stackforge.co>',
@@ -294,21 +458,21 @@ export async function POST(request: NextRequest) {
             <p style="color: #a0a0a0; margin: 8px 0 0 0; font-size: 14px;">New Project Inquiry</p>
           </div>
           <div style="padding: 32px 24px; background-color: #ffffff;">
-            <p style="font-size: 16px; color: #333333; margin-top: 0;">You have received a new project inquiry from <strong style="color: #FF6A00;">${sanitizedName}</strong>.</p>
+            <p style="font-size: 16px; color: #333333; margin-top: 0;">You have received a new project inquiry from <strong style="color: #FF6A00;">${escapedName}</strong>.</p>
             
             <div style="background-color: #f9f9f9; border-radius: 6px; padding: 20px; margin-top: 24px;">
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; width: 35%; color: #666666; font-weight: bold; font-size: 14px;">Contact</td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;"><a href="mailto:${sanitizedContact}" style="color: #FF6A00; text-decoration: none;">${sanitizedContact}</a></td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;"><a href="mailto:${escapedContact}" style="color: #FF6A00; text-decoration: none;">${escapedContact}</a></td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Business Type</td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedBT}</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${escapedBT}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Service Needed</td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedService}</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${escapedService}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Estimated Pages</td>
@@ -316,26 +480,26 @@ export async function POST(request: NextRequest) {
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Selected Add-ons</td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedFeatures ? sanitizedFeatures.split(",").map(f => f.toUpperCase()).join(", ") : "None"}</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${escapedFeatures}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Budget</td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedBudget}</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${escapedBudget}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #666666; font-weight: bold; font-size: 14px;">Timeline</td>
-                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${sanitizedTimeline}</td>
+                  <td style="padding: 8px 0; border-bottom: 1px solid #eeeeee; color: #333333; font-size: 15px;">${escapedTimeline}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #666666; font-weight: bold; font-size: 14px;">Attachments</td>
-                  <td style="padding: 8px 0; color: #333333; font-size: 15px;">${attachmentsJson && attachmentsJson !== "[]" ? attachmentsJson : "None provided"}</td>
+                  <td style="padding: 8px 0; color: #333333; font-size: 15px;">${escapedAttachments}</td>
                 </tr>
               </table>
             </div>
 
             <div style="margin-top: 24px;">
               <h3 style="color: #333333; font-size: 16px; margin-bottom: 8px;">Project Details</h3>
-              <div style="background-color: #f1f5f9; padding: 16px; border-radius: 6px; border-left: 4px solid #FF6A00; color: #475569; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${sanitizedDetails || "No additional details provided."}</div>
+              <div style="background-color: #f1f5f9; padding: 16px; border-radius: 6px; border-left: 4px solid #FF6A00; color: #475569; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${escapedDetails}</div>
             </div>
             
             <div style="margin-top: 32px; text-align: center;">
