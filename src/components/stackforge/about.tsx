@@ -250,10 +250,7 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
           alt={member.name}
           width={280}
           height={420}
-          className={cn(
-            "transition-all duration-500",
-            member.name.includes("Prashanth") ? "object-top scale-95 origin-top" : ""
-          )}
+          className="transition-all duration-500"
           loading="lazy"
         />
       </div>
