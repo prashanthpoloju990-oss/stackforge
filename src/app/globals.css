@@ -183,6 +183,20 @@
   }
 }
 
+/* ── MOBILE: Scrollbar-none utility ── */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── MOBILE: Touch-action manipulation (eliminates 300ms tap delay) ── */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
 /* ── PERFORMANCE: GPU compositor layers ── */
 
 /* Canvas elements (WebGL shaders) get their own GPU layer */
@@ -1901,6 +1915,44 @@ html {
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+}
+
+/* Mobile: let profile cards fill available space in scroll container */
+@media (max-width: 639px) {
+  .profile-card {
+    max-width: 170px;
+    height: 310px;
+    flex-shrink: 0;
+  }
+  .profile-card > section h2 {
+    font-size: 0.8rem;
+  }
+  .profile-card > section p.role {
+    font-size: 0.6rem;
+  }
+  .profile-card > section p.bio {
+    font-size: 0.66rem;
+  }
+}
+
+/* ── TEAM HORIZONTAL SCROLL CONTAINER (mobile) ── */
+.team-scroll-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+.team-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+.team-scroll-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.team-scroll-container > * {
+  scroll-snap-align: start;
 }
 
 .profile-card:hover,

@@ -26,7 +26,7 @@ function MockTerminal() {
         <div className="w-4" />
       </div>
       {/* Code Editor Window */}
-      <div className="p-4 overflow-x-auto whitespace-pre font-mono text-[#E6EDF0]">
+      <div className="p-4 overflow-x-auto whitespace-pre font-mono text-[#E6EDF0] max-w-full">
         <div className="flex"><span className="text-[#8B949E] w-6 select-none">1</span><span className="text-[#FF7B72]">export default</span> <span className="text-[#D2A8FF]">defineConfig</span><span className="text-[#E6EDF0]">({`{`}</span></div>
         <div className="flex"><span className="text-[#8B949E] w-6 select-none">2</span>  <span className="text-[#79C0FF]">engine</span><span className="text-[#FF7B72]">:</span> <span className="text-[#A5D6FF]">"next-turbopack"</span><span className="text-[#E6EDF0]">,</span></div>
         <div className="flex"><span className="text-[#8B949E] w-6 select-none">3</span>  <span className="text-[#79C0FF]">minify</span><span className="text-[#FF7B72]">:</span> <span className="text-[#79C0FF]">true</span><span className="text-[#E6EDF0]">,</span></div>
@@ -582,7 +582,7 @@ export function About() {
 
           {/* Team Cards — 1 Row of 5 Cards (Wider container for clean spacing) */}
           <div className="max-w-[1280px] mx-auto px-4 md:px-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4 justify-center">
+            <div className="team-scroll-container sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-3 lg:gap-4 sm:justify-center px-1 sm:px-0">
               {team.map((member, index) => (
                 <div
                   key={member.name}

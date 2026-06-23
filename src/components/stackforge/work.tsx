@@ -6,7 +6,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useCountUp } from "@/hooks/use-count-up";
-import { CaseStudyModal, type CaseStudy } from "@/components/ui/case-study-modal";
 import { projects } from "@/lib/projects-data";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -54,16 +53,7 @@ export function Work() {
   const { ref: statsRef, isVisible: statsVisible } = useScrollReveal({ threshold: 0.2 });
   const { ref: gridRef, isVisible: gridVisible } = useScrollReveal({ threshold: 0.03 });
 
-  const [selectedStudy, setSelectedStudy] = useState<CaseStudy | null>(null);
   const displayedProjects = projects.slice(0, 2);
-
-  const openStudy = (project: CaseStudy) => {
-    setSelectedStudy(project);
-  };
-
-  const closeStudy = () => {
-    setSelectedStudy(null);
-  };
 
   return (
     <section id="work" className="py-24 md:py-32 lg:py-[110px]">
@@ -160,7 +150,7 @@ export function Work() {
                   {/* Arrow icon — top right, opens case study page */}
                   <Link
                     href={`/work/${project.slug}`}
-                    className="absolute top-3 right-3 w-8 h-8 rounded-full border border-white/20 backdrop-blur-sm bg-white/10 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-forge-accent/80 hover:border-forge-accent/80 cursor-pointer"
+                    className="absolute top-3 right-3 w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-white/20 backdrop-blur-sm bg-white/10 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-forge-accent/80 hover:border-forge-accent/80 cursor-pointer touch-manipulation"
                     aria-label={`View ${project.title} case study`}
                   >
                     <svg width="10" height="10" viewBox="0 0 14 14" fill="none" className="text-white">
@@ -182,7 +172,7 @@ export function Work() {
                     </div>
                     <Link
                       href={`/work/${project.slug}`}
-                      className="shrink-0 w-8 h-8 rounded-full border border-forge-divider flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 group-hover:border-forge-accent/30 mt-0.5 cursor-pointer hover:bg-forge-accent/10"
+                      className="shrink-0 w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-forge-divider flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 group-hover:border-forge-accent/30 mt-0.5 cursor-pointer hover:bg-forge-accent/10 touch-manipulation"
                       aria-label={`View ${project.title} case study`}
                     >
                       <svg width="10" height="10" viewBox="0 0 14 14" fill="none" className="text-forge-accent/70">
@@ -228,7 +218,7 @@ export function Work() {
           <div className="flex justify-center mt-12 md:mt-16">
             <Link
               href="/work"
-              className="inline-flex items-center gap-2 px-6 h-12 rounded-full border border-forge-divider bg-forge-surface/20 hover:bg-forge-surface/40 text-forge-text font-semibold uppercase tracking-wider text-[13px] transition-all duration-300 cursor-pointer active:scale-95 shadow-md hover:border-forge-accent/40"
+              className="inline-flex items-center gap-2 px-6 h-12 rounded-full border border-forge-divider bg-forge-surface/20 hover:bg-forge-surface/40 text-forge-text font-semibold uppercase tracking-wider text-[13px] transition-all duration-300 cursor-pointer active:scale-95 shadow-md hover:border-forge-accent/40 touch-manipulation"
               aria-label="View all projects"
             >
               <span>View More Projects</span>
@@ -252,12 +242,7 @@ export function Work() {
         )}
       </div>
 
-      {/* Case Study Modal */}
-      <CaseStudyModal
-        study={selectedStudy}
-        open={selectedStudy !== null}
-        onClose={closeStudy}
-      />
+
     </section>
   );
 }

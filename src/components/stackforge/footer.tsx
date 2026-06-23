@@ -142,7 +142,7 @@ export function Footer() {
               ) : (
                 <form
                   onSubmit={handleSubmit}
-                  className="relative flex items-center justify-between border border-forge-divider bg-forge-surface/30 rounded-full pl-3.5 pr-1.5 py-1 w-full max-w-[300px] focus-within:border-forge-accent/50 focus-within:ring-2 focus-within:ring-forge-accent/10 transition-all duration-300 group shadow-inner"
+                  className="relative flex items-center justify-between border border-forge-divider bg-forge-surface/30 rounded-full pl-3.5 pr-1.5 py-1 w-full max-w-full sm:max-w-[300px] focus-within:border-forge-accent/50 focus-within:ring-2 focus-within:ring-forge-accent/10 transition-all duration-300 group shadow-inner"
                 >
                   <input
                     type="email"
@@ -160,7 +160,7 @@ export function Footer() {
                   <button
                     type="submit"
                     disabled={status === "submitting"}
-                    className="h-8 px-4 rounded-full bg-forge-accent text-white text-[10px] font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-forge-accent/95 active:scale-95 transition-all duration-300 shrink-0 shadow-md shadow-forge-accent/15 hover:shadow-forge-accent/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-9 px-4 rounded-full bg-forge-accent text-white text-[10px] font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-forge-accent/95 active:scale-95 transition-all duration-300 shrink-0 shadow-md shadow-forge-accent/15 hover:shadow-forge-accent/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                     aria-label="Subscribe to newsletter"
                   >
                     {status === "submitting" ? (
@@ -197,7 +197,7 @@ export function Footer() {
           </div>
 
           {/* Right — 3 Columns */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-6 mt-4 md:mt-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 mt-4 md:mt-0">
             <div className="flex flex-col gap-2">
               <span className="text-[10px] text-forge-text/40 font-medium tracking-[0.12em] uppercase font-mono mb-1">
                 Pages

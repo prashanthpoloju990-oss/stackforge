@@ -54,6 +54,11 @@ interface ContactSubmission {
   pageCount: number | null;
   features: string | null;
   createdAt: string;
+  status?: string;
+  progress?: number;
+  figmaLink?: string | null;
+  stagingLink?: string | null;
+  clientNotes?: string | null;
 }
 
 interface Subscriber {
@@ -127,11 +132,38 @@ export default function AdminPage() {
   // Data state
   const [inquiries, setInquiries] = useState<ContactSubmission[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [activeTab, setActiveTab] = useState<"inquiries" | "subscribers">("inquiries");
+  const [activeTab, setActiveTab] = useState<"inquiries" | "subscribers" | "newsletter">("inquiries");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedInquiry, setSelectedInquiry] = useState<ContactSubmission | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
+
+  // Newsletter Broadcast states
+  const [broadcastSubject, setBroadcastSubject] = useState("");
+  const [broadcastPreview, setBroadcastPreview] = useState("");
+  const [broadcastBody, setBroadcastBody] = useState("");
+  const [broadcastStatus, setBroadcastStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [broadcastMessage, setBroadcastMessage] = useState("");
+
+  // Project Progress states for selectedInquiry
+  const [projStatus, setProjStatus] = useState("pending");
+  const [projProgress, setProjProgress] = useState(0);
+  const [projFigma, setProjFigma] = useState("");
+  const [projStaging, setProjStaging] = useState("");
+  const [projNotes, setProjNotes] = useState("");
+  const [projSaving, setProjSaving] = useState(false);
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (selectedInquiry) {
+      setProjStatus(selectedInquiry.status || "pending");
+      setProjProgress(selectedInquiry.progress || 0);
+      setProjFigma(selectedInquiry.figmaLink || "");
+      setProjStaging(selectedInquiry.stagingLink || "");
+      setProjNotes(selectedInquiry.clientNotes || "");
+    }
+  }, [selectedInquiry]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Check cookie-based session by trying to fetch on mount
   useEffect(() => {
@@ -226,6 +258,101 @@ export default function AdminPage() {
       console.error("Logout failed:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSendBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastSubject || !broadcastBody || broadcastStatus === "sending") return;
+
+    if (!confirm(`Are you sure you want to send this broadcast to all ${subscribers.length} subscribers?`)) {
+      return;
+    }
+
+    setBroadcastStatus("sending");
+    setBroadcastMessage("");
+
+    try {
+      const res = await fetch("/api/admin/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject: broadcastSubject,
+          previewText: broadcastPreview,
+          body: broadcastBody,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to broadcast newsletter");
+      }
+
+      setBroadcastStatus("success");
+      setBroadcastMessage(data.message || "Newsletter broadcast sent successfully!");
+      setBroadcastSubject("");
+      setBroadcastPreview("");
+      setBroadcastBody("");
+    } catch (err: any) {
+      setBroadcastStatus("error");
+      setBroadcastMessage(err.message || "Failed to broadcast newsletter");
+    }
+  };
+
+  const handleSaveProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedInquiry || projSaving) return;
+
+    setProjSaving(true);
+    try {
+      const res = await fetch("/api/admin/update-project", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedInquiry.id,
+          status: projStatus,
+          progress: projProgress,
+          figmaLink: projFigma,
+          stagingLink: projStaging,
+          clientNotes: projNotes,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to update project settings");
+      }
+
+      // Update in-memory inquiries state
+      setInquiries(prev => prev.map(inq => {
+        if (inq.id === selectedInquiry.id) {
+          return {
+            ...inq,
+            status: projStatus,
+            progress: projProgress,
+            figmaLink: projFigma,
+            stagingLink: projStaging,
+            clientNotes: projNotes,
+          };
+        }
+        return inq;
+      }));
+
+      // Update active selectedInquiry state
+      setSelectedInquiry(prev => prev ? {
+        ...prev,
+        status: projStatus,
+        progress: projProgress,
+        figmaLink: projFigma,
+        stagingLink: projStaging,
+        clientNotes: projNotes,
+      } : null);
+
+      alert("Project tracking details saved successfully!");
+    } catch (err: any) {
+      alert("Error saving project: " + err.message);
+    } finally {
+      setProjSaving(false);
     }
   };
 
@@ -848,6 +975,20 @@ export default function AdminPage() {
             >
               Subscribers ({filteredSubscribers.length})
             </button>
+            <button
+              onClick={() => {
+                setActiveTab("newsletter");
+                setSearchQuery("");
+              }}
+              className={cn(
+                "h-9 px-5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer",
+                activeTab === "newsletter"
+                  ? "bg-forge-accent text-white shadow-md shadow-forge-accent/20"
+                  : "text-[#a1a1aa] hover:text-white hover:bg-white/[0.04]"
+              )}
+            >
+              Newsletter Tab
+            </button>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -861,23 +1002,25 @@ export default function AdminPage() {
               </button>
             )}
 
-            <div className="relative w-full sm:w-[260px]">
-              <Search className="size-3.5 text-[#5e5f6a] absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder={activeTab === "inquiries" ? "Search submissions..." : "Search subscriber emails..."}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-9 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-xl pl-9 pr-4 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono"
-              />
-            </div>
+            {activeTab !== "newsletter" && (
+              <div className="relative w-full sm:w-[260px]">
+                <Search className="size-3.5 text-[#5e5f6a] absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder={activeTab === "inquiries" ? "Search submissions..." : "Search subscriber emails..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-9 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-xl pl-9 pr-4 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono"
+                />
+              </div>
+            )}
           </div>
         </div>
 
         {/* ── Tab Contents ── */}
         <div className="flex-1">
           <AnimatePresence mode="wait">
-            {activeTab === "inquiries" ? (
+            {activeTab === "inquiries" && (
               /* Inquiries Grid */
               filteredInquiries.length === 0 ? (
                 <motion.div 
@@ -931,6 +1074,17 @@ export default function AdminPage() {
                               {inquiry.budget}
                             </span>
                           )}
+                          {inquiry.status && inquiry.status !== "pending" && (
+                            <span className={cn(
+                              "text-[9px] font-bold px-2.5 py-0.5 rounded-lg font-mono backdrop-blur-sm border",
+                              inquiry.status === "completed" ? "bg-green-500/10 border-green-500/20 text-green-400" :
+                              inquiry.status === "development" ? "bg-orange-500/10 border-orange-500/20 text-orange-400" :
+                              inquiry.status === "design" ? "bg-purple-500/10 border-purple-500/20 text-purple-400" :
+                              "bg-slate-500/10 border-slate-500/20 text-slate-400"
+                            )}>
+                              {inquiry.status}
+                            </span>
+                          )}
                         </div>
 
                         {/* Description snippet */}
@@ -960,8 +1114,10 @@ export default function AdminPage() {
                   ))}
                 </motion.div>
               )
-            ) : (
-              /* Subscribers list */
+            )}
+
+            {activeTab === "subscribers" && (
+              /* Subscribers List */
               filteredSubscribers.length === 0 ? (
                 <motion.div 
                   key="subscribers-empty"
@@ -1026,6 +1182,149 @@ export default function AdminPage() {
                   </GlassCard>
                 </motion.div>
               )
+            )}
+
+            {activeTab === "newsletter" && (
+              /* Newsletter Broadcaster */
+              <motion.div
+                key="newsletter-tab"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+              >
+                {/* Form card */}
+                <GlassCard className="p-6 space-y-6" hover={false}>
+                  <div>
+                    <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold">
+                      Compose Broadcast
+                    </h3>
+                    <p className="text-[10px] text-slate-500 font-mono mt-1">
+                      Draft a newsletter email to send to all verified subscribers.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSendBroadcast} className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                        Subject Line
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. StackForge Studio Update: Shipping 3x Faster!"
+                        value={broadcastSubject}
+                        onChange={(e) => setBroadcastSubject(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                        Preview Text (Sub-header)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Important changes and new visual modules ready"
+                        value={broadcastPreview}
+                        onChange={(e) => setBroadcastPreview(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                        Email Body (HTML allowed)
+                      </label>
+                      <textarea
+                        required
+                        rows={10}
+                        placeholder="<p>Hello there,</p><p>We have just shipped some major upgrades...</p>"
+                        value={broadcastBody}
+                        onChange={(e) => setBroadcastBody(e.target.value)}
+                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono min-h-[220px]"
+                      />
+                    </div>
+
+                    {broadcastStatus !== "idle" && broadcastMessage && (
+                      <div className={cn(
+                        "p-3 rounded-xl text-xs font-mono border",
+                        broadcastStatus === "success" 
+                          ? "bg-emerald-950/15 border-emerald-900/30 text-emerald-400"
+                          : broadcastStatus === "error"
+                          ? "bg-red-950/15 border-red-900/30 text-red-400"
+                          : "bg-white/5 border-white/10 text-[#a1a1aa]"
+                      )}>
+                        {broadcastMessage}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={broadcastStatus === "sending" || !broadcastSubject || !broadcastBody}
+                      className={cn(
+                        "w-full h-10 rounded-xl text-xs font-bold font-mono uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2",
+                        broadcastStatus === "sending" || !broadcastSubject || !broadcastBody
+                          ? "bg-white/5 text-slate-600 border border-white/5 cursor-not-allowed"
+                          : "bg-forge-accent hover:bg-forge-accent/90 text-white shadow-lg shadow-forge-accent/20 border border-forge-accent/30"
+                      )}
+                    >
+                      {broadcastStatus === "sending" ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <span>Broadcast to {subscribers.length} Subscribers</span>
+                          <ChevronRight className="size-4" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </GlassCard>
+
+                {/* Preview column */}
+                <div className="space-y-3">
+                  <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold px-1">
+                    Live HTML Email Mockup
+                  </h3>
+                  <div className="border border-white/[0.06] rounded-xl overflow-hidden shadow-2xl bg-[#0a0a0f] text-slate-300 font-sans text-xs">
+                    {/* Simulated email header bar */}
+                    <div className="bg-[#09090b] px-4 py-2 border-b border-white/[0.05] text-[10px] text-slate-500 font-mono flex items-center justify-between select-none">
+                      <span>Sender: no-reply@stackforge.dev</span>
+                      <span>Recipient: subscriber@client.com</span>
+                    </div>
+
+                    <div className="p-6 bg-[#040407] min-h-[400px] flex items-center justify-center overflow-y-auto">
+                      <div className="w-full max-w-[420px] bg-[#0a0a0f] border border-white/[0.08] rounded-xl overflow-hidden">
+                        <div className="bg-[#09090b] p-5 text-center border-b-4 border-forge-accent">
+                          <h1 className="text-white text-lg font-black tracking-wider m-0 font-playfair">STACKFORGE</h1>
+                          <p className="text-forge-accent text-[9px] font-mono tracking-wider uppercase m-1">Studio Update</p>
+                        </div>
+                        {broadcastPreview && (
+                          <div className="bg-forge-accent/[0.03] p-3 text-center border-b border-white/[0.04]">
+                            <p className="text-forge-accent text-[10px] font-mono m-0 uppercase">{broadcastPreview}</p>
+                          </div>
+                        )}
+                        <div className="p-6 leading-relaxed text-[11px] text-slate-400 min-h-[160px]">
+                          <div className="font-bold text-white mb-2 text-sm select-text">Subject: {broadcastSubject || "My Subject"}</div>
+                          <div 
+                            className="space-y-2 select-text font-sans"
+                            dangerouslySetInnerHTML={{ __html: broadcastBody || "<p style='color:#52525b; font-style:italic;'>Email body content will render here...</p>" }}
+                          />
+                        </div>
+                        <div className="p-5 border-t border-white/[0.04]">
+                          <p className="text-[10px] text-slate-500 m-0">
+                            You are receiving this because you subscribed to updates from StackForge.<br/>
+                            <strong className="text-white">— The StackForge Team</strong>
+                          </p>
+                        </div>
+                        <div className="bg-[#09090b] p-3 text-center border-t border-white/[0.04] text-[9px] text-slate-600">
+                          StackForge Studio · Hyderabad, India
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
@@ -1172,6 +1471,121 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Project Progress & Portal Settings Card */}
+                <div className="space-y-4 pt-4 border-t border-white/[0.05]">
+                  <h3 className="text-[10px] uppercase font-mono tracking-widest text-forge-accent font-bold flex items-center gap-1.5">
+                    <Activity className="size-3.5" />
+                    Project Tracking (Client Portal settings)
+                  </h3>
+
+                  <form onSubmit={handleSaveProject} className="space-y-4 bg-white/[0.02] border border-white/[0.05] p-5 rounded-2xl">
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Project Status */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                          Tracking Status
+                        </label>
+                        <select
+                          value={projStatus}
+                          onChange={(e) => setProjStatus(e.target.value)}
+                          className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-forge-accent/30 transition-all font-mono"
+                        >
+                          <option value="pending">Inquiry Received (Phase 1)</option>
+                          <option value="contacted">Consultation (Phase 2)</option>
+                          <option value="design">UI/UX Design (Phase 3)</option>
+                          <option value="development">Development (Phase 4)</option>
+                          <option value="testing">Testing (Phase 4.5)</option>
+                          <option value="completed">Live / Shipped (Phase 5)</option>
+                          <option value="archived">Archived (Hidden)</option>
+                        </select>
+                      </div>
+
+                      {/* Progress Percentage */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-baseline">
+                          <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                            Progress Weight
+                          </label>
+                          <span className="text-[10px] font-mono font-bold text-forge-accent">{projProgress}%</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value={projProgress}
+                          onChange={(e) => setProjProgress(parseInt(e.target.value, 10))}
+                          className="w-full h-1 bg-[#0a0a0f] rounded-lg appearance-none cursor-pointer accent-forge-accent mt-3.5"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* Figma Link */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                          Figma File Link
+                        </label>
+                        <input
+                          type="url"
+                          placeholder="https://figma.com/file/..."
+                          value={projFigma}
+                          onChange={(e) => setProjFigma(e.target.value)}
+                          className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 outline-none focus:border-forge-accent/30 transition-all font-mono"
+                        />
+                      </div>
+
+                      {/* Staging Link */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                          Staging Site URL
+                        </label>
+                        <input
+                          type="url"
+                          placeholder="https://staging.domain.com"
+                          value={projStaging}
+                          onChange={(e) => setProjStaging(e.target.value)}
+                          className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 outline-none focus:border-forge-accent/30 transition-all font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Developer Update Notes */}
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                        Developer Update Notes (Visible to Client)
+                      </label>
+                      <textarea
+                        rows={3}
+                        placeholder="Describe current status: e.g. Finished wireframes. Starting dashboard styling tomorrow."
+                        value={projNotes}
+                        onChange={(e) => setProjNotes(e.target.value)}
+                        className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl p-3 text-xs text-white placeholder-slate-600 outline-none focus:border-forge-accent/30 transition-all font-mono"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={projSaving}
+                      className={cn(
+                        "w-full h-9 rounded-xl text-[10px] font-bold font-mono uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                        projSaving
+                          ? "bg-white/5 text-slate-600 border border-white/5 cursor-not-allowed"
+                          : "bg-white/[0.04] border border-white/[0.06] hover:border-forge-accent/30 text-white shadow-sm"
+                      )}
+                    >
+                      {projSaving ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <ClipboardCheck className="size-3.5 text-forge-accent" />
+                          <span>Save Project Tracking Details</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
 
                 {/* Project details */}
                 <div className="space-y-3">

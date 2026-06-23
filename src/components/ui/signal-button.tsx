@@ -1,15 +1,24 @@
 "use client";
 
 import { motion, AnimatePresence } from "motion/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
+
+function useHasMounted() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+}
 
 export function SignalButton() {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHasMounted();
   const [showTooltip, setShowTooltip] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     // Show tooltip briefly after 3 seconds to catch user's attention, then hide
     const timer = setTimeout(() => {
       setShowTooltip(true);

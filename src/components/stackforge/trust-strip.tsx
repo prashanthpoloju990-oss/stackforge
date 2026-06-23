@@ -212,17 +212,17 @@ export function TrustStrip() {
                 and conversion rate optimization — on every single build.
               </p>
             </div>
-            <div className="relative z-10 flex items-center gap-6 shrink-0">
+            <div className="relative z-10 flex items-center gap-3 sm:gap-6 shrink-0 flex-wrap justify-center sm:justify-start">
               {[
                 { label: "Retention", val: "100%" },
                 { label: "Conversion Lift", val: "3.2×" },
                 { label: "Projects Shipped", val: "10+" },
               ].map((m) => (
-                <div key={m.label} className="text-center">
-                  <span className="block text-[1.7rem] font-bold font-mono text-forge-text leading-none tracking-tight">
+                <div key={m.label} className="text-center min-w-[70px]">
+                  <span className="block text-[1.5rem] sm:text-[1.7rem] font-bold font-mono text-forge-text leading-none tracking-tight">
                     {m.val}
                   </span>
-                  <span className="block text-[10px] text-forge-text-secondary/50 uppercase tracking-wider mt-1 font-mono">
+                  <span className="block text-[9px] sm:text-[10px] text-forge-text-secondary/50 uppercase tracking-wider mt-1 font-mono">
                     {m.label}
                   </span>
                 </div>

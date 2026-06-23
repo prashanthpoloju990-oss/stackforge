@@ -67,7 +67,8 @@ const KINETIC_WORDS = [
 
 function KineticHeadline({ mounted }: { mounted: boolean }) {
   const containerRef = useRef<HTMLHeadingElement>(null);
-  const mouse = useRef({ x: 0.5, y: 0.5 });
+  const targetMouse = useRef({ x: 0.5, y: 0.5 });
+  const currentMouse = useRef({ x: 0.5, y: 0.5 });
   const rafId = useRef<number | null>(null);
   const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
@@ -75,19 +76,41 @@ function KineticHeadline({ mounted }: { mounted: boolean }) {
     const onMove = (e: MouseEvent) => {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      mouse.current = {
+      targetMouse.current = {
         x: e.clientX / vw,
         y: e.clientY / vh,
       };
     };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const touch = e.touches[0];
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      targetMouse.current = {
+        x: touch.clientX / vw,
+        y: touch.clientY / vh,
+      };
+    };
+
+    const onTouchEnd = () => {
+      targetMouse.current = { x: 0.5, y: 0.5 };
+    };
+
     window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
 
     const STRENGTH = 14; // max degrees of tilt
     const LIFT = 8;     // max px vertical lift
 
     const tick = () => {
-      const mx = mouse.current.x - 0.5; // -0.5 → 0.5
-      const my = mouse.current.y - 0.5;
+      // Butter-smooth interpolation (LERP)
+      currentMouse.current.x += (targetMouse.current.x - currentMouse.current.x) * 0.08;
+      currentMouse.current.y += (targetMouse.current.y - currentMouse.current.y) * 0.08;
+
+      const mx = currentMouse.current.x - 0.5; // -0.5 → 0.5
+      const my = currentMouse.current.y - 0.5;
 
       wordRefs.current.forEach((el, i) => {
         if (!el) return;
@@ -104,6 +127,8 @@ function KineticHeadline({ mounted }: { mounted: boolean }) {
     rafId.current = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
       if (rafId.current) cancelAnimationFrame(rafId.current);
     };
   }, []);
@@ -182,7 +207,7 @@ export function Hero() {
         }}
       />
 
-      <div className="mx-auto max-w-[1200px] w-full px-6 md:px-20 py-20 md:py-28 relative z-10 flex flex-col items-center justify-center text-center">
+      <div className="mx-auto max-w-[1200px] w-full px-6 md:px-20 py-14 md:py-28 relative z-10 flex flex-col items-center justify-center text-center">
         {/* Copy Container */}
         <div className="flex flex-col items-center justify-center text-center max-w-[800px] mx-auto w-full">
           {/* Kinetic Headline */}
@@ -255,7 +280,7 @@ export function Hero() {
                 },
               },
             }}
-            className="flex items-center justify-center gap-4 sm:gap-7 mt-11 overflow-x-auto scrollbar-none mx-auto"
+            className="flex items-center justify-center gap-4 sm:gap-7 mt-11 overflow-x-auto scrollbar-none mx-auto max-w-full px-2"
           >
             <motion.div variants={{ hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.6, ease: "easeOut" }}>
               <CounterStat value={10} suffix="+" label="Projects Delivered" />
@@ -282,7 +307,7 @@ export function Hero() {
           <span className="text-fluid-micro text-forge-text-secondary/30 tracking-[0.1em] uppercase font-mono">
             Trusted by
           </span>
-          <div className="flex items-center gap-8 sm:gap-10">
+          <div className="flex items-center gap-6 sm:gap-10 overflow-x-auto scrollbar-none">
             {TRUST_LOGOS.map((name) => (
               <span
                 key={name}

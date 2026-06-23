@@ -3,11 +3,17 @@ import { supabase } from "@/lib/supabase";
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import nodemailer from "nodemailer";
+import { randomInt } from "crypto";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "forge-admin-2026";
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.SUPABASE_SECRET_KEY || "stackforge-fallback-secret-2026-safe-key-value"
-);
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.SUPABASE_SECRET_KEY;
+  if (!secret) {
+    throw new Error("SUPABASE_SECRET_KEY is missing");
+  }
+  return new TextEncoder().encode(secret);
+}
 
 async function getAdminSession(): Promise<boolean> {
   try {
@@ -15,7 +21,7 @@ async function getAdminSession(): Promise<boolean> {
     const token = cookieStore.get("admin_session")?.value;
     if (!token) return false;
 
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     return payload && payload.role === "admin";
   } catch (error) {
     return false;
@@ -24,6 +30,10 @@ async function getAdminSession(): Promise<boolean> {
 
 // ── GET: Fetch dashboard data ──
 export async function GET(req: NextRequest) {
+  if (!process.env.SUPABASE_SECRET_KEY) {
+    console.error("[SECURITY] SUPABASE_SECRET_KEY environment variable is missing!");
+    return NextResponse.json({ error: "System configuration error: secure keys not set." }, { status: 500 });
+  }
   const isAuth = await getAdminSession();
   if (!isAuth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -55,6 +65,10 @@ export async function GET(req: NextRequest) {
 
 // ── POST: Authenticate / Login / Logout ──
 export async function POST(req: NextRequest) {
+  if (!process.env.SUPABASE_SECRET_KEY) {
+    console.error("[SECURITY] SUPABASE_SECRET_KEY environment variable is missing!");
+    return NextResponse.json({ error: "System configuration error: secure keys not set." }, { status: 500 });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const action = searchParams.get("action");
@@ -118,7 +132,7 @@ export async function POST(req: NextRequest) {
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime("24h")
-        .sign(JWT_SECRET);
+        .sign(getJwtSecret());
 
       cookieStore.set("admin_session", token, {
         path: "/",
@@ -131,9 +145,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: "Authenticated successfully" });
     } else {
       // ── Phase 1: Verify Password and Dispatch MFA Code ──
-      // Production enforcement
-      if (process.env.NODE_ENV === "production" && (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === "forge-admin-2026")) {
-        console.error("[SECURITY] Strong ADMIN_PASSWORD environment variable must be set in production!");
+      if (!process.env.ADMIN_PASSWORD) {
+        console.error("[SECURITY] ADMIN_PASSWORD environment variable is missing!");
         return NextResponse.json({ error: "System configuration error: secure credentials not set." }, { status: 500 });
       }
 
@@ -142,7 +155,7 @@ export async function POST(req: NextRequest) {
       }
 
       // Generate secure 6-digit numeric OTP
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const otpCode = randomInt(100000, 1000000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
 
       // Clear old OTPs
@@ -224,6 +237,10 @@ export async function POST(req: NextRequest) {
 
 // ── DELETE: Delete data records ──
 export async function DELETE(req: NextRequest) {
+  if (!process.env.SUPABASE_SECRET_KEY) {
+    console.error("[SECURITY] SUPABASE_SECRET_KEY environment variable is missing!");
+    return NextResponse.json({ error: "System configuration error: secure keys not set." }, { status: 500 });
+  }
   const isAuth = await getAdminSession();
   if (!isAuth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import nodemailer from "nodemailer";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { randomInt } from "crypto";
 
 const OTP_TEMPLATES = [
   {
@@ -12,7 +13,7 @@ const OTP_TEMPLATES = [
       <div style="background:#fcf8f2; border-left:4px solid #FF6A00; padding:16px; margin:20px 0; font-family:monospace; text-align:center;">
         <span style="font-size:28px; letter-spacing:8px; font-weight:bold; color:#FF6A00;">${code}</span>
       </div>
-      <p style="font-size:14px; line-height:1.6; color:#666;">Please input these 4 digits before the space-time continuum collapses. Or at least before the code expires in 10 minutes. Do not share this with any rogue artificial intelligences or time travelers.</p>
+      <p style="font-size:14px; line-height:1.6; color:#666;">Please input these 6 digits before the space-time continuum collapses. Or at least before the code expires in 10 minutes. Do not share this with any rogue artificial intelligences or time travelers.</p>
     `,
   },
   {
@@ -131,8 +132,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Generate 4-digit OTP code
-    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    // 1. Generate secure 6-digit OTP code
+    const otpCode = randomInt(100000, 1000000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
     // 2. Save OTP to Supabase

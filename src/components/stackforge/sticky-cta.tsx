@@ -40,7 +40,7 @@ export function StickyCta() {
   return (
     <div
       className={cn(
-        "fixed bottom-5 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 pointer-events-none pb-[max(0px,env(safe-area-inset-bottom))] contain-layout",
+        "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-40 transition-all duration-300 pointer-events-none contain-layout",
         visible
           ? "opacity-100 translate-y-0 pointer-events-auto"
           : "opacity-0 translate-y-4"
@@ -51,7 +51,7 @@ export function StickyCta() {
           variant="popular"
           onClick={() => router.push("/start-project")}
           className={cn(
-            "btn-primary inline-flex items-center gap-2 h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-full shadow-lg transition-all duration-200 cursor-pointer font-syne",
+            "btn-primary inline-flex items-center gap-2 h-fluid-btn-sm px-5 bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-full shadow-lg transition-all duration-200 cursor-pointer font-syne touch-manipulation",
             "active:scale-[0.98]"
           )}
           aria-label="Start a project — go to project inquiry page"

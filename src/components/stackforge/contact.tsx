@@ -204,10 +204,12 @@ const FIELDS: FieldConfig[] = [
 
 /* Step 1 fields: name, contact + quick service buttons */
 const STEP_1_KEYS: FormFieldKey[] = ["name", "contact"];
-const STEP_2_KEYS: FormFieldKey[] = ["businessType", "serviceNeed", "budget", "timeline", "details"];
+const STEP_2_KEYS: FormFieldKey[] = ["businessType", "serviceNeed", "details"];
+const STEP_3_KEYS: FormFieldKey[] = ["budget", "timeline"];
 
 const STEP_1_FIELDS = FIELDS.filter((f) => STEP_1_KEYS.includes(f.key));
 const STEP_2_FIELDS = FIELDS.filter((f) => STEP_2_KEYS.includes(f.key));
+const STEP_3_FIELDS = FIELDS.filter((f) => STEP_3_KEYS.includes(f.key));
 
 /* ── Framer variants ── */
 const containerVariants = {
@@ -231,13 +233,13 @@ const slideInRight = {
   initial: { x: 60, opacity: 0 },
   animate: { x: 0, opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
   exit: { x: -60, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } },
-};
+} as const;
 
 const slideInLeft = {
   initial: { x: -60, opacity: 0 },
   animate: { x: 0, opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
   exit: { x: 60, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } },
-};
+} as const;
 
 /* ══════════════════════════════════════════════════
    Step Indicator
@@ -246,12 +248,13 @@ function StepIndicator({
   step,
   direction,
 }: {
-  step: 1 | 2;
+  step: 1 | 2 | 3;
   direction: number;
 }) {
   const steps = [
     { num: 1, label: "Your Details" },
     { num: 2, label: "Your Project" },
+    { num: 3, label: "Budget & Timeline" },
   ] as const;
 
   return (
@@ -434,6 +437,70 @@ function calculateEstimate(serviceNeed: string, pageCount: number, features: str
   };
 }
 
+const PLAN_ALLOWED_FEATURES: Record<string, string[]> = {
+  "launch-kit": [],
+  "growth-pack": ["db", "seo"],
+  "enterprise-bag": ["db", "auth", "stripe", "motion", "seo"],
+  "enterprise": ["db", "auth", "stripe", "motion", "seo"],
+};
+
+function FormLoader({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center space-y-8 select-none">
+      <style>{`
+        .loader {
+          width: 48px;
+          height: 48px;
+          margin: auto;
+          position: relative;
+        }
+        .loader:before {
+          content: '';
+          width: 48px;
+          height: 5px;
+          background: rgba(255, 106, 0, 0.2);
+          position: absolute;
+          top: 60px;
+          left: 0;
+          border-radius: 50%;
+          animation: shadow324 0.5s linear infinite;
+        }
+        .loader:after {
+          content: '';
+          width: 100%;
+          height: 100%;
+          background: #ff6a00;
+          position: absolute;
+          top: 0;
+          left: 0;
+          border-radius: 4px;
+          animation: jump7456 0.5s linear infinite;
+        }
+        @keyframes jump7456 {
+          15% { border-bottom-right-radius: 3px; }
+          25% { transform: translateY(9px) rotate(22.5deg); }
+          50% { transform: translateY(18px) scale(1, .9) rotate(45deg); border-bottom-right-radius: 40px; }
+          75% { transform: translateY(9px) rotate(67.5deg); }
+          100% { transform: translateY(0) rotate(90deg); }
+        }
+        @keyframes shadow324 {
+          0%, 100% { transform: scale(1, 1); }
+          50% { transform: scale(1.2, 1); }
+        }
+      `}</style>
+      <div className="loader" />
+      <div className="space-y-1.5 animate-pulse">
+        <p className="text-sm font-semibold text-forge-text font-syne">
+          {message}
+        </p>
+        <p className="text-xs text-muted-foreground font-mono">
+          Transmitting data package...
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════
    Main Component
    ══════════════════════════════════════════════════ */
@@ -441,12 +508,19 @@ export function Contact() {
   const { ref, isVisible } = useScrollReveal({ threshold: 0.05 });
   const nameRef = React.useRef<HTMLInputElement>(null);
   const [form, setForm] = React.useState<FormData>(INITIAL_FORM);
+  const [lockedPlan, setLockedPlan] = React.useState<string | null>(null);
+
+  const isFeatureAllowed = React.useCallback((featId: string) => {
+    if (!lockedPlan) return true;
+    const allowed = PLAN_ALLOWED_FEATURES[lockedPlan];
+    return allowed ? allowed.includes(featId) : true;
+  }, [lockedPlan]);
   const [errors, setErrors] = React.useState<FormErrors>({});
   const [touched, setTouched] = React.useState<Partial<Record<FormFieldKey, boolean>>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [submitError, setSubmitError] = React.useState<string | null>(null);
-  const [currentStep, setCurrentStep] = React.useState<1 | 2>(1);
+  const [currentStep, setCurrentStep] = React.useState<1 | 2 | 3>(1);
   const [slideDirection, setSlideDirection] = React.useState<number>(1);
   const [files, setFiles] = React.useState<File[]>([]);
   const [isDragging, setIsDragging] = React.useState(false);
@@ -490,53 +564,50 @@ export function Contact() {
     }
   }, [isVisible, currentStep, isSuccess]);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   /* Auto-fill package and price based on URL query parameter */
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const plan = params.get("plan");
       if (plan) {
+        if (plan === "launch-kit" || plan === "growth-pack") {
+          setLockedPlan(plan);
+        } else {
+          setLockedPlan(null);
+        }
         const t = setTimeout(() => {
           if (plan === "launch-kit") {
-            setForm((p) => {
-              const next = {
-                ...p,
-                serviceNeed: "New Website",
-              };
-              const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
-              next.budget = est.budgetOption;
-              next.timeline = est.timelineOption;
-              return next;
-            });
+            setForm((p) => ({
+              ...p,
+              serviceNeed: "New Website",
+              budget: "Under ₹2,500",
+              timeline: "This week",
+              features: [],
+            }));
           } else if (plan === "growth-pack") {
-            setForm((p) => {
-              const next = {
-                ...p,
-                serviceNeed: "New Website",
-                pageCount: 5,
-              };
-              const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
-              next.budget = est.budgetOption;
-              next.timeline = est.timelineOption;
-              return next;
-            });
+            setForm((p) => ({
+              ...p,
+              serviceNeed: "New Website",
+              budget: "₹2,500 – ₹5,000",
+              timeline: "This month",
+              features: ["db", "seo"],
+            }));
           } else if (plan === "enterprise-bag" || plan === "enterprise") {
-            setForm((p) => {
-              const next = {
-                ...p,
-                serviceNeed: "Full Stack App",
-              };
-              const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
-              next.budget = est.budgetOption;
-              next.timeline = est.timelineOption;
-              return next;
-            });
+            setForm((p) => ({
+              ...p,
+              serviceNeed: "Full Stack App",
+              budget: "₹50,000+",
+              timeline: "Flexible",
+              features: ["db", "auth", "stripe", "motion", "seo"],
+            }));
           }
         }, 0);
         return () => clearTimeout(t);
       }
     }
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   /* Auto-clear submit error */
   React.useEffect(() => {
@@ -553,7 +624,7 @@ export function Contact() {
     (key: FormFieldKey): string | undefined => {
       const field = FIELDS.find((f) => f.key === key);
       if (!field) return undefined;
-      if (field.validate) return field.validate(form[key]);
+      if (field.validate) return field.validate(form[key] as string);
       return undefined;
     },
     [form]
@@ -568,8 +639,8 @@ export function Contact() {
       keys.forEach((key) => {
         newTouched[key] = true;
         const field = FIELDS.find((f) => f.key === key);
-        if (field?.required || form[key].trim().length > 0) {
-          const err = field?.validate?.(form[key]);
+        if (field?.required || (form[key] as string).trim().length > 0) {
+          const err = field?.validate?.(form[key] as string);
           if (err) errs[key] = err;
         }
       });
@@ -601,6 +672,11 @@ export function Contact() {
     return required.every((f) => validateField(f.key) === undefined);
   }, [STEP_2_FIELDS, validateField]);
 
+  const step3Valid = React.useMemo(() => {
+    const required = STEP_3_FIELDS.filter((f) => f.required);
+    return required.every((f) => validateField(f.key) === undefined);
+  }, [STEP_3_FIELDS, validateField]);
+
   /* Overall progress */
   const allRequiredFields = FIELDS.filter((f) => f.required);
   const filledCount = React.useMemo(() => {
@@ -612,6 +688,10 @@ export function Contact() {
 
   /* ── Handlers ── */
   const handleChange = (field: FormFieldKey, value: any) => {
+    if (lockedPlan && (field === "budget" || field === "serviceNeed")) {
+      return; // Ignore changes to budget and serviceNeed if plan is locked
+    }
+
     let formattedValue = value;
     if (field === "contact") {
       if (!value.includes("@") && /^[0-9+\s\-()]*$/.test(value)) {
@@ -627,9 +707,11 @@ export function Contact() {
     setForm((p) => {
       const next = { ...p, [field]: formattedValue };
       if (field === "serviceNeed" || field === "pageCount" || field === "features") {
-        const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
-        next.budget = est.budgetOption;
-        next.timeline = est.timelineOption;
+        if (!lockedPlan) {
+          const est = calculateEstimate(next.serviceNeed, next.pageCount, next.features);
+          next.budget = est.budgetOption;
+          next.timeline = est.timelineOption;
+        }
       }
       return next;
     });
@@ -657,15 +739,27 @@ export function Contact() {
   };
 
   const handleNext = () => {
-    if (validateStep(STEP_1_KEYS)) {
-      setSlideDirection(1);
-      setCurrentStep(2);
+    if (currentStep === 1) {
+      if (validateStep(STEP_1_KEYS)) {
+        setSlideDirection(1);
+        setCurrentStep(2);
+      }
+    } else if (currentStep === 2) {
+      if (validateStep(STEP_2_KEYS)) {
+        setSlideDirection(1);
+        setCurrentStep(3);
+      }
     }
   };
 
   const handleBack = () => {
-    setSlideDirection(-1);
-    setCurrentStep(1);
+    if (currentStep === 2) {
+      setSlideDirection(-1);
+      setCurrentStep(1);
+    } else if (currentStep === 3) {
+      setSlideDirection(-1);
+      setCurrentStep(2);
+    }
   };
 
   const sendOtp = async (email: string) => {
@@ -694,7 +788,7 @@ export function Contact() {
     e.preventDefault();
     setSubmitError(null);
 
-    if (!validateStep(STEP_2_KEYS)) return;
+    if (!validateStep(STEP_3_KEYS)) return;
 
     /* Double-check step 1 */
     const step1Errs: FormErrors = {};
@@ -706,6 +800,19 @@ export function Contact() {
       setErrors((p) => ({ ...p, ...step1Errs }));
       setSlideDirection(-1);
       setCurrentStep(1);
+      return;
+    }
+
+    /* Double-check step 2 */
+    const step2Errs: FormErrors = {};
+    STEP_2_KEYS.forEach((key) => {
+      const err = validateField(key);
+      if (err) step2Errs[key] = err;
+    });
+    if (Object.keys(step2Errs).length > 0) {
+      setErrors((p) => ({ ...p, ...step2Errs }));
+      setSlideDirection(-1);
+      setCurrentStep(2);
       return;
     }
 
@@ -723,8 +830,8 @@ export function Contact() {
     e.preventDefault();
     setOtpError(null);
 
-    if (otpCode.trim().length !== 4) {
-      setOtpError("Please enter a valid 4-digit code");
+    if (otpCode.trim().length !== 6) {
+      setOtpError("Please enter a valid 6-digit code");
       return;
     }
 
@@ -788,8 +895,9 @@ export function Contact() {
   /* ── Render field ── */
   const renderField = (field: FieldConfig) => {
     const hasError = touched[field.key] && errors[field.key];
-    const isValidField = touched[field.key] && !errors[field.key] && form[field.key].trim().length > 0;
+    const isValidField = touched[field.key] && !errors[field.key] && (form[field.key] as string).trim().length > 0;
     const isRequired = field.required;
+    const isLockedField = !!lockedPlan && (field.key === "budget" || field.key === "serviceNeed");
 
     return (
       <div key={field.key} className="space-y-2">
@@ -798,12 +906,19 @@ export function Contact() {
           <Label
             htmlFor={field.key}
             className={cn(
-              "text-sm font-medium leading-none",
+              "text-sm font-medium leading-none flex items-center gap-1.5",
               hasError ? "text-red-400" : "text-foreground/80"
             )}
           >
-            {field.label}
-            {isRequired && <span className="ml-1 text-red-400/60">*</span>}
+            <span className="flex items-center gap-0.5">
+              {field.label}
+              {isRequired && <span className="text-red-400/60 ml-0.5">*</span>}
+            </span>
+            {isLockedField && (
+              <span className="inline-flex items-center gap-0.5 text-[9px] text-forge-accent font-mono uppercase bg-forge-accent/15 px-1.5 py-0.5 rounded border border-forge-accent/25 select-none font-bold">
+                Locked
+              </span>
+            )}
           </Label>
           {field.key === "details" && (
             <span className="text-[11px] text-muted-foreground tabular-nums">
@@ -820,11 +935,12 @@ export function Contact() {
               value={form[field.key]}
               onChange={(e) => handleChange(field.key, e.target.value)}
               onBlur={() => handleBlur(field.key)}
+              disabled={isLockedField}
               className={cn(
                 "flex h-11 w-full rounded-lg border bg-background px-3 py-2 text-sm shadow-sm shadow-black/5 transition-all duration-200 appearance-none cursor-pointer",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30 focus-visible:border-ring",
                 "hover:border-border/80",
-                "disabled:cursor-not-allowed disabled:opacity-50",
+                "disabled:cursor-not-allowed disabled:opacity-85 disabled:bg-forge-surface/20",
                 hasError
                   ? "border-red-300/80 focus-visible:ring-red-200"
                   : isValidField
@@ -1010,27 +1126,6 @@ export function Contact() {
         {renderField(FIELDS.find((f) => f.key === "serviceNeed")!)}
       </div>
 
-      {/* Estimator Inputs: Page Count Slider */}
-      <div className="space-y-2 bg-forge-surface/30 border border-forge-divider/50 rounded-xl p-4">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="pageCount" className="text-sm font-semibold text-foreground/90">
-            Number of Pages
-          </Label>
-          <span className="text-xs font-mono font-bold text-white px-2 py-0.5 bg-forge-accent rounded shadow-[1px_1px_0px_0px_var(--forge-text)]">
-            {form.pageCount === 20 ? "20+ Pages" : `${form.pageCount} ${form.pageCount === 1 ? 'Page' : 'Pages'}`}
-          </span>
-        </div>
-        <input
-          id="pageCount"
-          type="range"
-          min="1"
-          max="20"
-          value={form.pageCount}
-          onChange={(e) => handleChange("pageCount", parseInt(e.target.value, 10) as any)}
-          className="w-full h-1.5 rounded-lg bg-muted appearance-none cursor-pointer accent-forge-accent mt-2 focus:outline-none"
-        />
-      </div>
-
       {/* Estimator Inputs: Add-on Integrations */}
       <div className="space-y-2 bg-forge-surface/30 border border-forge-divider/50 rounded-xl p-4">
         <Label className="text-sm font-semibold text-foreground/90 block mb-1">
@@ -1045,11 +1140,14 @@ export function Contact() {
             { id: "seo", label: "SEO & Audit", desc: "100/100 Speed" },
           ].map((feat) => {
             const selected = form.features.includes(feat.id);
+            const allowed = isFeatureAllowed(feat.id);
             return (
               <button
                 type="button"
                 key={feat.id}
+                disabled={lockedPlan ? !allowed : false}
                 onClick={() => {
+                  if (lockedPlan && !allowed) return;
                   setForm((prev) => {
                     const nextFeatures = prev.features.includes(feat.id)
                       ? prev.features.filter((id) => id !== feat.id)
@@ -1067,7 +1165,8 @@ export function Contact() {
                   "flex flex-col items-start text-left p-2.5 rounded-lg border text-xs transition-all duration-200 cursor-pointer w-full select-none",
                   selected
                     ? "bg-forge-accent/15 border-forge-accent text-forge-text shadow-[2px_2px_0px_0px_var(--forge-accent)]"
-                    : "bg-background text-foreground/60 border-input hover:border-forge-accent/40"
+                    : "bg-background text-foreground/60 border-input hover:border-forge-accent/40",
+                  lockedPlan && !allowed && "opacity-35 cursor-not-allowed hover:border-input"
                 )}
               >
                 <span className="font-bold text-[11px] block">{feat.label}</span>
@@ -1076,6 +1175,38 @@ export function Contact() {
             );
           })}
         </div>
+
+        {/* Warning notification & upgrade option */}
+        {lockedPlan && lockedPlan !== "enterprise-bag" && lockedPlan !== "enterprise" && (
+          <div className="mt-3 border border-forge-accent/20 bg-forge-accent/5 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
+            <div className="space-y-0.5">
+              <span className="text-[9px] font-mono font-bold text-forge-accent uppercase block tracking-wider">
+                Fixed Scope Plan
+              </span>
+              <p className="text-xs text-forge-text-secondary/80 leading-normal font-sans">
+                {lockedPlan === "launch-kit"
+                  ? "Launch Kit has a fixed scope and does not support CMS, auth, or custom databases."
+                  : "Growth Pack has a fixed scope and only includes CMS & SEO integrations."}
+                {" "}Need something extra?
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setLockedPlan("enterprise-bag");
+                setForm((p) => ({
+                  ...p,
+                  serviceNeed: "Full Stack App",
+                  budget: "₹50,000+",
+                  timeline: "Flexible",
+                }));
+              }}
+              className="text-[10px] font-bold text-forge-accent hover:underline shrink-0 bg-forge-accent/10 border border-forge-accent/20 rounded px-2.5 py-1 font-mono uppercase tracking-wider transition-colors hover:bg-forge-accent/15"
+            >
+              Choose Custom Pack
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Details Textarea */}
@@ -1148,28 +1279,79 @@ export function Contact() {
         )}
       </div>
 
-      {/* Mobile price comparison hint */}
-      <div className="block lg:hidden">
-        <PriceComparisonCardCompact serviceNeed={form.serviceNeed} />
+      {/* Navigation buttons */}
+      <div className="flex items-center gap-3 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleBack}
+          className="h-11 px-5 text-sm font-medium"
+        >
+          <span className="flex items-center gap-1.5">
+            <ArrowLeft className="size-3.5" />
+            Back
+          </span>
+        </Button>
+        <Button
+          type="button"
+          onClick={handleNext}
+          className={cn(
+            "flex-1 h-11 text-sm font-semibold transition-all duration-300",
+            step2Valid
+              ? "bg-forge-accent hover:bg-forge-accent/90 text-white shadow-sm shadow-orange-500/15"
+              : "opacity-50 cursor-not-allowed"
+          )}
+          disabled={!step2Valid}
+        >
+          <span className="flex items-center gap-2 justify-center">
+            Continue
+            <ArrowRight className="size-4" />
+          </span>
+        </Button>
+      </div>
+    </motion.div>
+  );
+
+  /* ── Step 3 content ── */
+  const renderStep3 = (dir: number) => (
+    <motion.div
+      key="step-3"
+      {...(dir > 0 ? slideInRight : slideInLeft)}
+      className="space-y-6"
+    >
+      <div>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+          Budget &amp; Timeline
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {lockedPlan 
+            ? "Your pricing tier guarantees a fixed budget and optimized delivery time." 
+            : "Set your target budget range and delivery speed preference."}
+        </p>
       </div>
 
-      {/* Sync Outputs: Budget Range & Timeline */}
+      {/* Budget Range & Timeline Select Inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-forge-surface/20 border border-forge-divider/50 rounded-xl p-4">
         <div className="relative">
           <span className="absolute -top-2.5 left-3 bg-card px-1.5 text-[9px] font-bold text-forge-accent uppercase font-mono border border-forge-divider rounded z-10">
-            Auto-Selected Budget
+            {lockedPlan ? "Locked Package Price" : "Target Budget"}
           </span>
           {renderField(FIELDS.find((f) => f.key === "budget")!)}
         </div>
         <div className="relative">
           <span className="absolute -top-2.5 left-3 bg-card px-1.5 text-[9px] font-bold text-forge-accent uppercase font-mono border border-forge-divider rounded z-10">
-            Auto-Selected Timeline
+            {lockedPlan ? "Estimated Timeline" : "Target Timeline"}
           </span>
           {renderField(FIELDS.find((f) => f.key === "timeline")!)}
         </div>
       </div>
 
-      {/* Navigation buttons */}
+      {/* Mobile price comparison hint */}
+      <div className="block lg:hidden mt-2">
+        <PriceComparisonCardCompact serviceNeed={form.serviceNeed} />
+      </div>
+
+      {/* Navigation and Submit buttons */}
       <div className="flex items-center gap-3 pt-2">
         <Button
           type="button"
@@ -1186,14 +1368,14 @@ export function Contact() {
           type="submit"
           className={cn(
             "flex-1 h-11 text-sm font-semibold transition-all duration-300",
-            step2Valid
+            step3Valid
               ? "bg-forge-accent hover:bg-forge-accent/90 text-white shadow-sm shadow-orange-500/15"
               : "opacity-50 cursor-not-allowed"
           )}
-          disabled={isSubmitting || !step2Valid}
+          disabled={isSubmitting || !step3Valid}
         >
           {isSubmitting ? (
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 justify-center">
               <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -1201,7 +1383,7 @@ export function Contact() {
               Sending…
             </span>
           ) : (
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 justify-center">
               <SendIcon className="size-4" />
               Submit Project Inquiry
             </span>
@@ -1270,7 +1452,9 @@ export function Contact() {
                   <p className="text-muted-foreground text-sm">
                     {currentStep === 1
                       ? "Tell us who you are — we'll handle the rest."
-                      : "Almost there! Describe your dream project."}
+                      : currentStep === 2
+                        ? "Almost there! Describe your dream project."
+                        : "Define your project budget and timeline settings."}
                   </p>
                 </div>
 
@@ -1305,7 +1489,11 @@ export function Contact() {
                   </div>
                 </div>
 
-                {isSuccess ? (
+                {isSubmitting ? (
+                  <FormLoader message="Sending your project inquiry..." />
+                ) : otpLoading ? (
+                  <FormLoader message="Dispatching secure verification code..." />
+                ) : isSuccess ? (
                   <SuccessState />
                 ) : showOtpView ? (
                   <motion.div
@@ -1367,16 +1555,16 @@ export function Contact() {
                             disabled={otpLoading || !otpEmail}
                             className="flex-1 h-11 bg-forge-accent hover:bg-forge-accent/90 text-white font-semibold"
                           >
-                            {otpLoading ? "Sending Code..." : "Send Verification Code"}
+                            Send Verification Code
                           </Button>
                         </div>
                       </form>
                     ) : (
-                      /* Enter 4-digit OTP Code view */
+                      /* Enter 6-digit OTP Code view */
                       <form onSubmit={handleVerifyAndSubmit} className="space-y-5">
                         <div className="space-y-2 text-center sm:text-left">
                           <Label className="text-sm font-bold text-foreground">
-                            Enter 4-Digit Verification Code
+                            Enter 6-Digit Verification Code
                           </Label>
                           <p className="text-xs text-muted-foreground leading-relaxed">
                             A verification code has been dispatched to <strong className="text-white">{otpEmail}</strong>. 
@@ -1386,11 +1574,11 @@ export function Contact() {
                           <div className="flex justify-center sm:justify-start gap-3 mt-4">
                             <Input
                               type="text"
-                              maxLength={4}
-                              placeholder="0000"
+                              maxLength={6}
+                              placeholder="000000"
                               value={otpCode}
-                              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                              className="h-12 text-center text-xl font-bold tracking-[8px] max-w-[140px] focus-visible:ring-forge-accent"
+                              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                              className="h-12 text-center text-xl font-bold tracking-[8px] max-w-[170px] focus-visible:ring-forge-accent"
                               autoFocus
                             />
                           </div>
@@ -1411,7 +1599,7 @@ export function Contact() {
                             disabled={otpLoading}
                             className="text-forge-accent hover:underline font-semibold cursor-pointer disabled:opacity-50"
                           >
-                            {otpLoading ? "Sending..." : "Resend Code"}
+                            Resend Code
                           </button>
                         </div>
 
@@ -1433,23 +1621,11 @@ export function Contact() {
                           </Button>
                           <Button
                             type="submit"
-                            disabled={isSubmitting || otpCode.length !== 4}
+                            disabled={isSubmitting || otpCode.length !== 6}
                             className="flex-1 h-11 bg-forge-accent hover:bg-forge-accent/90 text-white font-semibold flex items-center justify-center gap-2"
                           >
-                            {isSubmitting ? (
-                              <>
-                                <svg className="size-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                                Verifying...
-                              </>
-                            ) : (
-                              <>
-                                <Check className="size-4" />
-                                Verify & Submit
-                              </>
-                            )}
+                            <Check className="size-4" />
+                            Verify & Submit
                           </Button>
                         </div>
                       </form>
@@ -1472,7 +1648,9 @@ export function Contact() {
                       <AnimatePresence mode="wait">
                         {currentStep === 1
                           ? renderStep1()
-                          : renderStep2(slideDirection)}
+                          : currentStep === 2
+                            ? renderStep2(slideDirection)
+                            : renderStep3(slideDirection)}
                       </AnimatePresence>
                     </form>
 

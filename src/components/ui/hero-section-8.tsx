@@ -52,7 +52,7 @@ export const FormBuilderHero: React.FC<FormBuilderHeroProps> = ({
         ease: "easeInOut",
       },
     },
-  };
+  } as const;
 
   return (
     <div className="flex w-full items-center justify-center bg-background px-4 py-20 md:py-32">

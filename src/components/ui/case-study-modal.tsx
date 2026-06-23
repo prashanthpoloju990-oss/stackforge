@@ -49,7 +49,7 @@ const cardVariants = {
     y: 16,
     transition: { duration: 0.2, ease: "easeIn" },
   },
-};
+} as const;
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (

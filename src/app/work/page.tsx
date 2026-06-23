@@ -12,18 +12,8 @@ import { CookieConsent } from "@/components/ui/cookie-consent";
 import { StickyCta } from "@/components/stackforge/sticky-cta";
 import { SignalButton } from "@/components/ui/signal-button";
 import { projects } from "@/lib/projects-data";
-import { CaseStudyModal, type CaseStudy } from "@/components/ui/case-study-modal";
 
 export default function WorkPage() {
-  const [selectedStudy, setSelectedStudy] = useState<CaseStudy | null>(null);
-
-  const openStudy = (project: CaseStudy) => {
-    setSelectedStudy(project);
-  };
-
-  const closeStudy = () => {
-    setSelectedStudy(null);
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-forge-bg">
@@ -153,12 +143,7 @@ export default function WorkPage() {
       <CookieConsent />
       <StickyCta />
 
-      {/* Case Study Modal */}
-      <CaseStudyModal
-        study={selectedStudy}
-        open={selectedStudy !== null}
-        onClose={closeStudy}
-      />
+
     </div>
   );
 }

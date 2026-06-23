@@ -8,6 +8,50 @@ import { ThemeToggle } from "./theme-toggle";
 import { useScrollPosition } from "@/hooks/use-scroll-position";
 import { MagneticWrapper } from "@/components/ui/magnetic-button";
 import { BlobButton } from "@/components/ui/blob-button";
+import { motion, AnimatePresence } from "motion/react";
+
+const menuVariants = {
+  closed: {
+    opacity: 0,
+    y: "-100%",
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+      when: "afterChildren",
+    },
+  },
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1],
+      staggerChildren: 0.05,
+      delayChildren: 0.1,
+    },
+  },
+} as const;
+
+const linkVariants = {
+  closed: {
+    opacity: 0,
+    y: 15,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 30,
+    },
+  },
+  open: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+} as const;
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -108,7 +152,7 @@ export function Navbar() {
     >
       <div
         className={cn(
-          "pointer-events-auto transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between relative",
+          "pointer-events-auto transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between relative z-50",
           isFloating
             ? "w-full max-w-[1200px] bg-transparent border-none shadow-none px-6 md:px-20 h-14 pointer-events-none"
             : "w-full max-w-[1200px] rounded-none border-b border-forge-divider/30 bg-forge-bg/60 backdrop-blur-sm px-6 md:px-20 h-16 md:h-[72px]"
@@ -202,7 +246,7 @@ export function Navbar() {
           <button
             ref={hamburgerRef}
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="flex flex-col items-center justify-center w-10 h-10 gap-[5px] text-forge-text transition-all duration-300"
+            className="flex flex-col items-center justify-center w-11 h-11 gap-[5px] text-forge-text transition-all duration-300 touch-manipulation"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
@@ -229,45 +273,97 @@ export function Navbar() {
       </div>
 
       {/* Mobile Menu Overlay */}
-      <div
-        ref={overlayRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation"
-        className={cn(
-          "md:hidden fixed inset-0 top-16 bg-forge-bg/95 backdrop-blur-md transition-all duration-300",
-          mobileOpen
-            ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            ref={overlayRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            initial="closed"
+            animate="open"
+            exit="closed"
+            variants={menuVariants}
+            className="md:hidden fixed inset-0 z-40 bg-[#040407]/95 backdrop-blur-2xl flex flex-col justify-between pt-24 pb-[max(2rem,env(safe-area-inset-bottom,2rem))] px-6 overflow-y-auto"
+          >
+            {/* Top section: Staggered navigation links */}
+            <div className="flex flex-col gap-4 mt-4">
+              <span className="text-[10px] font-mono text-forge-accent/60 uppercase tracking-[0.15em] mb-2 px-1">
+                Navigation
+              </span>
+              {NAV_LINKS.map((link) => (
+                <motion.div key={link.href} variants={linkVariants}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-[24px] xs:text-[28px] text-forge-text-secondary/80 font-medium font-syne tracking-wide transition-colors duration-200 hover:text-forge-text block py-2 px-1 border-b border-forge-divider/10 touch-manipulation"
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Bottom section: Trust Card & Contact */}
+            <motion.div
+              variants={linkVariants}
+              className="mt-8 border border-forge-divider/60 rounded-xl bg-forge-surface/20 p-5 flex flex-col gap-4 relative overflow-hidden"
+            >
+              {/* Subtle background glow */}
+              <div
+                className="absolute -right-10 -bottom-10 w-32 h-32 rounded-full opacity-10 pointer-events-none"
+                style={{ background: "radial-gradient(circle, var(--forge-accent) 0%, transparent 70%)" }}
+              />
+              
+              <div>
+                <span className="text-[9px] font-mono text-forge-accent/70 uppercase tracking-[0.12em] block mb-1">
+                  Why StackForge?
+                </span>
+                <p className="text-[12px] text-forge-text-secondary/70 leading-relaxed font-sans">
+                  Startups choose us to build fast, custom, and highly secure digital platforms. We don't cut corners.
+                </p>
+              </div>
+
+              {/* Stats Strip */}
+              <div className="grid grid-cols-3 gap-2 py-2 border-y border-forge-divider/30">
+                <div>
+                  <span className="block text-[15px] font-bold font-mono text-forge-text">100%</span>
+                  <span className="block text-[8px] text-forge-text-secondary/50 uppercase font-mono">Lighthouse</span>
+                </div>
+                <div>
+                  <span className="block text-[15px] font-bold font-mono text-forge-text">10+</span>
+                  <span className="block text-[8px] text-forge-text-secondary/50 uppercase font-mono">Shipped</span>
+                </div>
+                <div>
+                  <span className="block text-[15px] font-bold font-mono text-forge-text">&lt;24h</span>
+                  <span className="block text-[8px] text-forge-text-secondary/50 uppercase font-mono">Response</span>
+                </div>
+              </div>
+
+              {/* Action and social links */}
+              <div className="flex flex-col gap-2.5">
+                <Link
+                  href="/start-project"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full h-12 bg-forge-accent hover:bg-forge-accent-hover text-white text-[12px] font-semibold uppercase tracking-wider rounded-lg flex items-center justify-center transition-all duration-300 touch-manipulation"
+                >
+                  Start a Project
+                </Link>
+                <div className="flex justify-between items-center px-1 mt-1">
+                  <span className="text-[10px] text-forge-text-secondary/40 font-mono">hello@stackforge.com</span>
+                  <div className="flex gap-3">
+                    <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-[10px] text-forge-text-secondary/50 hover:text-forge-accent font-mono transition-colors">GH</a>
+                    <span className="text-forge-text-secondary/20">|</span>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-[10px] text-forge-text-secondary/50 hover:text-forge-accent font-mono transition-colors">LN</a>
+                    <span className="text-forge-text-secondary/20">|</span>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-[10px] text-forge-text-secondary/50 hover:text-forge-accent font-mono transition-colors">TW</a>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-      >
-        <div className="flex flex-col items-center justify-center gap-6 pt-12 sm:pt-16">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="text-fluid-h3 text-forge-text-secondary/60 font-medium tracking-[0.08em] transition-colors duration-200 hover:text-forge-text py-2"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <MagneticWrapper>
-            <BlobButton
-              asChild
-              variant="popular"
-              className="mt-4 inline-flex items-center justify-center h-fluid-btn px-fluid-btn bg-forge-accent text-white text-fluid-btn font-semibold uppercase rounded-lg"
-            >
-              <Link
-                href="/start-project"
-                onClick={() => setMobileOpen(false)}
-              >
-                Start a Project
-              </Link>
-            </BlobButton>
-          </MagneticWrapper>
-        </div>
-      </div>
+      </AnimatePresence>
     </header>
   );
 }

@@ -88,7 +88,7 @@ export function HeroVisual() {
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
         whileHover={{
           scale: 1.02,
-          shadow: "14px 14px 0px 0px var(--forge-text)",
+          boxShadow: "14px 14px 0px 0px var(--forge-text)",
           transition: { duration: 0.25, ease: "easeOut" }
         }}
       >

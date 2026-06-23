@@ -61,9 +61,11 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get('admin_session')?.value;
     if (token) {
       try {
-        const JWT_SECRET = new TextEncoder().encode(
-          process.env.SUPABASE_SECRET_KEY || "stackforge-fallback-secret-2026-safe-key-value"
-        );
+        if (!process.env.SUPABASE_SECRET_KEY) {
+          console.error('[SECURITY] SUPABASE_SECRET_KEY is missing! Blocking admin request to prevent fallback bypass.');
+          return new NextResponse('Configuration Error', { status: 500 });
+        }
+        const JWT_SECRET = new TextEncoder().encode(process.env.SUPABASE_SECRET_KEY);
         const { payload } = await jwtVerify(token, JWT_SECRET);
         if (!payload || payload.role !== 'admin') {
           throw new Error('Invalid role');
@@ -78,27 +80,29 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (rawPathname === '/api/admin') {
+  if (rawPathname.startsWith('/api/admin')) {
     const url = new URL(request.url);
     const action = url.searchParams.get('action');
-    const isLogin = request.method === 'POST' && action !== 'logout';
+    const isLogin = request.method === 'POST' && action !== 'logout' && rawPathname === '/api/admin';
 
     if (!isLogin) {
       const token = request.cookies.get('admin_session')?.value;
       if (!token) {
-        console.warn(`[SECURITY] Unauthorized API request to /api/admin (missing token)`);
+        console.warn(`[SECURITY] Unauthorized API request to ${rawPathname} (missing token)`);
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
       try {
-        const JWT_SECRET = new TextEncoder().encode(
-          process.env.SUPABASE_SECRET_KEY || "stackforge-fallback-secret-2026-safe-key-value"
-        );
+        if (!process.env.SUPABASE_SECRET_KEY) {
+          console.error('[SECURITY] SUPABASE_SECRET_KEY is missing! Blocking API request to prevent fallback bypass.');
+          return NextResponse.json({ error: 'Configuration Error' }, { status: 500 });
+        }
+        const JWT_SECRET = new TextEncoder().encode(process.env.SUPABASE_SECRET_KEY);
         const { payload } = await jwtVerify(token, JWT_SECRET);
         if (!payload || payload.role !== 'admin') {
           throw new Error('Invalid role');
         }
       } catch (err) {
-        console.warn(`[SECURITY] Unauthorized API request to /api/admin (invalid/expired token)`);
+        console.warn(`[SECURITY] Unauthorized API request to ${rawPathname} (invalid/expired token)`);
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
     }

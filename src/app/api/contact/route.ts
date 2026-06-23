@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     /* ── IP-Based Rate Limiting ── */
-    const ip = request.ip || request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
+    const ip = (request as any).ip || request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
     const clientIp = ip.split(",")[0].trim();
     const isAllowed = await checkRateLimit(`ip:contact-form:${clientIp}`, 3, 5 * 60 * 1000); // 3 requests per 5 minutes
     if (!isAllowed) {
@@ -296,7 +296,7 @@ export async function POST(request: NextRequest) {
 
         if (rateLimitErr) throw rateLimitErr;
 
-        if (recentCount >= 3) {
+        if (recentCount !== null && recentCount >= 3) {
           return NextResponse.json(
             {
               error:
@@ -330,7 +330,7 @@ export async function POST(request: NextRequest) {
       ];
 
       if (apiKey && cloudId) {
-        const uploadedAttachments = [];
+        const uploadedAttachments: Array<{ name: string; url: string }> = [];
         for (const file of files) {
           try {
             // Validate file structure

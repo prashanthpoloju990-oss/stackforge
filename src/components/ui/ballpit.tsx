@@ -50,8 +50,8 @@ class x {
   #c = new e();
   #h = { elapsed: 0, delta: 0 };
   #l?: number;
-  constructor(e: any) {
-    this.#e = { ...e };
+  constructor(options: any) {
+    this.#e = { ...options };
     this.#m();
     this.#d();
     this.#p();
@@ -106,11 +106,19 @@ class x {
   }
   #u(e: IntersectionObserverEntry[]) {
     this.#s = e[0].isIntersecting;
-    this.#s ? this.#w() : this.#z();
+    if (this.#s) {
+      this.#w();
+    } else {
+      this.#z();
+    }
   }
   #v() {
     if (this.#s) {
-      document.hidden ? this.#z() : this.#w();
+      if (document.hidden) {
+        this.#z();
+      } else {
+        this.#w();
+      }
     }
   }
   #f() {
@@ -777,7 +785,6 @@ const Ballpit: React.FC<BallpitProps> = ({ className = '', followCursor = true, 
         spheresInstanceRef.current.dispose();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <canvas className={className} ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
