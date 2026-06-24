@@ -3,14 +3,14 @@
 import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
+import Lenis from "lenis";
 
 /**
  * SmoothScrollProvider
  * ───────────────────
  * Client component that attaches global hash-link
- * interception for smooth scrolling. Place once in
- * the root layout (or page wrapper) so all anchor links
- * benefit from scroll-margin-top aware navigation.
+ * interception for smooth scrolling and Lenis for
+ * an ultra smooth, buttery kinetic scroll feel.
  */
 export function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   useSmoothScroll();
@@ -23,6 +23,27 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       setTheme("light");
     }
   }, [setTheme]);
+
+  // Initialize Lenis for buttery smooth scrolling
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 1,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
 
   return <>{children}</>;
 }
