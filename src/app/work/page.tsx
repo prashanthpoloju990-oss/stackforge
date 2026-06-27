@@ -34,9 +34,15 @@ export default function WorkPage() {
             <h1 className="text-fluid-display font-bold text-forge-text font-playfair mb-6">
               Our <span className="text-forge-accent/70">Projects</span>
             </h1>
-            <p className="text-fluid-body-lg text-forge-text-secondary/60 max-w-[600px] leading-relaxed">
+            <p className="text-fluid-body-lg text-forge-text-secondary/60 max-w-[600px] leading-relaxed mb-4">
               Explore our full collection of speed-optimized, conversion-focused websites and applications. We construct bespoke interfaces tailored for performance.
             </p>
+
+            {/* Privacy Disclaimer Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forge-surface/40 border border-forge-divider/50 backdrop-blur-md text-[11px] font-mono text-forge-text-secondary/70 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent shrink-0 animate-pulse" />
+              <span>For privacy concerns, we show demo data of all clients.</span>
+            </div>
           </div>
 
           {/* Project Cards Grid */}

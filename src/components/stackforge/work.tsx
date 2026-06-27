@@ -213,9 +213,9 @@ export function Work() {
           </AnimatePresence>
         </motion.div>
 
-        {/* View More Button */}
+        {/* View More Button & Privacy Note */}
         {projects.length > 2 && (
-          <div className="flex justify-center mt-12 md:mt-16">
+          <div className="flex flex-col items-center gap-4 mt-12 md:mt-16">
             <Link
               href="/work"
               className="inline-flex items-center gap-2 px-6 h-12 rounded-full border border-forge-divider bg-forge-surface/20 hover:bg-forge-surface/40 text-forge-text font-semibold uppercase tracking-wider text-[13px] transition-all duration-300 cursor-pointer active:scale-95 shadow-md hover:border-forge-accent/40 touch-manipulation"
@@ -238,6 +238,12 @@ export function Work() {
                 />
               </svg>
             </Link>
+
+            {/* Privacy Disclaimer Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forge-surface/40 border border-forge-divider/50 backdrop-blur-md text-[11px] font-mono text-forge-text-secondary/70 shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent shrink-0 animate-pulse" />
+              <span>For privacy concerns, we show demo data of all clients.</span>
+            </div>
           </div>
         )}
       </div>
