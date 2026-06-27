@@ -191,15 +191,6 @@ const team = [
     verified: true,
   },
   {
-    name: "Varshith Paladugula",
-    role: "DevOps & Backend Eng",
-    bio: "Manages all hosting, deployment, and cloud infrastructure while contributing to backend services and database optimizations.",
-    avatar: "/team/varshith.jpg",
-    link: "https://www.linkedin.com/in/varshith-code/",
-    followers: "850",
-    verified: false,
-  },
-  {
     name: "Prashanth Poloju",
     role: "CEO & Founder",
     bio: "CEO and Founder of StackForge. Specializes in building modern front-end architectures that are lightning-fast and visually stunning.",
@@ -343,7 +334,7 @@ export function About() {
                 </p>
                 <p>
                   What started as a two-person operation working from a cafe table
-                  has grown into a tight-knit team of five — shipping production-grade
+                  has grown into a tight-knit team of four — shipping production-grade
                   websites, dashboards, and SaaS platforms for businesses across India
                   and beyond.
                 </p>
@@ -381,7 +372,7 @@ export function About() {
                 </div>
                 <div className="text-center">
                   <span className="text-fluid-hero font-bold text-forge-text font-syne block">
-                    5
+                    4
                   </span>
                   <span className="text-fluid-micro text-forge-text-secondary/60 block mt-1 uppercase tracking-wider">
                     Members
@@ -580,9 +571,9 @@ export function About() {
             </div>
           </div>
 
-          {/* Team Cards — 1 Row of 5 Cards (Wider container for clean spacing) */}
+          {/* Team Cards — 1 Row of 4 Cards (Wider container for clean spacing) */}
           <div className="max-w-[1280px] mx-auto px-4 md:px-6">
-            <div className="team-scroll-container sm:grid sm:grid-cols-3 lg:grid-cols-5 sm:gap-3 lg:gap-4 sm:justify-center px-1 sm:px-0">
+            <div className="team-scroll-container sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-3 lg:gap-4 sm:justify-center px-1 sm:px-0">
               {team.map((member, index) => (
                 <div
                   key={member.name}

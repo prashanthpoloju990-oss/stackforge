@@ -36,7 +36,9 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   UserPlus,
-  MessageSquarePlus
+  MessageSquarePlus,
+  History,
+  X
 } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -117,6 +119,136 @@ function GlassCard({
   );
 }
 
+interface SparklinePoint {
+  x: number;
+  y: number;
+  val: number;
+  label: string;
+}
+
+function SparklineChart({ 
+  data, 
+  labels, 
+  strokeColor = "#FF6A00", 
+  fillColor = "url(#accentGrad)" 
+}: { 
+  data: number[]; 
+  labels: string[]; 
+  strokeColor?: string; 
+  fillColor?: string; 
+}) {
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+
+  const maxVal = Math.max(...data, 1);
+  const width = 500;
+  const height = 130;
+  const paddingLeft = 30;
+  const paddingRight = 15;
+  const paddingTop = 15;
+  const paddingBottom = 25;
+
+  const points: SparklinePoint[] = data.map((val, idx) => {
+    const x = paddingLeft + (idx * (width - paddingLeft - paddingRight)) / (data.length - 1);
+    const y = height - paddingBottom - (val * (height - paddingTop - paddingBottom)) / maxVal;
+    return { x, y, val, label: labels[idx] };
+  });
+
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  const areaPath = points.length > 0 
+    ? `${linePath} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom} Z`
+    : "";
+
+  return (
+    <div className="relative w-full">
+      <svg className="w-full h-[130px]" viewBox={`0 0 ${width} ${height}`}>
+        <defs>
+          <linearGradient id="accentGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#FF6A00" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#FF6A00" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#10B981" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        
+        {/* Horizontal gridlines */}
+        <line x1={paddingLeft} y1={height - paddingBottom} x2={width - paddingRight} y2={height - paddingBottom} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+        <line x1={paddingLeft} y1={paddingTop} x2={width - paddingRight} y2={paddingTop} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+        
+        {/* Y Axis helper labels */}
+        <text x={paddingLeft - 8} y={paddingTop + 4} fill="rgba(255,255,255,0.25)" fontSize="9" textAnchor="end" className="font-mono">{maxVal}</text>
+        <text x={paddingLeft - 8} y={height - paddingBottom + 3} fill="rgba(255,255,255,0.25)" fontSize="9" textAnchor="end" className="font-mono">0</text>
+
+        {/* Path Fill */}
+        {points.length > 0 && (
+          <>
+            <path d={areaPath} fill={fillColor} />
+            <path d={linePath} fill="none" stroke={strokeColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        )}
+
+        {/* X Axis Labels */}
+        {points.map((p, idx) => (
+          <text 
+            key={`lbl-${idx}`} 
+            x={p.x} 
+            y={height - 6} 
+            fill="rgba(255,255,255,0.2)" 
+            fontSize="8" 
+            textAnchor="middle" 
+            className="font-mono select-none"
+          >
+            {p.label}
+          </text>
+        ))}
+
+        {/* Hover spots and tooltip circles */}
+        {points.map((p, idx) => (
+          <g key={idx}>
+            {/* Interactive zone */}
+            <circle
+              cx={p.x}
+              cy={p.y}
+              r={16}
+              fill="transparent"
+              className="cursor-pointer"
+              onMouseEnter={() => setHoverIdx(idx)}
+              onMouseLeave={() => setHoverIdx(null)}
+            />
+            {/* Display active point */}
+            {hoverIdx === idx && (
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r={4}
+                fill="#ffffff"
+                stroke={strokeColor}
+                strokeWidth={2}
+                pointerEvents="none"
+              />
+            )}
+          </g>
+        ))}
+      </svg>
+      {/* Tooltip Overlay */}
+      {hoverIdx !== null && (
+        <div 
+          className="absolute bg-[#0a0a0f] border border-white/[0.08] rounded-lg px-2.5 py-1.5 shadow-xl text-[10px] font-mono pointer-events-none transition-all flex flex-col items-center z-20"
+          style={{
+            left: `${(points[hoverIdx].x / width) * 100}%`,
+            top: `${(points[hoverIdx].y / height) * 100 - 32}%`,
+            transform: "translateX(-50%)"
+          }}
+        >
+          <span className="text-[#a1a1aa] leading-none">{points[hoverIdx].label}</span>
+          <span className="text-white font-bold mt-1 font-syne leading-none">{points[hoverIdx].val} Volume</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -128,6 +260,7 @@ export default function AdminPage() {
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaEmail, setMfaEmail] = useState("");
   const [mfaCode, setMfaCode] = useState("");
+  const [timeLeft, setTimeLeft] = useState(600);
 
   // Data state
   const [inquiries, setInquiries] = useState<ContactSubmission[]>([]);
@@ -144,6 +277,7 @@ export default function AdminPage() {
   const [broadcastBody, setBroadcastBody] = useState("");
   const [broadcastStatus, setBroadcastStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">("desktop");
 
   // Project Progress states for selectedInquiry
   const [projStatus, setProjStatus] = useState("pending");
@@ -152,6 +286,11 @@ export default function AdminPage() {
   const [projStaging, setProjStaging] = useState("");
   const [projNotes, setProjNotes] = useState("");
   const [projSaving, setProjSaving] = useState(false);
+
+  // Audit Log History states
+  const [auditLogModalOpen, setAuditLogModalOpen] = useState(false);
+  const [auditLogTab, setAuditLogTab] = useState<"all" | "inquiry" | "subscriber">("all");
+  const [auditLogSearch, setAuditLogSearch] = useState("");
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -165,10 +304,148 @@ export default function AdminPage() {
   }, [selectedInquiry]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Check cookie-based session by trying to fetch on mount
+  // Forgot Password / Magic Login states
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+
+  // Load draft from localStorage on mount
   useEffect(() => {
-    fetchDashboardData();
+    const savedSubject = localStorage.getItem("sf_draft_subject");
+    const savedPreview = localStorage.getItem("sf_draft_preview");
+    const savedBody = localStorage.getItem("sf_draft_body");
+
+    if (savedSubject) setBroadcastSubject(savedSubject);
+    if (savedPreview) setBroadcastPreview(savedPreview);
+    if (savedBody) setBroadcastBody(savedBody);
   }, []);
+
+  // Save draft to localStorage as user types
+  useEffect(() => {
+    if (broadcastSubject) {
+      localStorage.setItem("sf_draft_subject", broadcastSubject);
+    } else {
+      localStorage.removeItem("sf_draft_subject");
+    }
+  }, [broadcastSubject]);
+
+  useEffect(() => {
+    if (broadcastPreview) {
+      localStorage.setItem("sf_draft_preview", broadcastPreview);
+    } else {
+      localStorage.removeItem("sf_draft_preview");
+    }
+  }, [broadcastPreview]);
+
+  useEffect(() => {
+    if (broadcastBody) {
+      localStorage.setItem("sf_draft_body", broadcastBody);
+    } else {
+      localStorage.removeItem("sf_draft_body");
+    }
+  }, [broadcastBody]);
+
+  // Check cookie-based session or query params (magic link) on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const email = params.get("email");
+
+    if (token && email) {
+      handleMagicLogin(token, email);
+    } else {
+      fetchDashboardData();
+    }
+  }, []);
+
+  async function handleMagicLogin(token: string, email: string) {
+    setLoading(true);
+    setInitialChecking(true);
+    try {
+      const res = await fetch("/api/admin?action=magic_login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, email }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Magic link verification failed");
+      }
+      // Remove query parameters from URL without page reload
+      window.history.replaceState({}, document.title, window.location.pathname);
+      await fetchDashboardData();
+    } catch (err: any) {
+      setError(err.message || "Failed to authenticate via magic link");
+      setIsAuthenticated(false);
+      setInitialChecking(false);
+      setLoading(false);
+    }
+  }
+
+  async function handleForgotPassword() {
+    setError(null);
+    setResetMessage(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin?action=forgot_password", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send magic link");
+      }
+      setResetMessage(data.message || "A secure magic login link has been sent to your admin email.");
+    } catch (err: any) {
+      setError(err.message || "Could not request magic login link");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Count down timer for MFA expiration
+  useEffect(() => {
+    if (!mfaRequired) return;
+    setTimeLeft(600);
+
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [mfaRequired]);
+
+  async function handleResendMfa() {
+    setError(null);
+    setResetMessage(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin?action=resend_mfa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: mfaEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to resend validation key");
+      }
+      setResetMessage(data.message || "A new code has been sent.");
+      setTimeLeft(600); // Reset timer
+    } catch (err: any) {
+      setError(err.message || "Could not resend code");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   async function fetchDashboardData() {
     setLoading(true);
@@ -261,6 +538,64 @@ export default function AdminPage() {
     }
   };
 
+  const exportData = (type: "inquiries" | "subscribers", format: "csv" | "json") => {
+    const dataToExport = type === "inquiries" ? inquiries : subscribers;
+    
+    if (format === "json") {
+      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
+        JSON.stringify(dataToExport, null, 2)
+      )}`;
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", jsonString);
+      downloadAnchor.setAttribute("download", `stackforge_${type}_${new Date().toISOString().split("T")[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } else {
+      let csvContent = "";
+      if (type === "inquiries") {
+        const headers = ["ID", "Name", "Contact", "Business Type", "Service Need", "Budget", "Timeline", "Status", "Progress", "Date Submitted"];
+        csvContent += headers.join(",") + "\n";
+        inquiries.forEach(i => {
+          const row = [
+            i.id,
+            `"${(i.name || "").replace(/"/g, '""')}"`,
+            `"${(i.contact || "").replace(/"/g, '""')}"`,
+            `"${(i.businessType || "").replace(/"/g, '""')}"`,
+            `"${(i.serviceNeed || "").replace(/"/g, '""')}"`,
+            `"${(i.budget || "").replace(/"/g, '""')}"`,
+            `"${(i.timeline || "").replace(/"/g, '""')}"`,
+            `"${(i.status || "pending").replace(/"/g, '""')}"`,
+            i.progress || 0,
+            new Date(i.createdAt).toLocaleString()
+          ];
+          csvContent += row.join(",") + "\n";
+        });
+      } else {
+        const headers = ["ID", "Email", "Date Subscribed"];
+        csvContent += headers.join(",") + "\n";
+        subscribers.forEach(s => {
+          const row = [
+            s.id,
+            `"${(s.email || "").replace(/"/g, '""')}"`,
+            new Date(s.createdAt).toLocaleString()
+          ];
+          csvContent += row.join(",") + "\n";
+        });
+      }
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", url);
+      downloadAnchor.setAttribute("download", `stackforge_${type}_${new Date().toISOString().split("T")[0]}.csv`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      URL.revokeObjectURL(url);
+    }
+  };
+
   const handleSendBroadcast = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!broadcastSubject || !broadcastBody || broadcastStatus === "sending") return;
@@ -293,6 +628,9 @@ export default function AdminPage() {
       setBroadcastSubject("");
       setBroadcastPreview("");
       setBroadcastBody("");
+      localStorage.removeItem("sf_draft_subject");
+      localStorage.removeItem("sf_draft_preview");
+      localStorage.removeItem("sf_draft_body");
     } catch (err: any) {
       setBroadcastStatus("error");
       setBroadcastMessage(err.message || "Failed to broadcast newsletter");
@@ -422,6 +760,44 @@ export default function AdminPage() {
     };
   }, [inquiries]);
 
+  // Weekly data velocity (last 7 days)
+  const chartData = useMemo(() => {
+    const dates = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d.toISOString().split("T")[0]; // YYYY-MM-DD
+    });
+
+    const inquiryCounts = new Array(7).fill(0);
+    const subscriberCounts = new Array(7).fill(0);
+
+    inquiries.forEach(inq => {
+      const dateStr = new Date(inq.createdAt).toISOString().split("T")[0];
+      const idx = dates.indexOf(dateStr);
+      if (idx !== -1) {
+        inquiryCounts[idx]++;
+      }
+    });
+
+    subscribers.forEach(sub => {
+      const dateStr = new Date(sub.createdAt).toISOString().split("T")[0];
+      const idx = dates.indexOf(dateStr);
+      if (idx !== -1) {
+        subscriberCounts[idx]++;
+      }
+    });
+
+    return {
+      labels: dates.map(d => {
+        const [, m, day] = d.split("-");
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return `${months[parseInt(m) - 1]} ${day}`;
+      }),
+      inquiries: inquiryCounts,
+      subscribers: subscriberCounts,
+    };
+  }, [inquiries, subscribers]);
+
   // Compute Pipeline stats
   const stats = useMemo(() => {
     let totalInquiriesCount = inquiries.length;
@@ -461,7 +837,7 @@ export default function AdminPage() {
   }, [inquiries, subscribers]);
 
   // ── Activity Feed: +1 / -1 changelog ──
-  const activityFeed = useMemo(() => {
+  const activityFeedAll = useMemo(() => {
     type FeedItem = {
       id: string;
       type: "inquiry" | "subscriber";
@@ -500,10 +876,12 @@ export default function AdminPage() {
       });
     });
 
-    // Sort by most recent first, take top 8
+    // Sort by most recent first
     items.sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime());
-    return items.slice(0, 8);
+    return items;
   }, [inquiries, subscribers]);
+
+  const activityFeed = useMemo(() => activityFeedAll.slice(0, 8), [activityFeedAll]);
 
   // Count items from last 24h
   const recentCount = useMemo(() => {
@@ -604,6 +982,17 @@ export default function AdminPage() {
                       autoFocus
                     />
                   </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span />
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      disabled={loading}
+                      className="text-[9px] text-[#a1a1aa]/80 hover:text-forge-accent uppercase font-mono tracking-widest transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-none p-0"
+                    >
+                      Forgot Key? Request Magic Link ↗
+                    </button>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div
@@ -614,9 +1003,19 @@ export default function AdminPage() {
                   transition={{ duration: 0.2 }}
                 >
                   <div className="flex justify-between items-baseline mb-2">
-                    <label className="text-[10px] uppercase tracking-widest text-forge-accent block font-bold font-mono">
-                      MFA Validation Key
-                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-[10px] uppercase tracking-widest text-forge-accent block font-bold font-mono">
+                        MFA Validation Key
+                      </label>
+                      <span className={cn(
+                        "text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border select-none",
+                        timeLeft <= 60 
+                          ? "bg-red-500/10 text-red-400 animate-pulse border-red-500/20" 
+                          : "bg-white/5 text-[#a1a1aa] border-white/10"
+                      )}>
+                        {formatTime(timeLeft)}
+                      </span>
+                    </div>
                     <button
                       type="button"
                       onClick={() => {
@@ -636,16 +1035,26 @@ export default function AdminPage() {
                       placeholder="000000"
                       value={mfaCode}
                       onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      disabled={loading}
+                      disabled={loading || timeLeft === 0}
                       maxLength={6}
                       className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-[#3e3f4a] outline-none focus:border-forge-accent/50 focus:ring-1 focus:ring-forge-accent/20 transition-all font-mono tracking-widest text-center text-lg font-bold backdrop-blur-sm"
                       autoFocus
                     />
                   </div>
-                  <p className="text-[9px] text-[#a1a1aa]/60 mt-2 font-mono text-center leading-relaxed">
-                    Code sent to {mfaEmail.replace(/^(.)(.*)(@.*)$/, (_, f, m, l) => f + "*".repeat(m.length) + l)}.<br />
-                    Expires in 10 minutes.
-                  </p>
+                  <div className="flex justify-between items-center mt-2.5">
+                    <span className="text-[9px] text-[#a1a1aa]/60 font-mono leading-tight">
+                      Code sent to {mfaEmail.replace(/^(.)(.*)(@.*)$/, (_, f, m, l) => f + "*".repeat(m.length) + l)}.<br />
+                      {timeLeft === 0 ? <span className="text-red-400 font-bold">Code expired. Please resend.</span> : "Expires in 10 minutes."}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleResendMfa}
+                      disabled={loading || timeLeft > 570} // limit to once every 30s
+                      className="text-[9px] text-[#a1a1aa] hover:text-forge-accent uppercase font-mono tracking-widest transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-none p-0 shrink-0 ml-2"
+                    >
+                      {timeLeft > 570 ? `Resend in ${timeLeft - 570}s` : "Resend Key ↗"}
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -658,6 +1067,17 @@ export default function AdminPage() {
               >
                 <AlertTriangle className="size-3.5 flex-shrink-0" />
                 <span>{error}</span>
+              </motion.div>
+            )}
+
+            {resetMessage && (
+              <motion.div 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-[11px] text-emerald-400 font-mono text-center bg-emerald-950/15 border border-emerald-900/30 py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="size-3.5 flex-shrink-0" />
+                <span>{resetMessage}</span>
               </motion.div>
             )}
 
@@ -797,6 +1217,43 @@ export default function AdminPage() {
           </GlassCard>
         </div>
 
+        {/* ── Interactive Charts Row ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <GlassCard className="p-6 flex flex-col gap-4" hover={false}>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                  Inbound Inquiries Velocity (Last 7 Days)
+                </span>
+                <span className="text-[18px] font-black text-white mt-1 block font-mono">
+                  {chartData.inquiries.reduce((a, b) => a + b, 0)} Total
+                </span>
+              </div>
+              <div className="text-[9px] font-mono text-forge-accent bg-forge-accent/[0.08] border border-forge-accent/15 px-2.5 py-0.5 rounded-full select-none">
+                TREND
+              </div>
+            </div>
+            <SparklineChart data={chartData.inquiries} labels={chartData.labels} strokeColor="#FF6A00" fillColor="url(#accentGrad)" />
+          </GlassCard>
+
+          <GlassCard className="p-6 flex flex-col gap-4" hover={false}>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
+                  Newsletter Subscriptions Velocity (Last 7 Days)
+                </span>
+                <span className="text-[18px] font-black text-white mt-1 block font-mono">
+                  {chartData.subscribers.reduce((a, b) => a + b, 0)} Total
+                </span>
+              </div>
+              <div className="text-[9px] font-mono text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/15 px-2.5 py-0.5 rounded-full select-none">
+                TREND
+              </div>
+            </div>
+            <SparklineChart data={chartData.subscribers} labels={chartData.labels} strokeColor="#10B981" fillColor="url(#emeraldGrad)" />
+          </GlassCard>
+        </div>
+
         {/* ── Activity Feed + Analytics Row ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           
@@ -807,9 +1264,17 @@ export default function AdminPage() {
                 <Activity className="size-3.5 text-forge-accent" />
                 Live Activity Feed
               </h3>
-              <span className="text-[9px] font-mono text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/15 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                LIVE
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-[9px] font-mono text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/15 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                  LIVE
+                </span>
+                <button
+                  onClick={() => setAuditLogModalOpen(true)}
+                  className="text-[9px] font-mono text-[#a1a1aa] hover:text-white uppercase tracking-wider underline decoration-white/20 hover:decoration-white transition-colors cursor-pointer"
+                >
+                  View Full History
+                </button>
+              </div>
             </div>
             
             {activityFeed.length === 0 ? (
@@ -992,14 +1457,58 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
+            {activeTab === "inquiries" && inquiries.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => exportData("inquiries", "csv")}
+                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
+                  title="Export to CSV"
+                >
+                  <FileDown className="size-3.5" />
+                  <span>CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportData("inquiries", "json")}
+                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
+                  title="Export to JSON"
+                >
+                  <FileDown className="size-3.5" />
+                  <span>JSON</span>
+                </button>
+              </>
+            )}
+
             {activeTab === "subscribers" && subscribers.length > 0 && (
-              <button
-                onClick={copyEmailsList}
-                className="h-9 px-3.5 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[11px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1.5 cursor-pointer font-mono shrink-0 shadow-sm"
-              >
-                {copiedAll ? <ClipboardCheck className="size-3.5 text-green-400 animate-bounce" /> : <Copy className="size-3.5" />}
-                <span>{copiedAll ? "Copied List!" : "Copy Email List"}</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={copyEmailsList}
+                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
+                >
+                  {copiedAll ? <ClipboardCheck className="size-3.5 text-green-400 animate-bounce" /> : <Copy className="size-3.5" />}
+                  <span>{copiedAll ? "Copied!" : "Copy List"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportData("subscribers", "csv")}
+                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
+                  title="Export to CSV"
+                >
+                  <FileDown className="size-3.5" />
+                  <span>CSV</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportData("subscribers", "json")}
+                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
+                  title="Export to JSON"
+                >
+                  <FileDown className="size-3.5" />
+                  <span>JSON</span>
+                </button>
+              </>
             )}
 
             {activeTab !== "newsletter" && (
@@ -1283,18 +1792,47 @@ export default function AdminPage() {
 
                 {/* Preview column */}
                 <div className="space-y-3">
-                  <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold px-1">
-                    Live HTML Email Mockup
-                  </h3>
-                  <div className="border border-white/[0.06] rounded-xl overflow-hidden shadow-2xl bg-[#0a0a0f] text-slate-300 font-sans text-xs">
+                  <div className="flex items-center justify-between px-1">
+                    <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold">
+                      Live HTML Email Mockup
+                    </h3>
+                    <div className="flex bg-white/[0.03] border border-white/[0.06] rounded-lg p-0.5 gap-1 font-mono text-[9px] font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewViewport("desktop")}
+                        className={cn(
+                          "px-2 py-0.5 rounded cursor-pointer transition-colors",
+                          previewViewport === "desktop" ? "bg-forge-accent text-white" : "text-[#a1a1aa] hover:text-white"
+                        )}
+                      >
+                        Desktop
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewViewport("mobile")}
+                        className={cn(
+                          "px-2 py-0.5 rounded cursor-pointer transition-colors",
+                          previewViewport === "mobile" ? "bg-forge-accent text-white" : "text-[#a1a1aa] hover:text-white"
+                        )}
+                      >
+                        Mobile
+                      </button>
+                    </div>
+                  </div>
+                  <div className="border border-white/[0.06] rounded-xl overflow-hidden shadow-2xl bg-[#0a0a0f] text-slate-300 font-sans text-xs flex flex-col items-center">
                     {/* Simulated email header bar */}
-                    <div className="bg-[#09090b] px-4 py-2 border-b border-white/[0.05] text-[10px] text-slate-500 font-mono flex items-center justify-between select-none">
+                    <div className="w-full bg-[#09090b] px-4 py-2 border-b border-white/[0.05] text-[10px] text-slate-500 font-mono flex items-center justify-between select-none">
                       <span>Sender: no-reply@stackforge.dev</span>
                       <span>Recipient: subscriber@client.com</span>
                     </div>
 
-                    <div className="p-6 bg-[#040407] min-h-[400px] flex items-center justify-center overflow-y-auto">
-                      <div className="w-full max-w-[420px] bg-[#0a0a0f] border border-white/[0.08] rounded-xl overflow-hidden">
+                    <div className="w-full p-6 bg-[#040407] min-h-[400px] flex items-center justify-center overflow-y-auto">
+                      <div 
+                        className={cn(
+                          "bg-[#0a0a0f] border border-white/[0.08] rounded-xl overflow-hidden transition-all duration-300",
+                          previewViewport === "mobile" ? "w-[320px]" : "w-full max-w-[420px]"
+                        )}
+                      >
                         <div className="bg-[#09090b] p-5 text-center border-b-4 border-forge-accent">
                           <h1 className="text-white text-lg font-black tracking-wider m-0 font-playfair">STACKFORGE</h1>
                           <p className="text-forge-accent text-[9px] font-mono tracking-wider uppercase m-1">Studio Update</p>
@@ -1617,6 +2155,144 @@ export default function AdminPage() {
                   <Trash2 className="size-3.5" />
                   <span>Purge</span>
                 </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Audit Log History Modal ── */}
+      <AnimatePresence>
+        {auditLogModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setAuditLogModalOpen(false)}
+              className="absolute inset-0 bg-[#030306]/80 backdrop-blur-md"
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="relative w-full max-w-4xl max-h-[85vh] bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-2xl border border-white/[0.08] shadow-[0_8px_60px_-12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-2xl flex flex-col overflow-hidden"
+            >
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30">
+                    <History className="size-5 text-indigo-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-black text-white font-syne tracking-widest uppercase">Full Audit Log History</h2>
+                    <p className="text-[10px] text-[#a1a1aa] font-mono mt-0.5">Chronological system events and records</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setAuditLogModalOpen(false)}
+                  className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] flex items-center justify-center text-[#a1a1aa] hover:text-white transition-all cursor-pointer"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+
+              {/* Filters & Search */}
+              <div className="px-6 py-4 border-b border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 bg-[#0a0a0f]/40">
+                <div className="flex bg-white/[0.03] p-1.5 border border-white/[0.06] rounded-xl gap-1.5 w-full sm:w-auto">
+                  {["all", "inquiry", "subscriber"].map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => setAuditLogTab(tab as any)}
+                      className={cn(
+                        "h-8 px-4 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex-1 sm:flex-none cursor-pointer",
+                        auditLogTab === tab
+                          ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm"
+                          : "text-[#a1a1aa] hover:text-white hover:bg-white/[0.04] border border-transparent"
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="relative w-full sm:w-64">
+                  <Search className="size-3.5 text-[#5e5f6a] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search logs..."
+                    value={auditLogSearch}
+                    onChange={(e) => setAuditLogSearch(e.target.value)}
+                    className="w-full h-9 bg-white/[0.03] border border-white/[0.06] rounded-xl pl-9 pr-4 text-[11px] text-white placeholder-[#5e5f6a] outline-none focus:border-indigo-500/30 transition-all font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Log List */}
+              <div className="flex-1 overflow-y-auto p-2">
+                <div className="w-full text-left border-collapse">
+                  {activityFeedAll
+                    .filter(item => auditLogTab === "all" || item.type === auditLogTab)
+                    .filter(item => 
+                      item.label.toLowerCase().includes(auditLogSearch.toLowerCase()) || 
+                      item.sublabel.toLowerCase().includes(auditLogSearch.toLowerCase())
+                    )
+                    .map((item, idx) => (
+                    <div key={`${item.id}-${idx}`} className="flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-white/[0.02] transition-colors border-b border-white/[0.02] last:border-0 group/feed">
+                      <div className={cn(
+                        "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 font-mono text-xs font-black border backdrop-blur-sm",
+                        item.action === "+1"
+                          ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
+                          : "bg-red-500/[0.08] border-red-500/20 text-red-400"
+                      )}>
+                        {item.action}
+                      </div>
+
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border backdrop-blur-sm",
+                        item.type === "inquiry"
+                          ? "bg-forge-accent/[0.06] border-forge-accent/15"
+                          : "bg-indigo-500/[0.06] border-indigo-500/15"
+                      )}>
+                        {item.type === "inquiry" 
+                          ? <MessageSquarePlus className="size-4 text-forge-accent" />
+                          : <UserPlus className="size-4 text-indigo-400" />
+                        }
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white truncate font-syne leading-tight group-hover/feed:text-indigo-300 transition-colors">
+                          {item.label}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] text-[#a1a1aa] font-mono truncate">
+                            {item.sublabel}
+                          </span>
+                          <span className="w-1 h-1 rounded-full bg-white/10" />
+                          <span className="text-[10px] text-[#5e5f6a] font-mono uppercase tracking-wider">
+                            {item.type}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <p className="text-[10px] text-white/70 font-mono">
+                          {item.rawDate.toLocaleDateString()}
+                        </p>
+                        <p className="text-[9px] text-[#5e5f6a] font-mono mt-0.5">
+                          {item.rawDate.toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {activityFeedAll.filter(item => auditLogTab === "all" || item.type === auditLogTab).filter(item => item.label.toLowerCase().includes(auditLogSearch.toLowerCase()) || item.sublabel.toLowerCase().includes(auditLogSearch.toLowerCase())).length === 0 && (
+                    <div className="p-12 text-center text-[#5e5f6a]">
+                      <History className="size-8 mx-auto mb-3 opacity-30" />
+                      <p className="text-xs font-mono uppercase tracking-wider">No logs found.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>

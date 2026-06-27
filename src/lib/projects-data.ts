@@ -85,4 +85,25 @@ export const projects: CaseStudy[] = [
     link: "https://noir-salon-dauqra9aq-akshitha-s-projects4.vercel.app/",
     slug: "noir-salon",
   },
+  {
+    title: "Haluwa Restaurant",
+    subtitle: "Hospitality · Authentic Culinary Experience",
+    description:
+      "A rich, immersive web application for a premier authentic dining restaurant, featuring dynamic digital menus, table reservation workflows, and culinary showcases.",
+    tags: ["React", "Next.js", "Tailwind", "Motion", "Arcada"],
+    image: "/work/dinefine-restaurant.png",
+    metric: "3.4×",
+    metricLabel: "table reservation boost",
+    challenge:
+      "Haluwa Restaurant required a distinct, appetite-inducing online experience that communicated their traditional culinary roots while modernizing their digital reservation system for high-volume dining hours.",
+    solution:
+      "We built a high-performance web experience showcasing rich food photography, interactive categorized digital menus with allergen filtering, and a seamless online table booking flow integrated directly with their front-of-house management.",
+    results:
+      "Increased weekend table reservations by 3.4× and boosted customer engagement through interactive menu previews before dining.",
+    testimonial:
+      "The web experience captured our culinary passion perfectly. Our reservations have reached record highs since launch.",
+    testimonialAuthor: "Master Chef & Manager, Haluwa Restaurant",
+    link: "https://haluwa-restaurant-pjji.arcada.app/",
+    slug: "haluwa-restaurant",
+  },
 ];

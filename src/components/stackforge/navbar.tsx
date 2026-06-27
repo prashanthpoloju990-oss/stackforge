@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { useScrollPosition } from "@/hooks/use-scroll-position";
@@ -67,8 +68,37 @@ const NAV_LINKS = [
 export function Navbar() {
   const { scrolled } = useScrollPosition();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isFormFilling, setIsFormFilling] = useState(false);
+  const pathname = usePathname();
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")) {
+        setIsFormFilling(true);
+      }
+    };
+
+    const handleFocusOut = () => {
+      setTimeout(() => {
+        const active = document.activeElement as HTMLElement | null;
+        if (!active || !(active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT")) {
+          setIsFormFilling(false);
+        }
+      }, 100);
+    };
+
+    window.addEventListener("focusin", handleFocusIn);
+    window.addEventListener("focusout", handleFocusOut);
+    return () => {
+      window.removeEventListener("focusin", handleFocusIn);
+      window.removeEventListener("focusout", handleFocusOut);
+    };
+  }, []);
+
+  const hideGetInTouch = pathname === "/start-project" || isFormFilling;
 
   const closeMenu = useCallback(() => {
     setMobileOpen(false);
@@ -215,22 +245,31 @@ export function Navbar() {
           )}
         >
           <ThemeToggle />
-          <MagneticWrapper>
-            <BlobButton
-              asChild
-              variant="popular"
-              className={cn(
-                "btn-primary inline-flex items-center justify-center bg-forge-accent text-white font-semibold uppercase rounded-md transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
-                isFloating
-                  ? "h-9 px-4 text-[10px] tracking-wider"
-                  : "h-fluid-btn-sm px-5 text-fluid-btn"
-              )}
-            >
-              <Link href="/start-project">
-                Get in Touch
-              </Link>
-            </BlobButton>
-          </MagneticWrapper>
+          <div
+            className={cn(
+              "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden flex items-center justify-center",
+              hideGetInTouch
+                ? "max-w-0 opacity-0 scale-95 pointer-events-none -mr-2"
+                : "max-w-[170px] opacity-100 scale-100"
+            )}
+          >
+            <MagneticWrapper>
+              <BlobButton
+                asChild
+                variant="popular"
+                className={cn(
+                  "btn-primary inline-flex items-center justify-center bg-forge-accent text-white font-semibold uppercase rounded-md transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] whitespace-nowrap",
+                  isFloating
+                    ? "h-9 px-4 text-[10px] tracking-wider"
+                    : "h-fluid-btn-sm px-5 text-fluid-btn"
+                )}
+              >
+                <Link href="/start-project">
+                  Get in Touch
+                </Link>
+              </BlobButton>
+            </MagneticWrapper>
+          </div>
         </div>
 
         {/* Mobile Actions Capsule */}

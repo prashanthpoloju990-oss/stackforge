@@ -71,7 +71,7 @@ By leveraging Next.js 15, StackForge helps startups ship scalable web platforms 
     slug: "maximizing-conversion-the-psychology-of-micro-interactions",
     date: "May 28, 2026",
     readTime: "4 min read",
-    author: "Varshith, Lead Designer",
+    author: "Akshitha, UI/UX Developer",
     category: "Design System",
     tags: ["UI/UX Design", "Micro-interactions", "CRO", "Framer Motion"],
     excerpt: "How subtle, liquid gooey animations and magnetic buttons can increase checkout completion rates by up to 30%.",

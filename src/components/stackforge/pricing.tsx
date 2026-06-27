@@ -25,7 +25,7 @@ const tiers: PricingTier[] = [
   {
     name: "Growth Pack",
     icon: <Zap className="w-6 h-6" />,
-    price: "₹2,999",
+    price: "₹3,999",
     priceNote: "starting at",
     description: "Custom design, backend integration, and scalable features.",
     colorClass: "text-forge-accent",
