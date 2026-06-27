@@ -57,7 +57,6 @@ const linkVariants = {
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Work", href: "/#work" },
-  { label: "Process", href: "/#process" },
   { label: "About", href: "/#about" },
   { label: "Pricing", href: "/#pricing" },
   { label: "FAQ", href: "/#faq" },

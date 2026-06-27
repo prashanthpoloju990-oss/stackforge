@@ -232,56 +232,43 @@ interface TeamMember {
 function TeamMemberCard({ member }: { member: TeamMember }) {
   return (
     <div
-      className="profile-card group relative block overflow-hidden rounded-2xl border border-forge-divider bg-forge-surface/30 transition-all duration-300 hover:border-forge-accent/50 hover:shadow-[0_8px_30px_rgba(255,106,0,0.15)]"
+      className="profile-card block"
       aria-label={`${member.name} - ${member.role}`}
     >
-      <div className="card-image-wrap relative w-full h-[64%] overflow-hidden rounded-xl">
+      <div className="card-image-wrap">
         <Image
           src={member.avatar}
           alt={member.name}
           width={280}
           height={420}
           className={cn(
-            "w-full h-full object-cover object-[50%_12%] transition-transform duration-500 group-hover:scale-105",
+            "transition-all duration-500",
             member.name.includes("Prashanth") ? "prashanth-avatar" : ""
           )}
           loading="lazy"
         />
-        {/* Liquid Glass Hover Overlay — Role Details & Bio */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-[6px] p-3.5 flex flex-col justify-end text-white z-10 select-none pointer-events-none">
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-forge-accent/25 border border-forge-accent/40 text-[9px] font-mono uppercase tracking-widest text-forge-accent font-bold w-fit mb-1.5 shadow-sm">
-            <span className="w-1 h-1 rounded-full bg-forge-accent animate-ping" />
-            <span>Role & Impact</span>
-          </div>
-          <p className="text-[10.5px] font-sans leading-relaxed text-slate-200 font-medium line-clamp-4">
-            {member.bio}
-          </p>
-        </div>
       </div>
-
-      <section className="p-3 flex flex-col flex-1 justify-between">
-        <div>
-          <div className="flex items-center gap-1.5 select-none">
-            <h3 className="text-[14px] font-bold text-forge-text font-syne truncate">{member.name}</h3>
-            {member.verified && (
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E] fill-[#22C55E]/10 shrink-0" />
-            )}
-          </div>
-          <p className="text-[10.5px] font-bold uppercase tracking-wider text-forge-accent mt-0.5 truncate">{member.role}</p>
+      <section>
+        <div className="flex items-center gap-1 select-none">
+          <h2>{member.name}</h2>
+          {member.verified && (
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#22C55E] fill-[#22C55E]/10 shrink-0" />
+          )}
         </div>
-
-        {/* Liquid Glass Connect Button */}
+        <p className="role">{member.role}</p>
+        <p className="bio">{member.bio}</p>
+        {/* Liquid Glass Follow Button — visible when NOT hovered */}
         <a
           href={member.link}
           target="_blank"
           rel="noopener noreferrer"
-          className="follow-btn-glass mt-2"
+          className="follow-btn-glass"
           onClick={(e) => e.stopPropagation()}
         >
           <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
           </svg>
-          <span>Connect</span>
+          <span>Follow</span>
           <ExternalLink className="w-2.5 h-2.5 opacity-50" />
         </a>
       </section>

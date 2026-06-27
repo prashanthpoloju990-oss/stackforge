@@ -167,7 +167,7 @@ const FIELDS: FieldConfig[] = [
     required: true,
     icon: DollarSign,
     type: "select",
-    options: ["Under ₹2,500", "₹2,500 – ₹5,000", "₹5,000 – ₹15,000", "₹15,000 – ₹50,000", "₹50,000+"],
+    options: ["Under ₹3,000", "₹3,000 – ₹5,000", "₹5,000 – ₹15,000", "₹15,000 – ₹50,000", "₹50,000+"],
     validate: (v) => {
       if (!v) return "Please select a budget range";
       return undefined;

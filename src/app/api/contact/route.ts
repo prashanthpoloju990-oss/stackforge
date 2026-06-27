@@ -32,8 +32,8 @@ const VALID_SERVICES = [
 ];
 
 const VALID_BUDGETS = [
-  "Under ₹2,500",
-  "₹2,500 – ₹5,000",
+  "Under ₹3,000",
+  "₹3,000 – ₹5,000",
   "₹5,000 – ₹15,000",
   "₹15,000 – ₹50,000",
   "₹50,000+",
@@ -161,11 +161,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Format contact exactly as it was stored in OTP generation
+    const isEmail = otpEmail.includes("@");
+    const formattedOtpEmail = isEmail ? otpEmail.trim().toLowerCase() : otpEmail.replace(/\D/g, "");
+
     // Verify OTP in Supabase
     const { data: verifyRecord, error: verifyErr } = await supabase
       .from("OtpVerification")
       .select("*")
-      .eq("email", otpEmail.trim().toLowerCase())
+      .eq("email", formattedOtpEmail)
       .single();
 
     if (verifyErr || !verifyRecord) {
@@ -193,7 +197,7 @@ export async function POST(request: NextRequest) {
     await supabase
       .from("OtpVerification")
       .delete()
-      .eq("email", otpEmail.trim().toLowerCase());
+      .eq("email", formattedOtpEmail);
 
     /* ── Required field checks ── */
     const missing: string[] = [];

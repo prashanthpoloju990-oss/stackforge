@@ -46,7 +46,7 @@ export default function Home() {
         <div className="section-contained"><About /></div>
         <div className="section-contained"><TechStack /></div>
         <SectionDivider />
-        <div id="pricing-container" className="section-contained"><LazyPricing /></div>
+        <div id="pricing" className="section-contained"><LazyPricing /></div>
         <div className="section-contained"><LazyCtaBanner /></div>
         <SectionDivider />
         <div className="section-contained"><FAQ /></div>

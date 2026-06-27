@@ -112,22 +112,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email } = await request.json();
+    const { email, contact } = await request.json();
+    const targetContact = (contact || email || "").trim();
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    if (!targetContact || typeof targetContact !== "string") {
+      return NextResponse.json({ error: "Contact (email or phone) is required" }, { status: 400 });
     }
 
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) {
+    const isEmail = targetContact.includes("@");
+    const formattedContact = isEmail ? targetContact.toLowerCase() : targetContact.replace(/\D/g, "");
+
+    if (isEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formattedContact)) {
       return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
     }
+    if (!isEmail && formattedContact.length < 10) {
+      return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
+    }
 
-    // ── Email-Based Rate Limiting ──
-    const isEmailAllowed = await checkRateLimit(`email:otp-request:${trimmedEmail}`, 3, 10 * 60 * 1000); // 3 requests per 10 minutes
-    if (!isEmailAllowed) {
+    // ── Email/Phone-Based Rate Limiting ──
+    const isContactAllowed = await checkRateLimit(`contact:otp-request:${formattedContact}`, 3, 10 * 60 * 1000); // 3 requests per 10 minutes
+    if (!isContactAllowed) {
       return NextResponse.json(
-        { error: "Too many verification requests for this email. Please try again in 10 minutes." },
+        { error: "Too many verification requests for this contact. Please try again in 10 minutes." },
         { status: 429 }
       );
     }
@@ -137,17 +143,16 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
     // 2. Save OTP to Supabase
-    // Delete any old OTPs for this email first
     await supabase
       .from("OtpVerification")
       .delete()
-      .eq("email", trimmedEmail);
+      .eq("email", formattedContact); // We reuse the 'email' column to store the contact for simplicity
 
     const { error: dbErr } = await supabase
       .from("OtpVerification")
       .insert([
         {
-          email: trimmedEmail,
+          email: formattedContact,
           code: otpCode,
           expiresAt: expiresAt.toISOString(),
         },
@@ -158,28 +163,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Database error saving validation key" }, { status: 500 });
     }
 
-    // 3. Pick random template and send
-    const template = OTP_TEMPLATES[Math.floor(Math.random() * OTP_TEMPLATES.length)];
+    // 3. Send OTP
+    if (isEmail) {
+      const template = OTP_TEMPLATES[Math.floor(Math.random() * OTP_TEMPLATES.length)];
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+      await transporter.sendMail({
+        from: `"StackForge Studio" <${process.env.SMTP_USER}>`,
+        to: formattedContact,
+        subject: template.subject,
+        html: buildHtml(template, otpCode),
+        text: `StackForge Verification Code: ${otpCode}. Code expires in 10 minutes.`,
+        headers: {
+          "Precedence": "list",
+          "X-Auto-Response-Suppress": "All",
+        },
+      });
+    } else {
+      // Send via SMS using Seven.io API
+      const sevenApiKey = process.env.SEVEN_API_KEY;
+      if (!sevenApiKey) {
+        throw new Error("SEVEN_API_KEY is not configured in environment variables.");
+      }
+      
+      const phoneWithCountryCode = formattedContact.startsWith("91") && formattedContact.length === 12 
+        ? formattedContact
+        : formattedContact.length === 10 ? `91${formattedContact}` : formattedContact;
 
-    await transporter.sendMail({
-      from: `"StackForge Studio" <${process.env.SMTP_USER}>`,
-      to: trimmedEmail,
-      subject: template.subject,
-      html: buildHtml(template, otpCode),
-      text: `StackForge Verification Code: ${otpCode}. Code expires in 10 minutes.`,
-      headers: {
-        "Precedence": "list",
-        "X-Auto-Response-Suppress": "All",
-      },
-    });
+      const params = new URLSearchParams();
+      params.append("to", phoneWithCountryCode);
+      params.append("text", `Your StackForge verification code is: ${otpCode}. It expires in 10 minutes.`);
+      params.append("from", "StackForge");
+
+      const smsResponse = await fetch("https://gateway.seven.io/api/sms", {
+        method: "POST",
+        headers: {
+          "X-Api-Key": sevenApiKey,
+          "Accept": "application/json"
+        },
+        body: params
+      });
+
+      if (!smsResponse.ok) {
+        const errData = await smsResponse.text();
+        console.error("[OTP-SMS] Seven.io SMS failed:", errData);
+        throw new Error("Failed to send SMS via Seven.io.");
+      }
+    }
 
     return NextResponse.json({ success: true, message: "OTP sent successfully" });
   } catch (error) {

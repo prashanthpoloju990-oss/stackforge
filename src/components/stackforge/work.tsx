@@ -10,7 +10,7 @@ import { projects } from "@/lib/projects-data";
 import { motion, AnimatePresence } from "motion/react";
 
 const STATS = [
-  { value: 50, suffix: "+", label: "Projects Shipped" },
+  { value: 10, suffix: "+", label: "Projects Shipped" },
   { value: 98, suffix: "%", label: "Client Satisfaction" },
   { value: 3.2, suffix: "\u00d7", label: "Avg. Conversion Lift" },
   { value: 6, suffix: "wks", label: "Avg. Delivery Time" },
