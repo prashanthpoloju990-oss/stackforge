@@ -2,48 +2,69 @@
 
 import { cn } from "@/lib/utils";
 import { useScrollPosition } from "@/hooks/use-scroll-position";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { MagneticWrapper } from "@/components/ui/magnetic-button";
 import { BlobButton } from "@/components/ui/blob-button";
 
-
 export function StickyCta() {
   const { scrollY } = useScrollPosition();
   const router = useRouter();
+  const pathname = usePathname();
   const [pricingReached, setPricingReached] = useState(false);
 
-
   useEffect(() => {
-    const el = document.getElementById("pricing-container");
-    if (!el) return;
+    let observer: IntersectionObserver | null = null;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setPricingReached(
-          entry.isIntersecting || entry.boundingClientRect.top <= window.innerHeight - 100
-        );
-      },
-      {
-        root: null,
-        rootMargin: "0px",
-        threshold: 0,
-      }
-    );
+    const setupObserver = () => {
+      const el = document.getElementById("pricing");
+      if (!el) return false;
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+      if (observer) observer.disconnect();
 
-  const visible = scrollY > 150 && !pricingReached;
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          // Hide when pricing section is near, in view, or scrolled past
+          setPricingReached(
+            entry.isIntersecting || entry.boundingClientRect.top <= window.innerHeight - 50
+          );
+        },
+        {
+          root: null,
+          rootMargin: "100px 0px",
+          threshold: 0,
+        }
+      );
+
+      observer.observe(el);
+      return true;
+    };
+
+    if (!setupObserver()) {
+      // Retry in case LazyPricing takes a moment to mount
+      const timer = setInterval(() => {
+        if (setupObserver()) clearInterval(timer);
+      }, 300);
+      return () => clearInterval(timer);
+    }
+
+    return () => {
+      if (observer) observer.disconnect();
+    };
+  }, [pathname]);
+
+  // Hide on the start-project page itself
+  if (pathname === "/start-project") return null;
+
+  const visible = scrollY > 250 && !pricingReached;
 
   return (
     <div
       className={cn(
-        "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-40 transition-all duration-300 pointer-events-none contain-layout",
+        "fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 z-40 transition-all duration-500 ease-out pointer-events-none contain-layout",
         visible
-          ? "opacity-100 translate-y-0 pointer-events-auto"
-          : "opacity-0 translate-y-4"
+          ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+          : "opacity-0 translate-y-6 scale-95"
       )}
     >
       <MagneticWrapper>

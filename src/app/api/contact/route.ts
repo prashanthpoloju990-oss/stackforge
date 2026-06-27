@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 }
       );
-
+    }
 
     /* ── Required field checks ── */
     const missing: string[] = [];
@@ -487,7 +487,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Contact submission error:", error);
     return NextResponse.json(
       { error: "Something went wrong. Please try again.", details: error?.message, stack: error?.stack },

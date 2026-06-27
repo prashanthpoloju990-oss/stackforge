@@ -6,6 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
+        disallow: ["/admin/", "/portal/", "/api/"],
       },
     ],
     sitemap: "https://stackforge.dev/sitemap.xml",
