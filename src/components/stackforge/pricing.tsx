@@ -58,36 +58,16 @@ const tiers: PricingTier[] = [
 ];
 
 function BookACallWidget() {
-  const [stage, setStage] = useState<"phone" | "otp" | "confirmed">("phone");
+  const [stage, setStage] = useState<"phone" | "confirmed">("phone");
   const [contact, setContact] = useState("");
-  const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleRequestOtp = async (e: React.FormEvent) => {
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!contact.trim() || loading) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contact: contact.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to send verification key");
-      setStage("otp");
-    } catch (err: any) {
-      setStage("otp");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otpCode.trim() || loading) return;
     setLoading(true);
     setError(null);
     try {
@@ -102,8 +82,6 @@ function BookACallWidget() {
           budget: "Flexible",
           timeline: "Urgent (1–3 days)",
           details: `Client requested an urgent discovery call. Contact phone/email: ${contact}`,
-          otpCode: otpCode.trim(),
-          otpEmail: contact.trim(),
         }),
       });
       
@@ -115,7 +93,7 @@ function BookACallWidget() {
       
       setStage("confirmed");
     } catch (err: any) {
-      setError(err.message || "Failed to verify code.");
+      setError(err.message || "Failed to request call.");
     } finally {
       setLoading(false);
     }
@@ -147,7 +125,7 @@ function BookACallWidget() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                onSubmit={handleRequestOtp}
+                onSubmit={handleSubmit}
                 className="space-y-4"
               >
                 <div>
@@ -184,52 +162,7 @@ function BookACallWidget() {
               </motion.form>
             )}
 
-            {stage === "otp" && (
-              <motion.form
-                key="otp"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                onSubmit={handleVerifyOtp}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="text-[11px] uppercase font-mono tracking-wider text-forge-accent font-bold block mb-2">
-                    6-Digit Verification Key
-                  </label>
-                  <div className="relative">
-                    <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-forge-text-secondary/50" />
-                    <input
-                      type="text"
-                      required
-                      maxLength={6}
-                      placeholder="123456"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
-                      className="w-full bg-forge-surface/50 border border-forge-divider rounded-xl pl-10 pr-4 py-3 text-sm text-forge-text placeholder:text-forge-text-secondary/40 outline-none focus:border-forge-accent focus:ring-1 focus:ring-forge-accent transition-all font-mono tracking-widest"
-                    />
-                  </div>
-                  <p className="text-[10px] text-forge-text-secondary/60 mt-1.5 font-mono">
-                    Sent to <strong className="text-forge-text">{contact}</strong>
-                  </p>
-                </div>
-                {error && <p className="text-xs text-red-500 font-mono text-center">{error}</p>}
-                <button
-                  type="submit"
-                  disabled={loading || otpCode.length !== 6}
-                  className="w-full h-11 bg-forge-accent hover:bg-forge-accent-hover text-white font-mono text-xs uppercase tracking-wider font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-forge-accent/20 cursor-pointer disabled:opacity-50"
-                >
-                  {loading ? (
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <span>Verify & Confirm Call</span>
-                      <CheckCircle2 className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </motion.form>
-            )}
+
 
             {stage === "confirmed" && (
               <motion.div

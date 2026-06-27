@@ -151,57 +151,7 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 }
       );
-    }
 
-    /* ── OTP Verification ── */
-    if (!otpCode || !otpEmail) {
-      return NextResponse.json(
-        { error: "Verification key is missing. Please request a verification code." },
-        { status: 400 }
-      );
-    }
-
-    const otpEmailStr = String(otpEmail);
-    const isEmail = otpEmailStr.includes("@");
-    const formattedOtpEmail = isEmail ? otpEmailStr.trim().toLowerCase() : otpEmailStr.replace(/\D/g, "");
-
-    // Verify OTP in Supabase
-    const { data: verifyRecord, error: verifyErr } = await supabase
-      .from("OtpVerification")
-      .select("*")
-      .eq("email", formattedOtpEmail)
-      .single();
-
-    if (verifyErr || !verifyRecord) {
-      return NextResponse.json(
-        { error: "Verification code not found. Please request a new one." },
-        { status: 400 }
-      );
-    }
-
-    if (new Date() > new Date(verifyRecord.expiresAt)) {
-      return NextResponse.json(
-        { error: "Verification code has expired. Please request a new one." },
-        { status: 400 }
-      );
-    }
-
-    if (String(verifyRecord.code).trim() !== String(otpCode).trim()) {
-      return NextResponse.json(
-        { error: "Incorrect verification code. Please check your inbox and try again." },
-        { status: 400 }
-      );
-    }
-
-    // Delete verified OTP to prevent replay attacks
-    try {
-      await supabase
-        .from("OtpVerification")
-        .delete()
-        .eq("email", formattedOtpEmail);
-    } catch (e) {
-      console.warn("Failed to delete OTP, but continuing:", e);
-    }
 
     /* ── Required field checks ── */
     const missing: string[] = [];
