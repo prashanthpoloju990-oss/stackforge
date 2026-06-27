@@ -29,6 +29,7 @@ const VALID_SERVICES = [
   "UI/UX Design",
   "Full Stack App",
   "Not sure yet",
+  "Book a Discovery Call",
 ];
 
 const VALID_BUDGETS = [
@@ -37,6 +38,7 @@ const VALID_BUDGETS = [
   "₹5,000 – ₹15,000",
   "₹15,000 – ₹50,000",
   "₹50,000+",
+  "Flexible",
 ];
 
 const VALID_TIMELINES = [
@@ -161,9 +163,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Format contact exactly as it was stored in OTP generation
-    const isEmail = otpEmail.includes("@");
-    const formattedOtpEmail = isEmail ? otpEmail.trim().toLowerCase() : otpEmail.replace(/\D/g, "");
+    const otpEmailStr = String(otpEmail);
+    const isEmail = otpEmailStr.includes("@");
+    const formattedOtpEmail = isEmail ? otpEmailStr.trim().toLowerCase() : otpEmailStr.replace(/\D/g, "");
 
     // Verify OTP in Supabase
     const { data: verifyRecord, error: verifyErr } = await supabase
