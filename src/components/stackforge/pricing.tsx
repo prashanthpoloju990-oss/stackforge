@@ -109,7 +109,8 @@ function BookACallWidget() {
       
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Invalid verification code.");
+        const errorMsg = data.details ? `${data.error} - ${data.details}` : (data.error || "Invalid verification code.");
+        throw new Error(errorMsg);
       }
       
       setStage("confirmed");
