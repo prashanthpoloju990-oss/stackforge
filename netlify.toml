@@ -1,6 +1,5 @@
 [build]
-  command = "npm run build:netlify"
-  publish = ".next"
+  command = "next build"
 
 [build.environment]
   NODE_VERSION = "20"
