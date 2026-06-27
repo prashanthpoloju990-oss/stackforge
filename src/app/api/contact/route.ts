@@ -404,6 +404,9 @@ export async function POST(request: NextRequest) {
 
     let submissionId = "inquiry_" + Math.random().toString(36).substring(2, 9);
     try {
+      const dbService = sanitizedService === "Book a Discovery Call" ? "Not sure yet" : sanitizedService;
+      const dbBudget = sanitizedBudget === "Flexible" ? "Under ₹3,000" : sanitizedBudget;
+
       const { data: newSubmission, error: supabaseErr } = await supabase
         .from("ContactSubmission")
         .insert([
@@ -412,8 +415,8 @@ export async function POST(request: NextRequest) {
             name: sanitizedName,
             contact: sanitizedContact,
             businessType: sanitizedBT,
-            serviceNeed: sanitizedService,
-            budget: sanitizedBudget,
+            serviceNeed: dbService,
+            budget: dbBudget,
             timeline: sanitizedTimeline,
             details: sanitizedDetails,
             attachments: attachmentsJson,

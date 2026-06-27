@@ -212,6 +212,7 @@ function BookACallWidget() {
                     Sent to <strong className="text-forge-text">{contact}</strong>
                   </p>
                 </div>
+                {error && <p className="text-xs text-red-500 font-mono text-center">{error}</p>}
                 <button
                   type="submit"
                   disabled={loading || otpCode.length !== 6}
