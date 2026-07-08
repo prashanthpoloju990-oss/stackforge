@@ -8,9 +8,9 @@ import { randomInt, randomBytes } from "crypto";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 function getJwtSecret(): Uint8Array {
-  const secret = process.env.SUPABASE_SECRET_KEY;
+  const secret = process.env.JWT_SECRET || process.env.SUPABASE_SECRET_KEY;
   if (!secret) {
-    throw new Error("SUPABASE_SECRET_KEY is missing");
+    throw new Error("JWT_SECRET or SUPABASE_SECRET_KEY is missing");
   }
   return new TextEncoder().encode(secret);
 }
@@ -385,6 +385,29 @@ export async function POST(req: NextRequest) {
 
       if (password !== ADMIN_PASSWORD) {
         return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+      }
+
+      // Local development bypass: log in directly without MFA
+      const requestUrl = new URL(req.url);
+      const isDev = process.env.NODE_ENV === "development" || requestUrl.hostname === "localhost" || requestUrl.hostname === "127.0.0.1";
+      if (isDev) {
+        console.log("[SECURITY] Development environment detected: bypassing MFA for Admin login.");
+        
+        const token = await new SignJWT({ role: "admin" })
+          .setProtectedHeader({ alg: "HS256" })
+          .setIssuedAt()
+          .setExpirationTime("24h")
+          .sign(getJwtSecret());
+
+        cookieStore.set("admin_session", token, {
+          path: "/",
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 86400, // 1 day
+        });
+
+        return NextResponse.json({ success: true, mfaRequired: false, message: "Authenticated successfully (MFA Bypassed in Dev)" });
       }
 
       // Generate secure 6-digit numeric OTP

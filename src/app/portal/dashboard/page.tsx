@@ -18,6 +18,7 @@ import {
   ClipboardList
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabaseClient } from "@/lib/supabase-client";
 
 interface Project {
   id: string;
@@ -88,11 +89,51 @@ export default function ClientDashboardPage() {
       setLoading(false);
     }
   }
-
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardData();
   }, []);
+
+  // Subscribe to real-time changes
+  useEffect(() => {
+    if (!clientEmail) return;
+
+    const channel = supabaseClient
+      .channel("portal-db-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ContactSubmission" },
+        (payload) => {
+          console.log("[REALTIME-PORTAL] ContactSubmission event received:", payload);
+          if (payload.eventType === "UPDATE") {
+            const updatedProject = payload.new as Project;
+            if (updatedProject.contact && updatedProject.contact.toLowerCase() === clientEmail.toLowerCase()) {
+              setProjects((prev) =>
+                prev.map((p) => (p.id === updatedProject.id ? { ...p, ...updatedProject } : p))
+              );
+            }
+          } else if (payload.eventType === "INSERT") {
+            const newProject = payload.new as Project;
+            if (newProject.contact && newProject.contact.toLowerCase() === clientEmail.toLowerCase()) {
+              setProjects((prev) => {
+                if (prev.some((p) => p.id === newProject.id)) return prev;
+                return [...prev, newProject];
+              });
+              setSelectedProjectId((prev) => prev || newProject.id);
+            }
+          } else if (payload.eventType === "DELETE") {
+            const deletedId = (payload.old as any).id;
+            setProjects((prev) => prev.filter((p) => p.id !== deletedId));
+            setSelectedProjectId((prev) => (prev === deletedId ? null : prev));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [clientEmail]);
 
   const handleLogout = async () => {
     try {
@@ -104,7 +145,7 @@ export default function ClientDashboardPage() {
   };
 
   const selectedProject = projects.find(p => p.id === selectedProjectId) || null;
-  const statusIndex = selectedProject ? getStatusIndex(selectedProject.status) : -1;
+  const statusIndex = selectedProject ? getStatusIndex(selectedProject.status || "pending") : -1;
 
   const parseAttachments = (attachmentsStr: string | null) => {
     if (!attachmentsStr) return [];
@@ -218,13 +259,13 @@ export default function ClientDashboardPage() {
                       <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
                         <span className={cn(
                           "w-1.5 h-1.5 rounded-full",
-                          project.status === "completed" ? "bg-green-500" :
-                          project.status === "development" ? "bg-orange-500" :
-                          project.status === "design" ? "bg-purple-500" : "bg-slate-500"
+                          (project.status || "pending") === "completed" ? "bg-green-500" :
+                          (project.status || "pending") === "development" ? "bg-orange-500" :
+                          (project.status || "pending") === "design" ? "bg-purple-500" : "bg-slate-500"
                         )} />
-                        <span className="capitalize">{project.status === "pending" ? "Inquiry Review" : project.status}</span>
+                        <span className="capitalize">{(project.status || "pending") === "pending" ? "Inquiry Review" : (project.status || "pending")}</span>
                         <span className="opacity-30">|</span>
-                        <span>{project.progress}%</span>
+                        <span>{project.progress || 0}%</span>
                       </div>
                     </button>
                   );
@@ -251,7 +292,7 @@ export default function ClientDashboardPage() {
                     </div>
 
                     {/* ── Visual Pipeline ── */}
-                    {selectedProject.status === "archived" ? (
+                    {(selectedProject.status || "pending") === "archived" ? (
                       <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-center font-mono text-slate-400 text-xs">
                         This project record has been archived by the administrator.
                       </div>
@@ -328,12 +369,12 @@ export default function ClientDashboardPage() {
                     <div className="mt-8 pt-6 border-t border-white/[0.05]">
                       <div className="flex justify-between items-center mb-2 select-none">
                         <span className="text-xs font-mono text-slate-400">Task Completion Weight</span>
-                        <span className="text-sm font-black font-mono text-forge-accent">{selectedProject.progress}%</span>
+                        <span className="text-sm font-black font-mono text-forge-accent">{selectedProject.progress || 0}%</span>
                       </div>
                       <div className="w-full h-2.5 bg-white/[0.04] rounded-full overflow-hidden border border-white/[0.06] p-[2px]">
                         <motion.div 
                           initial={{ width: 0 }}
-                          animate={{ width: `${selectedProject.progress}%` }}
+                          animate={{ width: `${selectedProject.progress || 0}%` }}
                           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                           className="h-full rounded-full bg-forge-accent shadow-[0_0_8px_#ff6a00]"
                         />

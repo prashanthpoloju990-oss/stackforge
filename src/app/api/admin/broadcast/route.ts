@@ -5,9 +5,9 @@ import { jwtVerify } from "jose";
 import nodemailer from "nodemailer";
 
 function getJwtSecret(): Uint8Array {
-  const secret = process.env.SUPABASE_SECRET_KEY;
+  const secret = process.env.JWT_SECRET || process.env.SUPABASE_SECRET_KEY;
   if (!secret) {
-    throw new Error("SUPABASE_SECRET_KEY is missing");
+    throw new Error("JWT_SECRET or SUPABASE_SECRET_KEY is missing");
   }
   return new TextEncoder().encode(secret);
 }

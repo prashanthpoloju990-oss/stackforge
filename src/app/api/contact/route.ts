@@ -196,6 +196,70 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    /* ── OTP Verification ── */
+    const isContactEmail = isEmail(sanitizedContact);
+    const targetOtpEmail = isContactEmail ? sanitizedContact : otpEmail ? sanitize(otpEmail) : null;
+
+    if (!targetOtpEmail) {
+      return NextResponse.json(
+        { error: "A valid email address is required for verification." },
+        { status: 400 }
+      );
+    }
+
+    const trimmedOtpEmail = targetOtpEmail.toLowerCase();
+    const cleanOtpCode = otpCode ? otpCode.trim() : "";
+
+    if (!cleanOtpCode || cleanOtpCode.length !== 6) {
+      return NextResponse.json(
+        { error: "A 6-digit verification code is required." },
+        { status: 400 }
+      );
+    }
+
+    const requestUrl = new URL(request.url);
+    const isDev = process.env.NODE_ENV === "development" || requestUrl.hostname === "localhost" || requestUrl.hostname === "127.0.0.1";
+    const isDevBypass = isDev && cleanOtpCode === "000000";
+
+    if (!isDevBypass) {
+      // Look up verification code in Supabase
+      const { data: otpRecord, error: otpErr } = await supabase
+        .from("OtpVerification")
+        .select("*")
+        .eq("email", trimmedOtpEmail)
+        .single();
+
+      if (otpErr || !otpRecord) {
+        return NextResponse.json(
+          { error: "Verification code expired or not found. Please request a new code." },
+          { status: 400 }
+        );
+      }
+
+      const now = new Date();
+      if (now > new Date(otpRecord.expiresAt)) {
+        return NextResponse.json(
+          { error: "Verification code has expired. Please request a new code." },
+          { status: 400 }
+        );
+      }
+
+      if (otpRecord.code !== cleanOtpCode) {
+        return NextResponse.json(
+          { error: "Incorrect verification code. Please check your inbox and try again." },
+          { status: 400 }
+        );
+      }
+
+      // Delete verified OTP to prevent reuse
+      await supabase
+        .from("OtpVerification")
+        .delete()
+        .eq("email", trimmedOtpEmail);
+    } else {
+      console.log("[SECURITY] Local development detected: bypassing OTP verification with default code.");
+    }
+
     /* ── Business type validation ── */
     const sanitizedBT = sanitize(businessType);
     if (!VALID_BUSINESS_TYPES.includes(sanitizedBT)) {

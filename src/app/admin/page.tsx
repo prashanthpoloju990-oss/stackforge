@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabaseClient } from "@/lib/supabase-client";
 
 interface ContactSubmission {
   id: string;
@@ -308,6 +309,7 @@ export default function AdminPage() {
   const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   // Load draft from localStorage on mount
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const savedSubject = localStorage.getItem("sf_draft_subject");
     const savedPreview = localStorage.getItem("sf_draft_preview");
@@ -317,6 +319,7 @@ export default function AdminPage() {
     if (savedPreview) setBroadcastPreview(savedPreview);
     if (savedBody) setBroadcastBody(savedBody);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Save draft to localStorage as user types
   useEffect(() => {
@@ -355,6 +358,62 @@ export default function AdminPage() {
       fetchDashboardData();
     }
   }, []);
+
+  // Subscribe to real-time changes
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const channel = supabaseClient
+      .channel("admin-db-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ContactSubmission" },
+        (payload) => {
+          console.log("[REALTIME-ADMIN] ContactSubmission event received:", payload);
+          if (payload.eventType === "INSERT") {
+            const newInquiry = payload.new as ContactSubmission;
+            setInquiries((prev) => {
+              if (prev.some((inq) => inq.id === newInquiry.id)) return prev;
+              return [newInquiry, ...prev];
+            });
+          } else if (payload.eventType === "UPDATE") {
+            const updatedInquiry = payload.new as ContactSubmission;
+            setInquiries((prev) =>
+              prev.map((inq) => (inq.id === updatedInquiry.id ? { ...inq, ...updatedInquiry } : inq))
+            );
+            setSelectedInquiry((prev) => 
+              prev && prev.id === updatedInquiry.id ? { ...prev, ...updatedInquiry } : prev
+            );
+          } else if (payload.eventType === "DELETE") {
+            const deletedId = (payload.old as any).id;
+            setInquiries((prev) => prev.filter((inq) => inq.id !== deletedId));
+            setSelectedInquiry((prev) => (prev && prev.id === deletedId ? null : prev));
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "Newsletter" },
+        (payload) => {
+          console.log("[REALTIME-ADMIN] Newsletter event received:", payload);
+          if (payload.eventType === "INSERT") {
+            const newSub = payload.new as Subscriber;
+            setSubscribers((prev) => {
+              if (prev.some((sub) => sub.id === newSub.id)) return prev;
+              return [newSub, ...prev];
+            });
+          } else if (payload.eventType === "DELETE") {
+            const deletedId = (payload.old as any).id;
+            setSubscribers((prev) => prev.filter((sub) => sub.id !== deletedId));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [isAuthenticated]);
 
   async function handleMagicLogin(token: string, email: string) {
     setLoading(true);
@@ -401,6 +460,7 @@ export default function AdminPage() {
   }
 
   // Count down timer for MFA expiration
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!mfaRequired) return;
     setTimeLeft(600);
@@ -417,6 +477,7 @@ export default function AdminPage() {
 
     return () => clearInterval(interval);
   }, [mfaRequired]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleResendMfa() {
     setError(null);
@@ -807,13 +868,17 @@ export default function AdminPage() {
     inquiries.forEach(i => {
       const budgetStr = i.budget || "";
       if (budgetStr.includes("50,000+")) {
-        pipelineVal += 50000;
-      } else if (budgetStr.includes("15,000")) {
+        pipelineVal += 60000;
+      } else if (budgetStr.includes("15,000 – ₹50,000")) {
+        pipelineVal += 32500;
+      } else if (budgetStr.includes("5,000 – ₹15,000")) {
+        pipelineVal += 10000;
+      } else if (budgetStr.includes("3,000 – ₹5,000")) {
+        pipelineVal += 4000;
+      } else if (budgetStr.includes("Under ₹3,000")) {
+        pipelineVal += 2000;
+      } else if (budgetStr.includes("Flexible")) {
         pipelineVal += 15000;
-      } else if (budgetStr.includes("5,000")) {
-        pipelineVal += 5000;
-      } else if (budgetStr.includes("2,500")) {
-        pipelineVal += 2500;
       }
     });
 

@@ -61,11 +61,12 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get('admin_session')?.value;
     if (token) {
       try {
-        if (!process.env.SUPABASE_SECRET_KEY) {
-          console.error('[SECURITY] SUPABASE_SECRET_KEY is missing! Blocking admin request to prevent fallback bypass.');
+        const secret = process.env.JWT_SECRET || process.env.SUPABASE_SECRET_KEY;
+        if (!secret) {
+          console.error('[SECURITY] JWT_SECRET or SUPABASE_SECRET_KEY is missing! Blocking admin request.');
           return new NextResponse('Configuration Error', { status: 500 });
         }
-        const JWT_SECRET = new TextEncoder().encode(process.env.SUPABASE_SECRET_KEY);
+        const JWT_SECRET = new TextEncoder().encode(secret);
         const { payload } = await jwtVerify(token, JWT_SECRET);
         if (!payload || payload.role !== 'admin') {
           throw new Error('Invalid role');
@@ -92,11 +93,12 @@ export async function middleware(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
       try {
-        if (!process.env.SUPABASE_SECRET_KEY) {
-          console.error('[SECURITY] SUPABASE_SECRET_KEY is missing! Blocking API request to prevent fallback bypass.');
+        const secret = process.env.JWT_SECRET || process.env.SUPABASE_SECRET_KEY;
+        if (!secret) {
+          console.error('[SECURITY] JWT_SECRET or SUPABASE_SECRET_KEY is missing! Blocking API request.');
           return NextResponse.json({ error: 'Configuration Error' }, { status: 500 });
         }
-        const JWT_SECRET = new TextEncoder().encode(process.env.SUPABASE_SECRET_KEY);
+        const JWT_SECRET = new TextEncoder().encode(secret);
         const { payload } = await jwtVerify(token, JWT_SECRET);
         if (!payload || payload.role !== 'admin') {
           throw new Error('Invalid role');
