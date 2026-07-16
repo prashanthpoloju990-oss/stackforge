@@ -3,7 +3,7 @@ import { projects } from "@/lib/projects-data";
 import { BLOG_POSTS } from "@/lib/blog-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://stackforge.dev";
+  const baseUrl = "https://stackforge.co.in";
   const now = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [

@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/portal/", "/api/"],
       },
     ],
-    sitemap: "https://stackforge.dev/sitemap.xml",
+    sitemap: "https://stackforge.co.in/sitemap.xml",
   };
 }

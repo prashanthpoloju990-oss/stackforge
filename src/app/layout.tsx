@@ -46,7 +46,7 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
-const SITE_URL = "https://stackforge.dev";
+const SITE_URL = "https://stackforge.co.in";
 const SITE_DESCRIPTION =
   "StackForge is a premium digital engineering studio specializing in high-performance React & Next.js web applications. We build speed-optimized, conversion-focused websites with bespoke design systems.";
 
