@@ -195,7 +195,9 @@ export function Navbar() {
           "pointer-events-auto transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between relative z-50",
           isFloating
             ? "w-full max-w-[1200px] bg-transparent border-none shadow-none px-6 md:px-20 h-14 pointer-events-none"
-            : "w-full max-w-[1200px] rounded-none border-b border-forge-divider/30 bg-forge-bg/60 backdrop-blur-sm px-6 md:px-20 h-16 md:h-[72px]"
+            : mobileOpen
+              ? "w-full max-w-[1200px] bg-transparent border-none shadow-none px-6 md:px-20 h-16 md:h-[72px]"
+              : "w-full max-w-[1200px] rounded-none border-b border-forge-divider/30 bg-forge-bg/60 backdrop-blur-sm px-6 md:px-20 h-16 md:h-[72px]"
         )}
       >
         {/* Logo Capsule */}
@@ -333,7 +335,7 @@ export function Navbar() {
             animate="open"
             exit="closed"
             variants={menuVariants}
-            className="md:hidden fixed inset-0 z-40 bg-[#040407]/95 backdrop-blur-2xl flex flex-col justify-between pt-24 pb-[max(2rem,env(safe-area-inset-bottom,2rem))] px-6 overflow-y-auto"
+            className="md:hidden pointer-events-auto fixed inset-0 z-40 bg-[#040407]/95 backdrop-blur-2xl flex flex-col justify-between pt-24 pb-[max(2rem,env(safe-area-inset-bottom,2rem))] px-6 overflow-y-auto"
           >
             {/* Top section: Staggered navigation links */}
             <div className="flex flex-col gap-4 mt-4">
