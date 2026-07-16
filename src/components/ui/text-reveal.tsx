@@ -56,8 +56,8 @@ interface WordProps {
 const Word: FC<WordProps> = ({ children, progress, range }) => {
   const opacity = useTransform(progress, range, [0, 1]);
   return (
-    <span className="relative mx-1 lg:mx-2.5">
-      <span className={"absolute opacity-30"}>{children}</span>
+    <span className="relative mx-1 lg:mx-2.5 inline-block">
+      <span className={"absolute top-0 left-0 opacity-30"}>{children}</span>
       <motion.span
         style={{ opacity: opacity }}
         className={"text-black dark:text-white"}

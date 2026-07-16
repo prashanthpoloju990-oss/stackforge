@@ -263,6 +263,10 @@ export function Footer() {
             <Link href="/terms" className="hover:text-forge-text transition-colors duration-200">
               Terms & Conditions
             </Link>
+            <span className="hidden sm:inline text-forge-divider/60">|</span>
+            <Link href="/privacy" className="hover:text-forge-text transition-colors duration-200">
+              Privacy Policy
+            </Link>
           </div>
           <span className="text-[10px] text-forge-text-secondary/40 font-mono">
             Built with passion and love

@@ -73,9 +73,20 @@ export function Navbar() {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const isFillingInput = (el: HTMLElement | null): boolean => {
+      if (!el) return false;
+      const tagName = el.tagName;
+      if (tagName === "TEXTAREA" || tagName === "SELECT") return true;
+      if (tagName === "INPUT") {
+        const type = (el as HTMLInputElement).type;
+        return !["checkbox", "radio", "button", "submit", "image", "reset", "file"].includes(type);
+      }
+      return false;
+    };
+
     const handleFocusIn = (e: FocusEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT")) {
+      if (isFillingInput(target)) {
         setIsFormFilling(true);
       }
     };
@@ -83,7 +94,7 @@ export function Navbar() {
     const handleFocusOut = () => {
       setTimeout(() => {
         const active = document.activeElement as HTMLElement | null;
-        if (!active || !(active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT")) {
+        if (!isFillingInput(active)) {
           setIsFormFilling(false);
         }
       }, 100);

@@ -1,4 +1,20 @@
-import { type CaseStudy } from "@/components/ui/case-study-modal";
+export interface CaseStudy {
+  title: string;
+  subtitle: string;
+  description: string;
+  tags: string[];
+  image: string;
+  metric: string;
+  metricLabel: string;
+  challenge: string;
+  solution: string;
+  results: string;
+  testimonial?: string;
+  testimonialAuthor?: string;
+  link?: string;
+  slug: string;
+}
+
 
 export const projects: CaseStudy[] = [
   {

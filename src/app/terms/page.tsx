@@ -28,69 +28,112 @@ export default function TermsPage() {
           </h1>
 
           <div className="prose dark:prose-invert max-w-none space-y-8 text-[14px] md:text-[15px]">
-            <p className="text-forge-text-secondary/60">
-              Last Updated: June 23, 2026
+            <p className="text-forge-text-secondary/60 text-xs md:text-sm font-mono">
+              Last Updated: July 15, 2026
             </p>
             
-            <p className="text-fluid-body-lg font-medium text-forge-text">
+            <p className="text-fluid-body-lg font-medium text-forge-text font-syne">
               Welcome to StackForge. These Terms and Conditions govern your relationship with StackForge, including your access to our website, tools, APIs, and the procurement of our digital design and development services. By browsing this website or engaging us for services, you agree to these terms in full.
             </p>
 
             <hr className="border-forge-divider/30 my-8" />
 
             <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">1. Engagement & Scope of Services</h2>
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">1. Engagement, Scope of Services & Standard Deliverables</h2>
               <p>
                 StackForge operates as a premium digital engineering studio specializing in React, Next.js, and Tailwind-based application development, custom WebGL integrations, database architecture, and design systems.
               </p>
               <p>
-                Engagements are officially initiated through the execution of a separate, project-specific Statement of Work (SOW) or Service Level Agreement (SLA) signed by both parties. Any advice, estimations, or timelines provided on this website are for informational purposes only and do not constitute a binding contract.
+                Engagements are officially initiated through the execution of a separate, project-specific Statement of Work (SOW) or Service Level Agreement (SLA) signed by both parties.
               </p>
-            </section>
-
-            <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">2. Client Obligations & Collaboration</h2>
               <p>
-                The success of design and development projects depends heavily on active client participation. You agree to provide:
+                Unless explicitly customized in the SOW, our standard website development package covers:
               </p>
               <ul className="list-disc pl-5 space-y-2 text-forge-text-secondary/70">
-                <li>Prompt access to relevant accounts, assets, brand guidelines, content, copy, and database credentials required for project progress.</li>
-                <li>Consolidated feedback during specified review iterations within five (5) business days of milestone submissions.</li>
-                <li>Accuracy and legality of all assets (images, text, fonts, intellectual properties) provided to StackForge for integration.</li>
+                <li>Homepage + four (4) additional core pages</li>
+                <li>Fully responsive layout optimized for mobile and desktop screens</li>
+                <li>Contact form integration with validations</li>
+                <li>Basic search engine optimization (SEO) configurations</li>
+                <li>Social media graphics and assets package</li>
               </ul>
               <p>
-                Failure to provide required feedback or assets within agreed timelines may result in schedule delays, push milestones back, or trigger project restart fees.
+                <strong>Scope Creep:</strong> Any features, design revisions, pages, or modifications not explicitly detailed in the signed SOW will be categorized as extra services. These will be billed separately at our standard developer rates or will require an SOW amendment.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">3. Financial Terms, Milestones & Scope Creep</h2>
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">2. Client Onboarding Obligations & Collaboration</h2>
               <p>
-                <strong>3.1 Milestone Billing:</strong> Engagement fees are billed in accordance with the milestone schedule defined in the SOW. Work begins only upon receipt of the initial retainer/kickoff payment.
+                The success of design and development projects depends heavily on active client participation. Before development begins, clients must complete onboarding by providing:
               </p>
+              <ul className="list-disc pl-5 space-y-2 text-forge-text-secondary/70">
+                <li>Complete brand information and high-resolution logo files</li>
+                <li>Detailed target audience profiling and business objectives</li>
+                <li>Competitor website examples and market analyses</li>
+                <li>Design references, inspiration boards, and style preferences</li>
+                <li>Color palette preferences and typography ideas</li>
+                <li>Prompt access to hosting accounts, domain settings, APIs, and staging server credentials</li>
+              </ul>
               <p>
-                <strong>3.2 Invoicing & Delinquency:</strong> All invoices are payable within fourteen (14) calendar days of receipt. Late payments shall accrue interest at a rate of 1.5% per month on the outstanding balance, and StackForge reserves the right to suspend development progress or revoke staging/live server deployments until outstanding payments are cleared.
-              </p>
-              <p>
-                <strong>3.3 Scope Creep:</strong> Any modifications, adjustments, or feature additions requested by the client that fall outside the boundaries of the signed SOW will be billed at our standard hourly developer rate or will require a separate SOW amendment.
-              </p>
-            </section>
-
-            <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">4. Intellectual Property & Code Ownership</h2>
-              <p>
-                <strong>4.1 Code Transfer:</strong> Upon complete and final payment of all outstanding invoices, StackForge assigns all rights, titles, and ownership interests in the custom code, copy, and visuals developed specifically for the client as part of the SOW.
-              </p>
-              <p>
-                <strong>4.2 Proprietary Libraries & Boilerplates:</strong> StackForge retains all rights to its pre-existing materials, core components, standard styling systems, WebGL templates, animation libraries, and general database routines built independently of or prior to the project. StackForge grants the client a non-exclusive, perpetual, royalty-free license to use these embedded components solely within the context of the delivered project.
-              </p>
-              <p>
-                <strong>4.3 Open Source Dependencies:</strong> We utilize standard open-source libraries (e.g., React, Next.js, Framer Motion) which remain governed by their respective MIT, Apache, or BSD licenses.
+                Clients agree to provide consolidated feedback during specified review milestones within five (5) business days of submission. Onboarding delays or failure to provide assets/feedback in a timely manner may result in schedule delays, push project milestones back, or trigger restart fees.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">5. Confidentiality & Mutual NDA</h2>
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">3. Advance Payment Policy & Billing</h2>
+              <p>
+                <strong>3.1 Advance Payment:</strong> To secure engineering scheduling and resources, StackForge enforces a strict advance payment policy. By default, fees are structured as:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-forge-text-secondary/70">
+                <li><strong>50% Advance retainer payment:</strong> Due before any research, design, or engineering work commences.</li>
+                <li><strong>50% Completion payment:</strong> Due upon final approval and prior to live production server deployment or transfer of control.</li>
+              </ul>
+              <p>
+                At our discretion, larger projects may follow an alternative milestone split: <strong>30% Kickoff advance</strong> &rarr; <strong>40% Mid-project milestone</strong> &rarr; <strong>30% Before delivery</strong>. StackForge does not begin work on accounts with overdue advance invoices.
+              </p>
+              <p>
+                <strong>3.2 Invoicing:</strong> All invoices issued by StackForge contain detailed, professional records of billing, including our business details, client credentials, description of project milestones, total amount due, invoice number, and bank transfer / UPI routing details. Payments are due within fourteen (14) calendar days of invoice date.
+              </p>
+              <p>
+                <strong>3.3 Late Payments & Delinquency:</strong> Unpaid balances past the due date shall accrue interest at a rate of 1.5% per month. StackForge reserves the right to suspend development progress, revoke staging server access, or take down active applications until outstanding invoices are settled.
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">4. File Delivery, Source Code & Intellectual Property</h2>
+              <p>
+                <strong>4.1 Standard Deliverables:</strong> Standard project delivery includes the compile-ready codebase or live deployment, along with standard client deliverables:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-forge-text-secondary/70">
+                <li>Final static images and graphics (Final PNG & JPG files)</li>
+                <li>Final documents and design print-outs (Final PDF formats)</li>
+                <li>Website admin/login credentials and host server controls</li>
+              </ul>
+              <p>
+                <strong>4.2 Source Files Excluded:</strong> Standard packages do not include editable master files or source design assets. Raw work files, including Figma source files, Photoshop (PSD) files, or Adobe Illustrator (AI) files, remain the property of StackForge and are billed separately if requested for final handoff.
+              </p>
+              <p>
+                <strong>4.3 Ownership Transfer:</strong> Upon complete and final payment of all outstanding project fees, StackForge assigns all rights, titles, and ownership interests in the custom code, copy, and visual deliverables created specifically for the client. StackForge retains proprietary rights to its pre-existing libraries, WebGL animation templates, boilerplates, and core routines, granting the client a non-exclusive, perpetual, royalty-free license to use them within the project context.
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">5. Kill Fee & Project Cancellation Policy</h2>
+              <p>
+                In the event that a client chooses to cancel, terminate, or postpone an active design or development project midway, the client agrees to pay a <strong>Kill Fee</strong>. The Kill Fee is calculated as a percentage of the total project contract value to compensate for reserved schedule slots, research, and work completed up to that date:
+              </p>
+              <ul className="list-disc pl-5 space-y-2 text-forge-text-secondary/70">
+                <li><strong>30% Kill Fee:</strong> If cancelled during the initial research, wireframing, or Concept Stage.</li>
+                <li><strong>50% Kill Fee:</strong> If cancelled Mid-Project (during active interface design or initial frontend development).</li>
+                <li><strong>75% Kill Fee:</strong> If cancelled Near Delivery (during final staging, testing, or database integration stages).</li>
+              </ul>
+              <p>
+                Upon cancellation, all work on the project will cease, and any completed custom assets, source code, or designs will not be transferred to the client until outstanding payments (including the applicable Kill Fee) are settled.
+              </p>
+            </section>
+
+            <section className="space-y-3">
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">6. Confidentiality & Mutual NDA</h2>
               <p>
                 Both parties agree to treat all business plans, project briefs, customer data, and technical architectures exchanged during the engagement as Strictly Confidential. Neither party shall disclose this information to third parties without prior written consent, except to employees or contractors bound by similar confidentiality rules.
               </p>
@@ -100,17 +143,17 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">6. Third-Party Services & SLA Disclaimers</h2>
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">7. Third-Party Services & SLA Disclaimers</h2>
               <p>
-                <strong>6.1 Server & Platform Dependency:</strong> StackForge coordinates integrations with third-party vendors (such as hosting on Netlify/Vercel, databases via Supabase, API services like Oqens, and email servers like SMTP gateways). StackForge is not liable for service outages, data corruption, API deprecations, or security incidents occurring on platforms operated by these third parties.
+                <strong>7.1 Server & Platform Dependency:</strong> StackForge coordinates integrations with third-party vendors (such as hosting on Netlify/Vercel, databases via Supabase, API services, and SMTP gateways). StackForge is not liable for service outages, data corruption, API deprecations, or security incidents occurring on platforms operated by these third parties.
               </p>
               <p>
-                <strong>6.2 Maintenance & Post-Launch Support:</strong> Engagement contracts include a standard fifteen (15) day QA window after launch. Once the QA window closes, any updates, bug fixes, major framework version upgrades, or general technical support will require a separate monthly retainer agreement or will be billed hourly.
+                <strong>7.2 Maintenance & Post-Launch Support:</strong> Engagement contracts include a standard fifteen (15) day QA window after launch. Once the QA window closes, any updates, bug fixes, major framework version upgrades, or general technical support will require a separate monthly retainer agreement or will be billed hourly.
               </p>
             </section>
 
             <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">7. Warranties & Limitation of Liability</h2>
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">8. Warranties & Limitation of Liability</h2>
               <p>
                 StackForge delivers custom software on an &ldquo;As Is&rdquo; and &ldquo;As Available&rdquo; basis. While we optimize codebase security, core web vitals, and browser compatibility, we do not warrant that the software will be completely error-free, uninterrupted, or immune to emerging cybersecurity vulnerabilities.
               </p>
@@ -120,7 +163,7 @@ export default function TermsPage() {
             </section>
 
             <section className="space-y-3">
-              <h2 className="text-[20px] font-bold text-forge-text font-syne">8. Governing Law & Dispute Resolution</h2>
+              <h2 className="text-[20px] font-bold text-forge-text font-syne">9. Governing Law & Dispute Resolution</h2>
               <p>
                 These Terms and Conditions shall be governed by, interpreted, and construed in accordance with the laws of India. Any legal actions, claims, or disputes arising from these terms or our services shall be resolved through mutual negotiation. 
               </p>
