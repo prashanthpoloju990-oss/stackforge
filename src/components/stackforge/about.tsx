@@ -284,7 +284,7 @@ export function About() {
   const { ref: teamRef, isVisible: teamVisible } = useScrollReveal({ threshold: 0.03 });
 
   return (
-    <section id="about" className="py-24 md:py-32 lg:py-[110px]">
+    <section id="about" className="py-24 md:py-36 lg:py-44">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* ── Section Header ── */}
         <div

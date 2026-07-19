@@ -39,7 +39,7 @@ const steps = [
 
 export function Process() {
   return (
-    <section id="process" className="py-24 md:py-32 lg:py-[110px] relative bg-forge-bg">
+    <section id="process" className="py-24 md:py-36 lg:py-44 relative bg-forge-bg">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         <div className="grid md:grid-cols-2 md:gap-8 xl:gap-16 items-start relative">
           

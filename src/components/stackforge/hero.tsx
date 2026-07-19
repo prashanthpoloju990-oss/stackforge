@@ -224,14 +224,14 @@ export function Hero() {
                 damping: 18,
                 delay: 0.2,
               }}
-              containerClassName="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[540px] mx-auto justify-center text-center"
+              containerClassName="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[640px] mx-auto justify-center text-center"
               elementLevelClassName="inline-block"
             >
-              React & Next.js specialists. We build fast, scalable, SEO-ready digital products for startups and growing brands.
+              StackForge helps you turn ideas into production-ready websites using AI-powered workflows, clean UI, and developer-grade performance. From idea → live instantly.
             </VerticalCutReveal>
           ) : (
-            <p className="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[540px] mx-auto text-center opacity-0">
-              React & Next.js specialists. We build fast, scalable, SEO-ready digital products for startups and growing brands.
+            <p className="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[640px] mx-auto text-center opacity-0">
+              StackForge helps you turn ideas into production-ready websites using AI-powered workflows, clean UI, and developer-grade performance. From idea → live instantly.
             </p>
           )}
 

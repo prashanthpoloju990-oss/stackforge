@@ -56,7 +56,7 @@ export function Work() {
   const displayedProjects = projects.slice(0, 2);
 
   return (
-    <section id="work" className="py-24 md:py-32 lg:py-[110px]">
+    <section id="work" className="py-24 md:py-36 lg:py-44">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* Section Header */}
         <div

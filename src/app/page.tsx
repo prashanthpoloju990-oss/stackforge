@@ -44,6 +44,7 @@ export default function Home() {
         <Process />
         <SectionDivider />
         <div className="section-contained"><About /></div>
+        <SectionDivider />
         <div className="section-contained"><TechStack /></div>
         <SectionDivider />
         <div id="pricing" className="section-contained"><LazyPricing /></div>

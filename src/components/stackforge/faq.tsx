@@ -80,7 +80,7 @@ export function FAQ() {
   };
 
   return (
-    <section id="faq" className="py-24 md:py-32 lg:py-[110px]">
+    <section id="faq" className="py-24 md:py-36 lg:py-44">
       <div
         ref={ref}
         className={cn(
