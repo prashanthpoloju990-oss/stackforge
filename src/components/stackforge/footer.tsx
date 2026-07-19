@@ -55,6 +55,26 @@ export function Footer() {
     }
   };
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === "/") {
+      if (typeof window !== "undefined" && window.location.pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.history.pushState(null, "", "/");
+      }
+      return;
+    }
+    if (href.includes("#")) {
+      const targetId = href.split("#")[1];
+      const element = document.getElementById(targetId);
+      if (element && typeof window !== "undefined" && window.location.pathname === "/") {
+        e.preventDefault();
+        element.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", href);
+      }
+    }
+  };
+
   return (
     <footer className="relative bg-forge-bg border-t border-forge-divider pb-[env(safe-area-inset-bottom,0px)] overflow-hidden">
       {/* Silhouette Horizon Skyline background */}
@@ -81,7 +101,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8 md:gap-12">
           {/* Left — Brand */}
           <div>
-            <Link href="/" className="inline-block">
+            <Link href="/" onClick={(e) => handleNavClick(e, "/")} className="inline-block">
               <Image src="/stackforge-logo.jpg" alt="StackForge" width={48} height={48} className="h-10 w-auto object-contain rounded" loading="lazy" />
             </Link>
             <p className="mt-3 text-[18px] text-forge-accent/80 leading-relaxed max-w-[240px] font-curvy">
@@ -203,19 +223,20 @@ export function Footer() {
                 Pages
               </span>
               {[
-                { label: "Home", href: "#home" },
-                { label: "Work", href: "#work" },
-                { label: "Process", href: "#process" },
-                { label: "Pricing", href: "#pricing" },
-                { label: "FAQ", href: "#faq" },
+                { label: "Home", href: "/" },
+                { label: "Work", href: "/#work" },
+                { label: "Process", href: "/#process" },
+                { label: "Pricing", href: "/#pricing" },
+                { label: "FAQ", href: "/#faq" },
               ].map((link) => (
-                <a
+                <Link
                   key={link.label}
                   href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className="text-[12px] text-forge-text-secondary/50 hover:text-forge-text transition-colors duration-200 py-0.5"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -224,17 +245,18 @@ export function Footer() {
                 Pricing
               </span>
               {[
-                { label: "Launch Kit", href: "#pricing" },
-                { label: "Growth Pack", href: "#pricing" },
-                { label: "Enterprise", href: "#pricing" },
+                { label: "Launch Kit", href: "/#pricing" },
+                { label: "Growth Pack", href: "/#pricing" },
+                { label: "Enterprise", href: "/#pricing" },
               ].map((link) => (
-                <a
+                <Link
                   key={link.label}
                   href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className="text-[12px] text-forge-text-secondary/50 hover:text-forge-accent/70 transition-colors duration-200 py-0.5"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
 

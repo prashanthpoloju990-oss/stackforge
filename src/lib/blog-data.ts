@@ -161,10 +161,10 @@ We consolidated their room search, guest configuration, and payment gateway into
 
 Within 90 days of launch:
 - **45% Increase** in direct reservations.
-- **$40,000+ saved** in OTA commissions during the first quarter.
+- **40%+ growth** in direct guest inquiries during the first quarter.
 - Mobile reservation conversion rate increased by **2.8x**.
 
-By prioritizing visual excellence and web performance, we didn't just build a new website — we created an independent revenue stream for their business.
+By prioritizing visual excellence and web performance, we didn't just build a new website — we created a scalable, independent digital platform for their brand.
     `
   }
 ];

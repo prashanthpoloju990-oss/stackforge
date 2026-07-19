@@ -224,14 +224,14 @@ export function Hero() {
                 damping: 18,
                 delay: 0.2,
               }}
-              containerClassName="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[640px] mx-auto justify-center text-center"
+              containerClassName="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[560px] mx-auto justify-center text-center"
               elementLevelClassName="inline-block"
             >
-              StackForge helps you turn ideas into production-ready websites using AI-powered workflows, clean UI, and developer-grade performance. From idea → live instantly.
+              A simpler way to turn ideas into reliable, well-built products.
             </VerticalCutReveal>
           ) : (
-            <p className="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[640px] mx-auto text-center opacity-0">
-              StackForge helps you turn ideas into production-ready websites using AI-powered workflows, clean UI, and developer-grade performance. From idea → live instantly.
+            <p className="mt-5 text-fluid-body-lg text-forge-text-secondary/80 max-w-[560px] mx-auto text-center opacity-0">
+              A simpler way to turn ideas into reliable, well-built products.
             </p>
           )}
 

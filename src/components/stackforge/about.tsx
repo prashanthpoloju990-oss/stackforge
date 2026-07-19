@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { motion } from "motion/react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { BorderGlow } from "@/components/ui/border-glow";
 import { TextRevealByWord } from "@/components/ui/text-reveal";
@@ -67,7 +68,7 @@ function MockTerminal() {
 
 function ChatThread() {
   return (
-    <div className="w-full flex flex-col gap-3 p-4 rounded-xl bg-forge-surface/40 border border-forge-divider/50 shadow-md font-sans mt-3">
+    <div className="w-full flex flex-col gap-3 py-2 font-sans">
       {/* Dev bubble */}
       <div className="flex flex-col items-start max-w-[85%] self-start">
         <div className="flex items-center gap-1.5 mb-1">
@@ -92,9 +93,9 @@ function ChatThread() {
 
 function LighthouseDial() {
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 p-6 rounded-xl bg-forge-surface/35 border border-forge-divider/40 shadow-inner w-full">
+    <div className="flex flex-col sm:flex-row items-center justify-start gap-6 py-2 w-full">
       {/* Radial score */}
-      <div className="relative w-28 h-28 flex items-center justify-center select-none">
+      <div className="relative w-24 h-24 flex items-center justify-center select-none shrink-0">
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
           {/* Background circle */}
           <circle
@@ -124,8 +125,8 @@ function LighthouseDial() {
           />
         </svg>
         <div className="absolute flex flex-col items-center justify-center">
-          <span className="text-3xl font-extrabold text-[#22C55E] tracking-tighter drop-shadow-[0_0_12px_rgba(34,197,94,0.3)]">98</span>
-          <span className="text-[9px] font-bold text-forge-text-secondary/70 tracking-widest uppercase">Performance</span>
+          <span className="text-2xl font-extrabold text-[#22C55E] tracking-tighter drop-shadow-[0_0_12px_rgba(34,197,94,0.3)]">98</span>
+          <span className="text-[8px] font-bold text-forge-text-secondary/70 tracking-widest uppercase">Performance</span>
         </div>
       </div>
 
@@ -284,7 +285,7 @@ export function About() {
   const { ref: teamRef, isVisible: teamVisible } = useScrollReveal({ threshold: 0.03 });
 
   return (
-    <section id="about" className="py-24 md:py-36 lg:py-44">
+    <section id="about" className="pt-24 md:pt-36 lg:pt-44 pb-12 md:pb-16 lg:pb-20">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* ── Section Header ── */}
         <div
@@ -397,129 +398,91 @@ export function About() {
           className="my-4 md:my-6"
         />
 
-        {/* ── Our Values ── */}
+        {/* ── Our Principles (Editorial Flow & Motion Timeline) ── */}
         <div
           ref={valuesRef}
-          className={cn(
-            "mb-20 md:mb-28 transition-all duration-600 ease-out",
-            valuesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-          )}
+          className="mb-24 md:mb-36"
         >
-          <div className="mb-12 md:mb-16">
-            <span className="text-[12px] text-forge-text-secondary/50 font-medium tracking-[0.16em] uppercase block mb-3 font-mono">
+          {/* Section Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-16 md:mb-24 max-w-[640px]"
+          >
+            <span className="text-[11px] font-mono text-forge-accent/60 tracking-[0.2em] uppercase block mb-3">
               Our Principles
             </span>
-            <h2 className="text-fluid-h1 font-bold text-forge-text font-playfair max-w-[500px]">
+            <h2 className="text-fluid-h1 font-bold text-forge-text font-playfair leading-tight">
               The rules we
               <br />
-              <span className="text-forge-accent/70"> don&apos;t bend.</span>
+              <span className="text-forge-accent/80"> don&apos;t bend.</span>
             </h2>
-          </div>
+            <p className="mt-4 text-fluid-body-lg text-forge-text-secondary/70 leading-relaxed">
+              We operate on a set of core engineering convictions. No shortcuts, no bloated frameworks, and zero compromise on performance or quality.
+            </p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {/* Card 1: Zero Bloat (col-span-2) */}
-            <div
-              className={cn(
-                "col-span-1 md:col-span-2 transition-all duration-600 ease-out",
-                valuesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              )}
-              style={{ transitionDelay: valuesVisible ? "0ms" : "0ms" }}
-            >
-              <BorderGlow
-                backgroundColor="var(--forge-bg)"
-                borderRadius={12}
-                glowRadius={28}
-                glowIntensity={0.9}
-                className="rounded-xl h-full"
+          {/* Editorial Vertical Flow with subtle connecting guide line */}
+          <div className="relative border-l border-forge-divider/40 pl-6 md:pl-12 space-y-20 md:space-y-28">
+            {values.map((item, index) => (
+              <motion.div
+                key={item.number}
+                initial={{ opacity: 0, y: 35 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{
+                  duration: 0.7,
+                  delay: index * 0.15,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="relative group"
               >
-                <div className="p-6 md:p-8 flex flex-col justify-between h-full gap-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-6 items-center">
-                    <div>
-                      <span className="text-[13px] font-mono text-forge-accent/40 tracking-wider block mb-4">
-                        {values[0].number}
-                      </span>
-                      <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne mb-3">
-                        {values[0].title}
-                      </h3>
-                      <p className="text-fluid-body text-forge-text-secondary/60">
-                        {values[0].description}
-                      </p>
-                    </div>
-                    <div className="w-full flex items-center justify-center">
-                      <MockTerminal />
-                    </div>
-                  </div>
+                {/* Laser Node on Timeline */}
+                <div className="absolute -left-[31px] md:-left-[55px] top-3.5 flex items-center justify-center">
+                  <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-forge-accent opacity-25" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-forge-accent/60 group-hover:bg-forge-accent group-hover:scale-125 group-hover:shadow-[0_0_14px_var(--forge-accent)] transition-all duration-300 ring-4 ring-forge-bg" />
                 </div>
-              </BorderGlow>
-            </div>
 
-            {/* Card 2: High-Context (col-span-1) */}
-            <div
-              className={cn(
-                "col-span-1 transition-all duration-600 ease-out",
-                valuesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              )}
-              style={{ transitionDelay: valuesVisible ? "100ms" : "0ms" }}
-            >
-              <BorderGlow
-                backgroundColor="var(--forge-bg)"
-                borderRadius={12}
-                glowRadius={28}
-                glowIntensity={0.9}
-                className="rounded-xl h-full"
-              >
-                <div className="p-6 md:p-8 flex flex-col justify-between h-full gap-6">
-                  <div>
-                    <span className="text-[13px] font-mono text-forge-accent/40 tracking-wider block mb-4">
-                      {values[1].number}
-                    </span>
-                    <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne mb-3">
-                      {values[1].title}
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-8 md:gap-14 items-start">
+                  {/* Left Column: Number + Title + Description stacked directly together */}
+                  <div className="space-y-4 max-w-[540px]">
+                    <div className="overflow-hidden inline-block">
+                      <motion.span
+                        initial={{ y: "100%" }}
+                        whileInView={{ y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.15 + 0.1, ease: [0.16, 1, 0.3, 1] }}
+                        className="text-xs font-mono text-forge-accent/80 tracking-[0.2em] uppercase font-bold block"
+                      >
+                        // {item.number}
+                      </motion.span>
+                    </div>
+
+                    <h3 className="text-2xl md:text-3xl lg:text-[2.25rem] font-bold text-forge-text font-syne tracking-tight leading-snug group-hover:text-forge-accent transition-colors duration-300">
+                      {item.title}
                     </h3>
-                    <p className="text-fluid-body text-forge-text-secondary/60">
-                      {values[1].description}
+                    <p className="text-base md:text-lg text-forge-text-secondary/75 leading-relaxed pt-1">
+                      {item.description}
                     </p>
                   </div>
-                  <ChatThread />
-                </div>
-              </BorderGlow>
-            </div>
 
-            {/* Card 3: Performance (col-span-3) */}
-            <div
-              className={cn(
-                "col-span-1 md:col-span-3 transition-all duration-600 ease-out",
-                valuesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-[20px]"
-              )}
-              style={{ transitionDelay: valuesVisible ? "200ms" : "0ms" }}
-            >
-              <BorderGlow
-                backgroundColor="var(--forge-bg)"
-                borderRadius={12}
-                glowRadius={28}
-                glowIntensity={0.9}
-                className="rounded-xl h-full"
-              >
-                <div className="p-6 md:p-8 flex flex-col justify-between h-full gap-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 items-center">
-                    <div>
-                      <span className="text-[13px] font-mono text-forge-accent/40 tracking-wider block mb-4">
-                        {values[2].number}
-                      </span>
-                      <h3 className="text-fluid-h3 font-semibold text-forge-text font-syne mb-3">
-                        {values[2].title}
-                      </h3>
-                      <p className="text-fluid-body text-forge-text-secondary/60">
-                        {values[2].description}
-                      </p>
-                    </div>
-                    <div className="w-full flex items-center justify-center">
-                      <LighthouseDial />
-                    </div>
-                  </div>
+                  {/* Right Column: Minimal Context Visual */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.15 + 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    className="w-full pt-1 lg:pt-4"
+                  >
+                    {index === 0 && <MockTerminal />}
+                    {index === 1 && <ChatThread />}
+                    {index === 2 && <LighthouseDial />}
+                  </motion.div>
                 </div>
-              </BorderGlow>
-            </div>
+              </motion.div>
+            ))}
           </div>
         </div>
 

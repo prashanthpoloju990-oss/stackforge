@@ -192,7 +192,7 @@ export function Pricing() {
   const { ref: cardsRef, isVisible: cardsVisible } = useScrollReveal({ threshold: 0.05 });
 
   return (
-    <section id="pricing" className="relative py-24 md:py-36 lg:py-44 overflow-hidden">
+    <section id="pricing" className="relative pt-12 md:pt-16 lg:pt-20 pb-24 md:pb-36 lg:pb-44 overflow-hidden">
       <div className="mx-auto max-w-[1200px] px-6 md:px-20">
         {/* ── Section Header ── */}
         <div

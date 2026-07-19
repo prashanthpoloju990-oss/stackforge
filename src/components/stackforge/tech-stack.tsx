@@ -23,7 +23,7 @@ export function TechStack() {
   const marqueeText = techStack.join(" ✦ ") + " ✦ ";
 
   return (
-    <section className="py-16 md:py-24 lg:py-28 overflow-hidden">
+    <section className="py-6 md:py-8 lg:py-10 overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

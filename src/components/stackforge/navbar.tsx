@@ -181,23 +181,39 @@ export function Navbar() {
     };
   }, [mobileOpen, closeMenu]);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === "/") {
+      if (typeof window !== "undefined" && pathname === "/") {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.history.pushState(null, "", "/");
+      }
+      return;
+    }
+    if (href.includes("#")) {
+      const targetId = href.split("#")[1];
+      const element = document.getElementById(targetId);
+      if (element && typeof window !== "undefined" && pathname === "/") {
+        e.preventDefault();
+        element.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", href);
+      }
+    }
+  };
+
   const isFloating = scrolled && !mobileOpen;
 
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none flex justify-center contain-layout",
-        isFloating ? "pt-4" : "pt-0"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] pointer-events-none flex justify-center w-full",
+        isFloating ? "pt-4 bg-transparent border-b-0" : mobileOpen ? "pt-0 bg-transparent border-b-0" : "pt-0 bg-forge-bg/85 backdrop-blur-md border-b border-forge-divider/40"
       )}
     >
       <div
         className={cn(
-          "pointer-events-auto transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between relative z-50",
-          isFloating
-            ? "w-full max-w-[1200px] bg-transparent border-none shadow-none px-6 md:px-20 h-14 pointer-events-none"
-            : mobileOpen
-              ? "w-full max-w-[1200px] bg-transparent border-none shadow-none px-6 md:px-20 h-16 md:h-[72px]"
-              : "w-full max-w-[1200px] rounded-none border-b border-forge-divider/30 bg-forge-bg/60 backdrop-blur-sm px-6 md:px-20 h-16 md:h-[72px]"
+          "pointer-events-auto transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between relative z-50 w-full max-w-[1200px] px-6 md:px-20",
+          isFloating ? "h-14 pointer-events-none" : "h-16 md:h-[72px]"
         )}
       >
         {/* Logo Capsule */}
@@ -211,6 +227,7 @@ export function Navbar() {
         >
           <Link
             href="/"
+            onClick={(e) => handleNavClick(e, "/")}
             className="flex items-center justify-center"
           >
             <Image
@@ -240,6 +257,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={(e) => handleNavClick(e, link.href)}
               className="relative text-forge-text-secondary/60 transition-colors duration-200 hover:text-forge-text link-underline font-mono tracking-widest text-[11px] font-semibold uppercase"
             >
               {link.label}
@@ -346,7 +364,10 @@ export function Navbar() {
                 <motion.div key={link.href} variants={linkVariants}>
                   <Link
                     href={link.href}
-                    onClick={() => setMobileOpen(false)}
+                    onClick={(e) => {
+                      setMobileOpen(false);
+                      handleNavClick(e, link.href);
+                    }}
                     className="text-[24px] xs:text-[28px] text-forge-text-secondary/80 font-medium font-syne tracking-wide transition-colors duration-200 hover:text-forge-text block py-2 px-1 border-b border-forge-divider/10 touch-manipulation"
                   >
                     {link.label}
