@@ -332,12 +332,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    /* ── Upload files to OQENS Storage and store public CDN links ── */
+    /* ── Upload files to Supabase Storage and store public CDN links ── */
     let attachmentsJson: string | null = null;
     if (Array.isArray(files) && files.length > 0) {
-      const apiKey = process.env.OQENS_API_KEY;
-      const cloudId = process.env.OQENS_CLOUD_ID;
-
       const ALLOWED_EXTENSIONS = ['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.txt', '.doc', '.docx', '.zip'];
       const ALLOWED_MIME_TYPES = [
         'application/pdf',
@@ -351,62 +348,75 @@ export async function POST(request: NextRequest) {
         'application/zip'
       ];
 
-      if (apiKey && cloudId) {
-        const uploadedAttachments: Array<{ name: string; url: string }> = [];
-        for (const file of files) {
-          try {
-            // Validate file structure
-            if (!file || typeof file !== "object" || !file.name || !file.type || !file.data) {
-              return NextResponse.json({ error: "Invalid file attachment structure." }, { status: 400 });
-            }
+      const bucketName = "client-uploads";
+      try {
+        const { data: bucketData, error: bucketError } = await supabase.storage.getBucket(bucketName);
+        if (bucketError || !bucketData) {
+          await supabase.storage.createBucket(bucketName, {
+            public: true,
+            fileSizeLimit: 5 * 1024 * 1024,
+          });
+        }
+      } catch (err) {
+        console.warn("[SUPABASE STORAGE] Bucket initialization check failed:", err);
+      }
 
-            // Validate file extension and MIME type
-            const lastDotIndex = file.name.lastIndexOf('.');
-            const extension = lastDotIndex !== -1 ? file.name.substring(lastDotIndex).toLowerCase() : "";
-            if (!ALLOWED_EXTENSIONS.includes(extension) || !ALLOWED_MIME_TYPES.includes(file.type)) {
-              console.warn(`[SECURITY] Disallowed file upload attempt: name="${file.name}", type="${file.type}"`);
-              return NextResponse.json({ error: `File type not allowed: ${file.name}. Only documents, images, and zip archives are permitted.` }, { status: 400 });
-            }
+      const uploadedAttachments: Array<{ name: string; url: string }> = [];
+      for (const file of files) {
+        try {
+          // Validate file structure
+          if (!file || typeof file !== "object" || !file.name || !file.type || !file.data) {
+            return NextResponse.json({ error: "Invalid file attachment structure." }, { status: 400 });
+          }
 
-            // Size safeguard: limit base64 decoded size to 3.5MB max
-            const decodedSize = file.data.length * 0.75;
-            if (decodedSize > 3.5 * 1024 * 1024) {
-              return NextResponse.json({ error: `File is too large (maximum 3.5MB): ${file.name}` }, { status: 400 });
-            }
+          // Validate file extension and MIME type
+          const lastDotIndex = file.name.lastIndexOf('.');
+          const extension = lastDotIndex !== -1 ? file.name.substring(lastDotIndex).toLowerCase() : "";
+          if (!ALLOWED_EXTENSIONS.includes(extension) || !ALLOWED_MIME_TYPES.includes(file.type)) {
+            console.warn(`[SECURITY] Disallowed file upload attempt: name="${file.name}", type="${file.type}"`);
+            return NextResponse.json({ error: `File type not allowed: ${file.name}. Only documents, images, and zip archives are permitted.` }, { status: 400 });
+          }
 
-            const buffer = Buffer.from(file.data, "base64");
-            const blob = new Blob([buffer], { type: file.type });
-            const uniqueKey = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+          // Size safeguard: limit base64 decoded size to 3.5MB max
+          const decodedSize = file.data.length * 0.75;
+          if (decodedSize > 3.5 * 1024 * 1024) {
+            return NextResponse.json({ error: `File is too large (maximum 3.5MB): ${file.name}` }, { status: 400 });
+          }
 
-            const formData = new FormData();
-            formData.append("file", blob, uniqueKey);
+          const buffer = Buffer.from(file.data, "base64");
+          const uniqueKey = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
 
-            const uploadRes = await fetch("https://auth.oqens.me/api/bucket/upload", {
-              method: "POST",
-              headers: {
-                "X-API-Key": apiKey,
-              },
-              body: formData,
+          // Upload to Supabase Storage
+          const { data: uploadData, error: uploadErr } = await supabase.storage
+            .from(bucketName)
+            .upload(uniqueKey, buffer, {
+              contentType: file.type,
+              upsert: true
             });
 
-            if (uploadRes.ok) {
-              uploadedAttachments.push({
-                name: file.name,
-                url: `https://dl.oqens.me/${cloudId}/${uniqueKey}`,
-              });
-              console.log(`[OQENS] Successfully uploaded ${file.name} to ${uniqueKey}`);
-            } else {
-              console.error(`[OQENS] Upload failed for ${file.name}:`, await uploadRes.text());
-            }
-          } catch (uploadErr) {
-            console.error(`[OQENS] Error uploading ${file.name}:`, uploadErr);
+          if (uploadErr) {
+            console.error(`[SUPABASE STORAGE] Upload failed for ${file.name}:`, uploadErr.message);
+            continue;
           }
+
+          // Get Public URL
+          const { data: publicUrlData } = supabase.storage
+            .from(bucketName)
+            .getPublicUrl(uniqueKey);
+
+          if (publicUrlData?.publicUrl) {
+            uploadedAttachments.push({
+              name: file.name,
+              url: publicUrlData.publicUrl,
+            });
+            console.log(`[SUPABASE STORAGE] Successfully uploaded ${file.name} to ${uniqueKey}`);
+          }
+        } catch (uploadErr) {
+          console.error(`[SUPABASE STORAGE] Error uploading ${file.name}:`, uploadErr);
         }
-        if (uploadedAttachments.length > 0) {
-          attachmentsJson = JSON.stringify(uploadedAttachments);
-        }
-      } else {
-        console.warn("[OQENS] Credentials are not configured in environment variables.");
+      }
+      if (uploadedAttachments.length > 0) {
+        attachmentsJson = JSON.stringify(uploadedAttachments);
       }
     }
 

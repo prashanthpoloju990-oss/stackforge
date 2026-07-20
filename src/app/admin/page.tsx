@@ -38,7 +38,13 @@ import {
   UserPlus,
   MessageSquarePlus,
   History,
-  X
+  X,
+  Sparkles,
+  ChevronDown,
+  LayoutDashboard,
+  Send,
+  Sliders,
+  Settings
 } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -88,38 +94,6 @@ function timeAgo(dateStr: string): string {
   return date.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
-// ── Glass Card component ──
-function GlassCard({ 
-  children, 
-  className = "", 
-  hover = true 
-}: { 
-  children: React.ReactNode; 
-  className?: string; 
-  hover?: boolean;
-}) {
-  return (
-    <motion.div
-      whileHover={hover ? { y: -3, scale: 1.005 } : undefined}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
-      className={cn(
-        "relative overflow-hidden rounded-2xl",
-        "bg-gradient-to-b from-white/[0.06] to-white/[0.02]",
-        "backdrop-blur-xl",
-        "border border-white/[0.08]",
-        "shadow-[0_8px_32px_-8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)]",
-        className
-      )}
-    >
-      {/* Glass shimmer highlight */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      </div>
-      {children}
-    </motion.div>
-  );
-}
-
 interface SparklinePoint {
   x: number;
   y: number;
@@ -161,31 +135,31 @@ function SparklineChart({
 
   return (
     <div className="relative w-full">
-      <svg className="w-full h-[130px]" viewBox={`0 0 ${width} ${height}`}>
+      <svg className="w-full h-[120px]" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="accentGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FF6A00" stopOpacity="0.2" />
+            <stop offset="0%" stopColor="#FF6A00" stopOpacity="0.15" />
             <stop offset="100%" stopColor="#FF6A00" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#10B981" stopOpacity="0.2" />
+            <stop offset="0%" stopColor="#10B981" stopOpacity="0.15" />
             <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
           </linearGradient>
         </defs>
         
         {/* Horizontal gridlines */}
-        <line x1={paddingLeft} y1={height - paddingBottom} x2={width - paddingRight} y2={height - paddingBottom} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
-        <line x1={paddingLeft} y1={paddingTop} x2={width - paddingRight} y2={paddingTop} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+        <line x1={paddingLeft} y1={height - paddingBottom} x2={width - paddingRight} y2={height - paddingBottom} stroke="rgba(0,0,0,0.03)" strokeWidth={1} />
+        <line x1={paddingLeft} y1={paddingTop} x2={width - paddingRight} y2={paddingTop} stroke="rgba(0,0,0,0.03)" strokeWidth={1} />
         
         {/* Y Axis helper labels */}
-        <text x={paddingLeft - 8} y={paddingTop + 4} fill="rgba(255,255,255,0.25)" fontSize="9" textAnchor="end" className="font-mono">{maxVal}</text>
-        <text x={paddingLeft - 8} y={height - paddingBottom + 3} fill="rgba(255,255,255,0.25)" fontSize="9" textAnchor="end" className="font-mono">0</text>
+        <text x={paddingLeft - 8} y={paddingTop + 4} fill="rgba(0,0,0,0.3)" fontSize="9" textAnchor="end" className="font-mono">{maxVal}</text>
+        <text x={paddingLeft - 8} y={height - paddingBottom + 3} fill="rgba(0,0,0,0.3)" fontSize="9" textAnchor="end" className="font-mono">0</text>
 
         {/* Path Fill */}
         {points.length > 0 && (
           <>
             <path d={areaPath} fill={fillColor} />
-            <path d={linePath} fill="none" stroke={strokeColor} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            <path d={linePath} fill="none" stroke={strokeColor} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
           </>
         )}
 
@@ -195,7 +169,7 @@ function SparklineChart({
             key={`lbl-${idx}`} 
             x={p.x} 
             y={height - 6} 
-            fill="rgba(255,255,255,0.2)" 
+            fill="rgba(0,0,0,0.3)" 
             fontSize="8" 
             textAnchor="middle" 
             className="font-mono select-none"
@@ -222,10 +196,10 @@ function SparklineChart({
               <circle
                 cx={p.x}
                 cy={p.y}
-                r={4}
+                r={3.5}
                 fill="#ffffff"
                 stroke={strokeColor}
-                strokeWidth={2}
+                strokeWidth={1.5}
                 pointerEvents="none"
               />
             )}
@@ -235,15 +209,15 @@ function SparklineChart({
       {/* Tooltip Overlay */}
       {hoverIdx !== null && (
         <div 
-          className="absolute bg-[#0a0a0f] border border-white/[0.08] rounded-lg px-2.5 py-1.5 shadow-xl text-[10px] font-mono pointer-events-none transition-all flex flex-col items-center z-20"
+          className="absolute bg-neutral-900 border border-neutral-800 rounded-lg px-2 py-1 shadow-md text-[9px] font-mono pointer-events-none transition-all flex flex-col items-center z-20 text-white"
           style={{
             left: `${(points[hoverIdx].x / width) * 100}%`,
             top: `${(points[hoverIdx].y / height) * 100 - 32}%`,
             transform: "translateX(-50%)"
           }}
         >
-          <span className="text-[#a1a1aa] leading-none">{points[hoverIdx].label}</span>
-          <span className="text-white font-bold mt-1 font-syne leading-none">{points[hoverIdx].val} Volume</span>
+          <span className="text-neutral-400 leading-none">{points[hoverIdx].label}</span>
+          <span className="text-white font-bold mt-0.5 leading-none">{points[hoverIdx].val} inquiries</span>
         </div>
       )}
     </div>
@@ -266,7 +240,7 @@ export default function AdminPage() {
   // Data state
   const [inquiries, setInquiries] = useState<ContactSubmission[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [activeTab, setActiveTab] = useState<"inquiries" | "subscribers" | "newsletter">("inquiries");
+  const [activeTab, setActiveTab] = useState<"overview" | "inquiries" | "subscribers" | "newsletter">("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedInquiry, setSelectedInquiry] = useState<ContactSubmission | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -293,6 +267,7 @@ export default function AdminPage() {
   const [auditLogTab, setAuditLogTab] = useState<"all" | "inquiry" | "subscriber">("all");
   const [auditLogSearch, setAuditLogSearch] = useState("");
 
+  // Update detail states when inquiry changes
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (selectedInquiry) {
@@ -321,32 +296,23 @@ export default function AdminPage() {
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Save draft to localStorage as user types
+  // Save drafts
   useEffect(() => {
-    if (broadcastSubject) {
-      localStorage.setItem("sf_draft_subject", broadcastSubject);
-    } else {
-      localStorage.removeItem("sf_draft_subject");
-    }
+    if (broadcastSubject) localStorage.setItem("sf_draft_subject", broadcastSubject);
+    else localStorage.removeItem("sf_draft_subject");
   }, [broadcastSubject]);
 
   useEffect(() => {
-    if (broadcastPreview) {
-      localStorage.setItem("sf_draft_preview", broadcastPreview);
-    } else {
-      localStorage.removeItem("sf_draft_preview");
-    }
+    if (broadcastPreview) localStorage.setItem("sf_draft_preview", broadcastPreview);
+    else localStorage.removeItem("sf_draft_preview");
   }, [broadcastPreview]);
 
   useEffect(() => {
-    if (broadcastBody) {
-      localStorage.setItem("sf_draft_body", broadcastBody);
-    } else {
-      localStorage.removeItem("sf_draft_body");
-    }
+    if (broadcastBody) localStorage.setItem("sf_draft_body", broadcastBody);
+    else localStorage.removeItem("sf_draft_body");
   }, [broadcastBody]);
 
-  // Check cookie-based session or query params (magic link) on mount
+  // Check magic login on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
@@ -359,7 +325,7 @@ export default function AdminPage() {
     }
   }, []);
 
-  // Subscribe to real-time changes
+  // Real-time subscriptions
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -369,7 +335,6 @@ export default function AdminPage() {
         "postgres_changes",
         { event: "*", schema: "public", table: "ContactSubmission" },
         (payload) => {
-          console.log("[REALTIME-ADMIN] ContactSubmission event received:", payload);
           if (payload.eventType === "INSERT") {
             const newInquiry = payload.new as ContactSubmission;
             setInquiries((prev) => {
@@ -395,7 +360,6 @@ export default function AdminPage() {
         "postgres_changes",
         { event: "*", schema: "public", table: "Newsletter" },
         (payload) => {
-          console.log("[REALTIME-ADMIN] Newsletter event received:", payload);
           if (payload.eventType === "INSERT") {
             const newSub = payload.new as Subscriber;
             setSubscribers((prev) => {
@@ -426,13 +390,12 @@ export default function AdminPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Magic link verification failed");
+        throw new Error(data.error || "Magic link failed");
       }
-      // Remove query parameters from URL without page reload
       window.history.replaceState({}, document.title, window.location.pathname);
       await fetchDashboardData();
     } catch (err: any) {
-      setError(err.message || "Failed to authenticate via magic link");
+      setError(err.message || "Magic login authentication failure");
       setIsAuthenticated(false);
       setInitialChecking(false);
       setLoading(false);
@@ -444,27 +407,21 @@ export default function AdminPage() {
     setResetMessage(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/admin?action=forgot_password", {
-        method: "POST",
-      });
+      const res = await fetch("/api/admin?action=forgot_password", { method: "POST" });
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to send magic link");
-      }
-      setResetMessage(data.message || "A secure magic login link has been sent to your admin email.");
+      if (!res.ok) throw new Error(data.error || "Failed to issue link");
+      setResetMessage(data.message || "Magic login link dispatched.");
     } catch (err: any) {
-      setError(err.message || "Could not request magic login link");
+      setError(err.message || "Could not request link");
     } finally {
       setLoading(false);
     }
   }
 
-  // Count down timer for MFA expiration
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!mfaRequired) return;
     setTimeLeft(600);
-
     const interval = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -474,7 +431,6 @@ export default function AdminPage() {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [mfaRequired]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -490,13 +446,11 @@ export default function AdminPage() {
         body: JSON.stringify({ email: mfaEmail }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to resend validation key");
-      }
-      setResetMessage(data.message || "A new code has been sent.");
-      setTimeLeft(600); // Reset timer
+      if (!res.ok) throw new Error(data.error || "MFA dispatch failure");
+      setResetMessage(data.message || "New validation code dispatched.");
+      setTimeLeft(600);
     } catch (err: any) {
-      setError(err.message || "Could not resend code");
+      setError(err.message || "Resend code failure");
     } finally {
       setLoading(false);
     }
@@ -520,7 +474,7 @@ export default function AdminPage() {
       } else {
         setIsAuthenticated(false);
       }
-    } catch (err: any) {
+    } catch (err) {
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
@@ -544,7 +498,7 @@ export default function AdminPage() {
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || "Invalid password");
+          throw new Error(data.error || "Access denied");
         }
 
         const data = await res.json();
@@ -555,7 +509,7 @@ export default function AdminPage() {
           await fetchDashboardData();
         }
       } catch (err: any) {
-        setError(err.message || "Failed to authenticate");
+        setError(err.message || "System keys invalid");
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
@@ -572,12 +526,12 @@ export default function AdminPage() {
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || "Invalid verification code");
+          throw new Error(data.error || "MFA validation failure");
         }
 
         await fetchDashboardData();
       } catch (err: any) {
-        setError(err.message || "MFA validation failed");
+        setError(err.message || "Verification code incorrect");
       } finally {
         setLoading(false);
       }
@@ -593,7 +547,7 @@ export default function AdminPage() {
       setSubscribers([]);
       setPassword("");
     } catch (err) {
-      console.error("Logout failed:", err);
+      console.error("Logout error:", err);
     } finally {
       setLoading(false);
     }
@@ -608,7 +562,7 @@ export default function AdminPage() {
       )}`;
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", jsonString);
-      downloadAnchor.setAttribute("download", `stackforge_${type}_${new Date().toISOString().split("T")[0]}.json`);
+      downloadAnchor.setAttribute("download", `sf_${type}_${new Date().toISOString().split("T")[0]}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -649,7 +603,7 @@ export default function AdminPage() {
       const url = URL.createObjectURL(blob);
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", url);
-      downloadAnchor.setAttribute("download", `stackforge_${type}_${new Date().toISOString().split("T")[0]}.csv`);
+      downloadAnchor.setAttribute("download", `sf_${type}_${new Date().toISOString().split("T")[0]}.csv`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -661,7 +615,7 @@ export default function AdminPage() {
     e.preventDefault();
     if (!broadcastSubject || !broadcastBody || broadcastStatus === "sending") return;
 
-    if (!confirm(`Are you sure you want to send this broadcast to all ${subscribers.length} subscribers?`)) {
+    if (!confirm(`Deploy broadcast newsletter to all ${subscribers.length} active contacts?`)) {
       return;
     }
 
@@ -680,12 +634,10 @@ export default function AdminPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to broadcast newsletter");
-      }
+      if (!res.ok) throw new Error(data.error || "Broadcast delivery failure");
 
       setBroadcastStatus("success");
-      setBroadcastMessage(data.message || "Newsletter broadcast sent successfully!");
+      setBroadcastMessage(data.message || "Newsletter broadcast deployed!");
       setBroadcastSubject("");
       setBroadcastPreview("");
       setBroadcastBody("");
@@ -694,7 +646,7 @@ export default function AdminPage() {
       localStorage.removeItem("sf_draft_body");
     } catch (err: any) {
       setBroadcastStatus("error");
-      setBroadcastMessage(err.message || "Failed to broadcast newsletter");
+      setBroadcastMessage(err.message || "Broadcast pipeline execution error");
     }
   };
 
@@ -718,11 +670,8 @@ export default function AdminPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to update project settings");
-      }
+      if (!res.ok) throw new Error(data.error || "Sync settings failure");
 
-      // Update in-memory inquiries state
       setInquiries(prev => prev.map(inq => {
         if (inq.id === selectedInquiry.id) {
           return {
@@ -737,7 +686,6 @@ export default function AdminPage() {
         return inq;
       }));
 
-      // Update active selectedInquiry state
       setSelectedInquiry(prev => prev ? {
         ...prev,
         status: projStatus,
@@ -747,27 +695,20 @@ export default function AdminPage() {
         clientNotes: projNotes,
       } : null);
 
-      alert("Project tracking details saved successfully!");
+      alert("Client tracking matrices saved successfully.");
     } catch (err: any) {
-      alert("Error saving project: " + err.message);
+      alert("Error saving properties: " + err.message);
     } finally {
       setProjSaving(false);
     }
   };
 
   const handleDelete = async (type: "inquiry" | "subscriber", id: string) => {
-    if (!confirm(`Are you sure you want to delete this ${type === "inquiry" ? "inquiry" : "subscriber"}?`)) {
-      return;
-    }
+    if (!confirm(`Purge this ${type} permanently from databases?`)) return;
 
     try {
-      const res = await fetch(`/api/admin?type=${type}&id=${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to delete");
-      }
+      const res = await fetch(`/api/admin?type=${type}&id=${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Delete operation rejected by backend");
 
       if (type === "inquiry") {
         setInquiries(prev => prev.filter(i => i.id !== id));
@@ -776,11 +717,10 @@ export default function AdminPage() {
         setSubscribers(prev => prev.filter(s => s.id !== id));
       }
     } catch (err) {
-      alert("Error deleting record: " + err);
+      alert("Database error: " + err);
     }
   };
 
-  // Filtered Inquiries
   const filteredInquiries = useMemo(() => {
     return inquiries.filter(i => {
       const query = searchQuery.toLowerCase();
@@ -795,14 +735,10 @@ export default function AdminPage() {
     });
   }, [inquiries, searchQuery]);
 
-  // Filtered Subscribers
   const filteredSubscribers = useMemo(() => {
-    return subscribers.filter(s => {
-      return s.email.toLowerCase().includes(searchQuery.toLowerCase());
-    });
+    return subscribers.filter(s => s.email.toLowerCase().includes(searchQuery.toLowerCase()));
   }, [subscribers, searchQuery]);
 
-  // Analytics/Charts Data (budgets & service demand)
   const analytics = useMemo(() => {
     const servicesMap: Record<string, number> = {};
     const budgetsMap: Record<string, number> = {};
@@ -821,12 +757,11 @@ export default function AdminPage() {
     };
   }, [inquiries]);
 
-  // Weekly data velocity (last 7 days)
   const chartData = useMemo(() => {
     const dates = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - (6 - i));
-      return d.toISOString().split("T")[0]; // YYYY-MM-DD
+      return d.toISOString().split("T")[0];
     });
 
     const inquiryCounts = new Array(7).fill(0);
@@ -835,17 +770,13 @@ export default function AdminPage() {
     inquiries.forEach(inq => {
       const dateStr = new Date(inq.createdAt).toISOString().split("T")[0];
       const idx = dates.indexOf(dateStr);
-      if (idx !== -1) {
-        inquiryCounts[idx]++;
-      }
+      if (idx !== -1) inquiryCounts[idx]++;
     });
 
     subscribers.forEach(sub => {
       const dateStr = new Date(sub.createdAt).toISOString().split("T")[0];
       const idx = dates.indexOf(dateStr);
-      if (idx !== -1) {
-        subscriberCounts[idx]++;
-      }
+      if (idx !== -1) subscriberCounts[idx]++;
     });
 
     return {
@@ -859,27 +790,19 @@ export default function AdminPage() {
     };
   }, [inquiries, subscribers]);
 
-  // Compute Pipeline stats
   const stats = useMemo(() => {
     let totalInquiriesCount = inquiries.length;
     let totalSubscribersCount = subscribers.length;
-    
     let pipelineVal = 0;
+
     inquiries.forEach(i => {
       const budgetStr = i.budget || "";
-      if (budgetStr.includes("50,000+")) {
-        pipelineVal += 60000;
-      } else if (budgetStr.includes("15,000 – ₹50,000")) {
-        pipelineVal += 32500;
-      } else if (budgetStr.includes("5,000 – ₹15,000")) {
-        pipelineVal += 10000;
-      } else if (budgetStr.includes("3,000 – ₹5,000")) {
-        pipelineVal += 4000;
-      } else if (budgetStr.includes("Under ₹3,000")) {
-        pipelineVal += 2000;
-      } else if (budgetStr.includes("Flexible")) {
-        pipelineVal += 15000;
-      }
+      if (budgetStr.includes("50,000+")) pipelineVal += 60000;
+      else if (budgetStr.includes("15,000 – ₹50,000")) pipelineVal += 32500;
+      else if (budgetStr.includes("5,000 – ₹15,000")) pipelineVal += 10000;
+      else if (budgetStr.includes("3,000 – ₹5,000")) pipelineVal += 4000;
+      else if (budgetStr.includes("Under ₹3,000")) pipelineVal += 2000;
+      else if (budgetStr.includes("Flexible")) pipelineVal += 15000;
     });
 
     return {
@@ -901,7 +824,6 @@ export default function AdminPage() {
     };
   }, [inquiries, subscribers]);
 
-  // ── Activity Feed: +1 / -1 changelog ──
   const activityFeedAll = useMemo(() => {
     type FeedItem = {
       id: string;
@@ -915,7 +837,6 @@ export default function AdminPage() {
 
     const items: FeedItem[] = [];
 
-    // All inquiries are "+1" events
     inquiries.forEach(i => {
       items.push({
         id: `inq-${i.id}`,
@@ -928,7 +849,6 @@ export default function AdminPage() {
       });
     });
 
-    // All subscribers are "+1" events
     subscribers.forEach(s => {
       items.push({
         id: `sub-${s.id}`,
@@ -941,14 +861,12 @@ export default function AdminPage() {
       });
     });
 
-    // Sort by most recent first
     items.sort((a, b) => b.rawDate.getTime() - a.rawDate.getTime());
     return items;
   }, [inquiries, subscribers]);
 
   const activityFeed = useMemo(() => activityFeedAll.slice(0, 8), [activityFeedAll]);
 
-  // Count items from last 24h
   const recentCount = useMemo(() => {
     const now = new Date();
     const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
@@ -958,7 +876,6 @@ export default function AdminPage() {
     return count;
   }, [inquiries, subscribers]);
 
-  // Copy Subscribers email list
   const copyEmailsList = () => {
     const list = subscribers.map(s => s.email).join(", ");
     navigator.clipboard.writeText(list);
@@ -982,10 +899,10 @@ export default function AdminPage() {
 
   if (initialChecking) {
     return (
-      <div className="min-h-screen bg-[#030306] flex flex-col items-center justify-center text-white">
+      <div className="min-h-screen bg-[#0E0E12] flex flex-col items-center justify-center text-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-forge-accent border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-mono tracking-widest text-[#a1a1aa] uppercase animate-pulse">
+          <div className="w-8 h-8 border-[3px] border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-[10px] font-mono tracking-widest text-neutral-500 uppercase animate-pulse">
             Connecting Console...
           </p>
         </div>
@@ -993,108 +910,95 @@ export default function AdminPage() {
     );
   }
 
+  // ── CINEMATIC 4K LOGIN SCREEN REDESIGN ──
   if (!isAuthenticated) {
     return (
-      <main className="min-h-screen bg-[#030306] flex items-center justify-center p-6 relative overflow-hidden font-sans">
-        {/* Dynamic decorative backdrop blobs */}
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-forge-accent/[0.04] blur-[140px] pointer-events-none animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-indigo-500/[0.03] blur-[140px] pointer-events-none" />
-
-        <motion.div 
-          initial={{ opacity: 0, y: 30, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-[420px] bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-8 shadow-[0_8px_60px_-12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] relative z-10"
-        >
-          {/* Subtle top card accent light */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-[1px] bg-gradient-to-r from-transparent via-forge-accent/60 to-transparent" />
-
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-forge-accent/15 to-transparent border border-forge-accent/30 flex items-center justify-center shadow-lg shadow-forge-accent/10 backdrop-blur-xl">
-                <Lock className="size-5 text-forge-accent" />
-              </div>
+      <main className="min-h-screen bg-[#08080A] flex p-0 relative overflow-hidden font-sans w-full text-white">
+        {/* Left Side: Editorial Dark Login Pane (40% width on desktop) */}
+        <div className="w-full lg:w-[42%] bg-[#0A0A0D]/95 backdrop-blur-3xl border-r border-white/[0.04] p-8 md:p-16 flex flex-col justify-between z-10 relative">
+          {/* subtle line */}
+          <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-orange-500/80 via-transparent to-transparent" />
+          
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/10">
+              <Flame className="size-4.5 text-white" />
             </div>
-            <h1 className="text-2xl font-black text-white tracking-widest font-syne uppercase">
-              StackForge
-            </h1>
-            <p className="text-[10px] text-forge-accent mt-1.5 font-mono tracking-widest uppercase">
-              CLIENT DATABASE & CONSOLE
-            </p>
+            <div>
+              <h1 className="text-xs font-black tracking-[0.2em] uppercase font-syne text-white leading-none">
+                StackForge
+              </h1>
+              <span className="text-[8px] font-mono text-neutral-500 uppercase tracking-widest leading-none block mt-1">
+                Central Operations
+              </span>
+            </div>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <AnimatePresence mode="wait">
-              {!mfaRequired ? (
-                <motion.div
-                  key="password-field"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <label className="text-[10px] uppercase tracking-widest text-[#a1a1aa] block font-bold mb-2 font-mono">
-                    System Security Key
-                  </label>
-                  <div className="relative">
+          <div className="max-w-[340px] w-full mx-auto my-auto space-y-7">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-white font-syne">
+                System decrypt
+              </h2>
+              <p className="text-xs text-neutral-400 font-mono mt-1">
+                Authorized operators credential access gate.
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <AnimatePresence mode="wait">
+                {!mfaRequired ? (
+                  <motion.div
+                    key="password-field"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-1.5"
+                  >
+                    <label className="text-[9px] uppercase tracking-wider text-neutral-400 block font-bold font-mono">
+                      System Security Key
+                    </label>
                     <input
                       type="password"
                       placeholder="••••••••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       disabled={loading}
-                      className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-[#3e3f4a] outline-none focus:border-forge-accent/50 focus:ring-1 focus:ring-forge-accent/20 transition-all font-mono backdrop-blur-sm"
+                      className="w-full bg-white/[0.02] border border-white/[0.08] rounded-lg px-4 py-3 text-xs text-white placeholder-neutral-700 outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/10 transition-all font-mono"
                       autoFocus
                     />
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span />
-                    <button
-                      type="button"
-                      onClick={handleForgotPassword}
-                      disabled={loading}
-                      className="text-[9px] text-[#a1a1aa]/80 hover:text-forge-accent uppercase font-mono tracking-widest transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-none p-0"
-                    >
-                      Forgot Key? Request Magic Link ↗
-                    </button>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="mfa-field"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <div className="flex justify-between items-baseline mb-2">
-                    <div className="flex items-center gap-2">
-                      <label className="text-[10px] uppercase tracking-widest text-forge-accent block font-bold font-mono">
-                        MFA Validation Key
+                    <div className="flex justify-end pt-1">
+                      <button
+                        type="button"
+                        onClick={handleForgotPassword}
+                        disabled={loading}
+                        className="text-[9px] text-neutral-500 hover:text-orange-500 uppercase font-mono tracking-wider transition-colors cursor-pointer bg-transparent border-none p-0"
+                      >
+                        Request Access Link ↗
+                      </button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="mfa-field"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-1.5"
+                  >
+                    <div className="flex justify-between items-center">
+                      <label className="text-[9px] uppercase tracking-wider text-orange-500 block font-bold font-mono">
+                        Verification Code
                       </label>
                       <span className={cn(
-                        "text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border select-none",
+                        "text-[9px] font-mono px-1.5 py-0.5 rounded border leading-none",
                         timeLeft <= 60 
-                          ? "bg-red-500/10 text-red-400 animate-pulse border-red-500/20" 
-                          : "bg-white/5 text-[#a1a1aa] border-white/10"
+                          ? "bg-red-500/10 text-red-400 border-red-500/20" 
+                          : "bg-white/5 text-neutral-400 border-white/10"
                       )}>
                         {formatTime(timeLeft)}
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMfaRequired(false);
-                        setMfaCode("");
-                        setPassword("");
-                        setError(null);
-                      }}
-                      className="text-[9px] text-[#a1a1aa] hover:text-white uppercase font-mono tracking-widest transition-colors cursor-pointer"
-                    >
-                      ← Back
-                    </button>
-                  </div>
-                  <div className="relative">
                     <input
                       type="text"
                       placeholder="000000"
@@ -1102,732 +1006,679 @@ export default function AdminPage() {
                       onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       disabled={loading || timeLeft === 0}
                       maxLength={6}
-                      className="w-full bg-white/[0.04] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-[#3e3f4a] outline-none focus:border-forge-accent/50 focus:ring-1 focus:ring-forge-accent/20 transition-all font-mono tracking-widest text-center text-lg font-bold backdrop-blur-sm"
+                      className="w-full bg-white/[0.02] border border-white/[0.08] rounded-lg px-4 py-3 text-center text-sm tracking-[0.3em] font-bold text-white placeholder-neutral-700 outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/10 transition-all font-mono"
                       autoFocus
                     />
-                  </div>
-                  <div className="flex justify-between items-center mt-2.5">
-                    <span className="text-[9px] text-[#a1a1aa]/60 font-mono leading-tight">
-                      Code sent to {mfaEmail.replace(/^(.)(.*)(@.*)$/, (_, f, m, l) => f + "*".repeat(m.length) + l)}.<br />
-                      {timeLeft === 0 ? <span className="text-red-400 font-bold">Code expired. Please resend.</span> : "Expires in 10 minutes."}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleResendMfa}
-                      disabled={loading || timeLeft > 570} // limit to once every 30s
-                      className="text-[9px] text-[#a1a1aa] hover:text-forge-accent uppercase font-mono tracking-widest transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-none p-0 shrink-0 ml-2"
-                    >
-                      {timeLeft > 570 ? `Resend in ${timeLeft - 570}s` : "Resend Key ↗"}
-                    </button>
-                  </div>
-                </motion.div>
+                    <div className="flex justify-between items-center pt-1 font-mono text-[9px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMfaRequired(false);
+                          setMfaCode("");
+                          setPassword("");
+                          setError(null);
+                        }}
+                        className="text-neutral-500 hover:text-white transition-colors"
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleResendMfa}
+                        disabled={loading || timeLeft > 570}
+                        className="text-neutral-500 hover:text-orange-500 transition-colors disabled:opacity-50"
+                      >
+                        Resend Code
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {error && (
+                <div className="text-[10px] text-red-400 font-mono bg-red-950/20 border border-red-900/30 p-2.5 rounded-lg flex items-center gap-2">
+                  <AlertTriangle className="size-3 shrink-0" />
+                  <span>{error}</span>
+                </div>
               )}
-            </AnimatePresence>
 
-            {error && (
-              <motion.div 
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-[11px] text-red-400 font-mono text-center bg-red-950/15 border border-red-900/30 py-2.5 rounded-lg flex items-center justify-center gap-1.5"
-              >
-                <AlertTriangle className="size-3.5 flex-shrink-0" />
-                <span>{error}</span>
-              </motion.div>
-            )}
-
-            {resetMessage && (
-              <motion.div 
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-[11px] text-emerald-400 font-mono text-center bg-emerald-950/15 border border-emerald-900/30 py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5"
-              >
-                <CheckCircle2 className="size-3.5 flex-shrink-0" />
-                <span>{resetMessage}</span>
-              </motion.div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 bg-forge-accent hover:bg-forge-accent/90 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-forge-accent/20 border border-forge-accent/30 hover:scale-[1.01] active:scale-[0.99]"
-            >
-              {loading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <span>{!mfaRequired ? "Decrypt System" : "Verify Credentials"}</span>
-                  <ChevronRight className="size-4" />
-                </>
+              {resetMessage && (
+                <div className="text-[10px] text-emerald-400 font-mono bg-emerald-950/20 border border-emerald-900/30 p-2.5 rounded-lg flex items-center gap-2">
+                  <CheckCircle2 className="size-3 shrink-0" />
+                  <span>{resetMessage}</span>
+                </div>
               )}
-            </button>
-          </form>
-        </motion.div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-11 bg-orange-600 hover:bg-orange-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-orange-600/15"
+              >
+                {loading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <span>{!mfaRequired ? "Authenticate Credentials" : "Submit Verification"}</span>
+                    <ChevronRight className="size-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          <div className="text-neutral-600 text-[9px] font-mono flex items-center gap-1.5 select-none justify-center">
+            <span>Powered by Supabase Security Guard</span>
+            <span>·</span>
+            <span>Node v18</span>
+          </div>
+        </div>
+
+        {/* Right Side: Cinematic Ambient 4K Studio Image (Hidden on mobile) */}
+        <div className="hidden lg:block flex-1 relative bg-[#060608]">
+          <Image
+            src="/admin-bg.jpg"
+            alt="StackForge Studio"
+            fill
+            className="object-cover opacity-65 grayscale-[30%] select-none pointer-events-none"
+            priority
+          />
+          {/* Dark luxury overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#08080A] via-transparent to-black/30" />
+          <div className="absolute bottom-16 left-16 max-w-[480px] space-y-2 z-10 select-none">
+            <span className="text-xs font-mono text-orange-500 uppercase tracking-widest block font-bold">StackForge Premium Console</span>
+            <h3 className="text-3xl font-black text-white font-syne tracking-tight leading-tight">
+              A high performance workspace built for high performance engineers.
+            </h3>
+            <p className="text-xs text-neutral-400 leading-relaxed font-mono">
+              Designed with precision, styled for clarity, and integrated securely with SQLite & Supabase core pipelines.
+            </p>
+          </div>
+        </div>
       </main>
     );
   }
 
+  // ── PREMIUM EDITORIAL SPLIT-PANE REDESIGN ──
   return (
-    <main className="min-h-screen bg-[#040407] text-white flex flex-col font-sans relative pb-16">
-      {/* Background gradients */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-forge-accent/[0.03] blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full bg-indigo-500/[0.02] blur-[150px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-cyan-500/[0.01] blur-[200px] pointer-events-none" />
+    <main className="min-h-screen bg-[#FDFDFD] text-[#1A1A1E] flex font-sans overflow-hidden">
+      
+      {/* ── Left Sidebar (Dark Charcoal #0E0E12 Pane) ── */}
+      <aside className="w-[240px] bg-[#0C0C0F] text-white flex flex-col justify-between shrink-0 border-r border-white/[0.04] z-20">
+        <div>
+          {/* Logo Brand Strip */}
+          <div className="p-6 border-b border-white/[0.04] flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center">
+              <Flame className="size-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xs font-black tracking-[0.25em] uppercase font-syne leading-none text-white">
+                StackForge
+              </h2>
+              <span className="text-[7.5px] font-mono text-neutral-500 tracking-wider uppercase leading-none block mt-1">
+                Ops Database v1.0
+              </span>
+            </div>
+          </div>
 
-      {/* ── Top Header ── */}
-      <header className="border-b border-white/[0.06] bg-white/[0.02] backdrop-blur-2xl sticky top-0 z-30 px-6 md:px-12 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-forge-accent to-orange-500 flex items-center justify-center shadow-lg shadow-forge-accent/20 backdrop-blur-xl">
-            <Flame className="size-4.5 text-white animate-pulse" />
-          </div>
-          <div>
-            <h1 className="text-sm font-black tracking-widest uppercase font-syne flex items-center gap-2">
-              <span>StackForge Console</span>
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-            </h1>
-            <p className="text-[9px] text-emerald-400 font-mono leading-none tracking-wider uppercase">
-              Connected · Supabase Cloud
-            </p>
-          </div>
+          {/* Navigation Items */}
+          <nav className="p-4 space-y-1">
+            {[
+              { id: "overview", label: "Overview", icon: LayoutDashboard },
+              { id: "inquiries", label: "Inquiries", icon: FolderGit2, count: inquiries.length },
+              { id: "subscribers", label: "Subscribers", icon: Users, count: subscribers.length },
+              { id: "newsletter", label: "Broadcast", icon: Mail },
+            ].map(item => {
+              const Icon = item.icon;
+              const isSelected = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id as any);
+                    setSearchQuery("");
+                  }}
+                  className={cn(
+                    "w-full h-10 px-3.5 rounded-lg text-xs font-medium font-mono uppercase tracking-wider flex items-center justify-between transition-all cursor-pointer",
+                    isSelected 
+                      ? "bg-white/[0.04] text-white border border-white/[0.06]" 
+                      : "text-neutral-400 hover:text-white hover:bg-white/[0.02] border border-transparent"
+                  )}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={cn("size-3.5", isSelected ? "text-orange-500" : "text-neutral-500")} />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.count !== undefined && item.count > 0 && (
+                    <span className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded bg-white/[0.05] text-neutral-400">
+                      {item.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => setAuditLogModalOpen(true)}
+              className="w-full h-10 px-3.5 rounded-lg text-xs font-medium font-mono uppercase tracking-wider flex items-center gap-2.5 text-neutral-400 hover:text-white hover:bg-white/[0.02] transition-colors cursor-pointer mt-4"
+            >
+              <History className="size-3.5 text-neutral-500" />
+              <span>Full Audit Logs</span>
+            </button>
+          </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Recent activity badge */}
-          {recentCount > 0 && (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="h-8 px-3 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20 backdrop-blur-xl flex items-center gap-1.5"
-            >
-              <Bell className="size-3 text-emerald-400" />
-              <span className="text-[10px] font-bold text-emerald-400 font-mono tracking-wider">
-                +{recentCount} <span className="hidden sm:inline">last 24h</span>
-              </span>
-            </motion.div>
-          )}
+        {/* Sidebar Footer Panel */}
+        <div className="p-4 border-t border-white/[0.04] space-y-4 bg-black/20">
+          <div className="flex items-center gap-2 px-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="min-w-0">
+              <p className="text-[8px] font-mono text-neutral-500 uppercase leading-none tracking-widest">
+                Database Node
+              </p>
+              <p className="text-[10px] font-bold text-neutral-300 font-mono truncate leading-none mt-1">
+                Supabase Online
+              </p>
+            </div>
+          </div>
 
           <button
             onClick={handleLogout}
-            className="h-8 px-3.5 rounded-xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-xl text-[11px] font-bold uppercase tracking-wider hover:border-red-500/40 hover:bg-red-950/15 hover:text-red-400 transition-all flex items-center gap-1.5 cursor-pointer font-mono shadow-sm text-[#a1a1aa]"
+            className="w-full h-9 rounded-lg border border-white/[0.05] bg-white/[0.02] hover:bg-red-950/20 hover:border-red-500/20 hover:text-red-400 text-neutral-400 font-mono text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <LogOut className="size-3.5" />
+            <LogOut className="size-3" />
             <span>Lock Console</span>
           </button>
         </div>
-      </header>
+      </aside>
 
-      {/* ── Main Container ── */}
-      <div className="max-w-[1400px] mx-auto w-full px-6 md:px-12 mt-8 flex-1 flex flex-col gap-8">
+      {/* ── Right Workspace Workspace Area (Warm Off-White FAF9F6 Vibe) ── */}
+      <section className="flex-1 bg-[#FAF9F6] flex flex-col overflow-hidden relative">
+        {/* Grain overlay */}
+        <div className="grain-overlay opacity-[0.035] pointer-events-none" aria-hidden="true" />
         
-        {/* ── Statistics Grid ── */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          
-          {/* Card 1: Pipeline Value */}
-          <GlassCard className="p-6 flex items-center justify-between group">
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                Est. Pipeline Value
-              </span>
-              <h2 className="text-2xl font-black tracking-tight text-white mt-2 font-mono">
-                {stats.pipelineBudget}
-              </h2>
-            </div>
-            <div className="w-11 h-11 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/15 flex items-center justify-center shadow-lg shadow-emerald-500/5 backdrop-blur-sm group-hover:shadow-emerald-500/15 transition-shadow duration-300">
-              <DollarSign className="size-5 text-emerald-400" />
-            </div>
-          </GlassCard>
-
-          {/* Card 2: Average Deal Size */}
-          <GlassCard className="p-6 flex items-center justify-between group">
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                Avg. Deal Value
-              </span>
-              <h2 className="text-2xl font-black tracking-tight text-white mt-2 font-mono">
-                {stats.averageDeal}
-              </h2>
-            </div>
-            <div className="w-11 h-11 rounded-xl bg-orange-500/[0.08] border border-orange-500/15 flex items-center justify-center shadow-lg shadow-orange-500/5 backdrop-blur-sm group-hover:shadow-orange-500/15 transition-shadow duration-300">
-              <LineChart className="size-5 text-orange-400" />
-            </div>
-          </GlassCard>
-
-          {/* Card 3: Total Inquiries */}
-          <GlassCard className="p-6 flex items-center justify-between group">
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                Total Inquiries
-              </span>
-              <h2 className="text-2xl font-black tracking-tight text-white mt-2 font-mono">
-                {stats.inquiriesCount}
-              </h2>
-            </div>
-            <div className="w-11 h-11 rounded-xl bg-forge-accent/[0.08] border border-forge-accent/15 flex items-center justify-center shadow-lg shadow-forge-accent/5 backdrop-blur-sm group-hover:shadow-forge-accent/15 transition-shadow duration-300">
-              <FolderGit2 className="size-5 text-forge-accent" />
-            </div>
-          </GlassCard>
-
-          {/* Card 4: Newsletter Subscribers */}
-          <GlassCard className="p-6 flex items-center justify-between group">
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                Audience Subscribers
-              </span>
-              <h2 className="text-2xl font-black tracking-tight text-white mt-2 font-mono">
-                {stats.subscribersCount}
-              </h2>
-            </div>
-            <div className="w-11 h-11 rounded-xl bg-indigo-500/[0.08] border border-indigo-500/15 flex items-center justify-center shadow-lg shadow-indigo-500/5 backdrop-blur-sm group-hover:shadow-indigo-500/15 transition-shadow duration-300">
-              <Users className="size-5 text-indigo-400" />
-            </div>
-          </GlassCard>
-        </div>
-
-        {/* ── Interactive Charts Row ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <GlassCard className="p-6 flex flex-col gap-4" hover={false}>
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                  Inbound Inquiries Velocity (Last 7 Days)
-                </span>
-                <span className="text-[18px] font-black text-white mt-1 block font-mono">
-                  {chartData.inquiries.reduce((a, b) => a + b, 0)} Total
-                </span>
-              </div>
-              <div className="text-[9px] font-mono text-forge-accent bg-forge-accent/[0.08] border border-forge-accent/15 px-2.5 py-0.5 rounded-full select-none">
-                TREND
-              </div>
-            </div>
-            <SparklineChart data={chartData.inquiries} labels={chartData.labels} strokeColor="#FF6A00" fillColor="url(#accentGrad)" />
-          </GlassCard>
-
-          <GlassCard className="p-6 flex flex-col gap-4" hover={false}>
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                  Newsletter Subscriptions Velocity (Last 7 Days)
-                </span>
-                <span className="text-[18px] font-black text-white mt-1 block font-mono">
-                  {chartData.subscribers.reduce((a, b) => a + b, 0)} Total
-                </span>
-              </div>
-              <div className="text-[9px] font-mono text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/15 px-2.5 py-0.5 rounded-full select-none">
-                TREND
-              </div>
-            </div>
-            <SparklineChart data={chartData.subscribers} labels={chartData.labels} strokeColor="#10B981" fillColor="url(#emeraldGrad)" />
-          </GlassCard>
-        </div>
-
-        {/* ── Activity Feed + Analytics Row ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          
-          {/* Activity Feed — +1 / -1 System */}
-          <GlassCard className="p-6 lg:col-span-1" hover={false}>
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold flex items-center gap-2">
-                <Activity className="size-3.5 text-forge-accent" />
-                Live Activity Feed
-              </h3>
-              <div className="flex items-center gap-3">
-                <span className="text-[9px] font-mono text-emerald-400 bg-emerald-500/[0.08] border border-emerald-500/15 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                  LIVE
-                </span>
-                <button
-                  onClick={() => setAuditLogModalOpen(true)}
-                  className="text-[9px] font-mono text-[#a1a1aa] hover:text-white uppercase tracking-wider underline decoration-white/20 hover:decoration-white transition-colors cursor-pointer"
-                >
-                  View Full History
-                </button>
-              </div>
-            </div>
-            
-            {activityFeed.length === 0 ? (
-              <div className="text-center py-8 text-[#5e5f6a]">
-                <Activity className="size-6 mx-auto mb-2 opacity-30" />
-                <p className="text-[10px] font-mono uppercase tracking-wider">No activity yet</p>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                {activityFeed.map((item, idx) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.04, duration: 0.25 }}
-                    className="flex items-center gap-3 py-2.5 px-3 rounded-xl hover:bg-white/[0.03] transition-colors group/feed"
-                  >
-                    {/* +1 / -1 Badge */}
-                    <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono text-[11px] font-black border backdrop-blur-sm",
-                      item.action === "+1"
-                        ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
-                        : "bg-red-500/[0.08] border-red-500/20 text-red-400"
-                    )}>
-                      {item.action}
-                    </div>
-
-                    {/* Icon */}
-                    <div className={cn(
-                      "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border backdrop-blur-sm",
-                      item.type === "inquiry"
-                        ? "bg-forge-accent/[0.06] border-forge-accent/15"
-                        : "bg-indigo-500/[0.06] border-indigo-500/15"
-                    )}>
-                      {item.type === "inquiry" 
-                        ? <MessageSquarePlus className="size-3.5 text-forge-accent" />
-                        : <UserPlus className="size-3.5 text-indigo-400" />
-                      }
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-semibold text-white truncate font-syne leading-tight">
-                        {item.label}
-                      </p>
-                      <p className="text-[9px] text-[#a1a1aa] font-mono truncate mt-0.5">
-                        {item.sublabel}
-                      </p>
-                    </div>
-
-                    {/* Time */}
-                    <span className="text-[9px] text-[#5e5f6a] font-mono shrink-0 group-hover/feed:text-[#a1a1aa] transition-colors">
-                      {item.time}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </GlassCard>
-
-          {/* Analytics Charts */}
-          {inquiries.length > 0 && (
-            <>
-              {/* Service demand */}
-              <GlassCard className="p-6" hover={false}>
-                <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold mb-5 flex items-center gap-2">
-                  <Briefcase className="size-3.5 text-forge-accent" />
-                  Service Distribution
-                </h3>
-                <div className="space-y-4">
-                  {analytics.services.map(([service, count]) => {
-                    const percent = Math.round((count / inquiries.length) * 100);
-                    return (
-                      <div key={service} className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs font-mono text-white/90">
-                          <span className="text-[11px]">{service}</span>
-                          <span className="text-[10px] text-[#a1a1aa]">{count} ({percent}%)</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden backdrop-blur-sm">
-                          <motion.div 
-                            className="h-full bg-gradient-to-r from-forge-accent to-amber-500 rounded-full" 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${percent}%` }}
-                            transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </GlassCard>
-
-              {/* Budget Splits */}
-              <GlassCard className="p-6" hover={false}>
-                <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold mb-5 flex items-center gap-2">
-                  <DollarSign className="size-3.5 text-emerald-400" />
-                  Budget Demographics
-                </h3>
-                <div className="space-y-4">
-                  {analytics.budgets.map(([budget, count]) => {
-                    const percent = Math.round((count / inquiries.length) * 100);
-                    return (
-                      <div key={budget} className="space-y-1.5">
-                        <div className="flex items-center justify-between text-xs font-mono text-white/90">
-                          <span className="text-[11px]">{budget}</span>
-                          <span className="text-[10px] text-[#a1a1aa]">{count} ({percent}%)</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden backdrop-blur-sm">
-                          <motion.div 
-                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${percent}%` }}
-                            transition={{ duration: 0.8, delay: 0.3, ease: [0.25, 1, 0.5, 1] }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </GlassCard>
-            </>
-          )}
-
-          {/* If no inquiries, fill 2 columns with empty analytics placeholder */}
-          {inquiries.length === 0 && (
-            <GlassCard className="p-6 lg:col-span-2 flex flex-col items-center justify-center min-h-[200px]" hover={false}>
-              <Briefcase className="size-8 mx-auto mb-3 text-[#5e5f6a] opacity-30" />
-              <p className="text-[10px] font-mono uppercase tracking-wider text-[#5e5f6a]">
-                Analytics will appear with first inquiries
-              </p>
-            </GlassCard>
-          )}
-        </div>
-
-        {/* ── Tab Controls & Filters Row ── */}
-        <div className="border-b border-white/[0.06] pb-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex bg-white/[0.03] backdrop-blur-xl p-1.5 border border-white/[0.06] rounded-2xl gap-1.5">
-            <button
-              onClick={() => {
-                setActiveTab("inquiries");
-                setSearchQuery("");
-              }}
-              className={cn(
-                "h-9 px-5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer",
-                activeTab === "inquiries"
-                  ? "bg-forge-accent text-white shadow-md shadow-forge-accent/20"
-                  : "text-[#a1a1aa] hover:text-white hover:bg-white/[0.04]"
-              )}
-            >
-              Inquiries ({filteredInquiries.length})
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab("subscribers");
-                setSearchQuery("");
-              }}
-              className={cn(
-                "h-9 px-5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer",
-                activeTab === "subscribers"
-                  ? "bg-forge-accent text-white shadow-md shadow-forge-accent/20"
-                  : "text-[#a1a1aa] hover:text-white hover:bg-white/[0.04]"
-              )}
-            >
-              Subscribers ({filteredSubscribers.length})
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab("newsletter");
-                setSearchQuery("");
-              }}
-              className={cn(
-                "h-9 px-5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer",
-                activeTab === "newsletter"
-                  ? "bg-forge-accent text-white shadow-md shadow-forge-accent/20"
-                  : "text-[#a1a1aa] hover:text-white hover:bg-white/[0.04]"
-              )}
-            >
-              Newsletter Tab
-            </button>
+        {/* Top Header Bar */}
+        <header className="h-16 border-b border-[#E8E7E2] px-8 flex items-center justify-between z-10 shrink-0 bg-white/40 backdrop-blur-md">
+          <div className="flex items-center gap-2 font-mono">
+            <span className="text-[10px] uppercase font-bold text-neutral-400">console</span>
+            <ChevronRight className="size-3 text-neutral-300" />
+            <span className="text-[10px] uppercase font-bold text-neutral-900 tracking-wider">
+              {activeTab}
+            </span>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {activeTab === "inquiries" && inquiries.length > 0 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => exportData("inquiries", "csv")}
-                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
-                  title="Export to CSV"
-                >
-                  <FileDown className="size-3.5" />
-                  <span>CSV</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => exportData("inquiries", "json")}
-                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
-                  title="Export to JSON"
-                >
-                  <FileDown className="size-3.5" />
-                  <span>JSON</span>
-                </button>
-              </>
+          <div className="flex items-center gap-3">
+            {recentCount > 0 && (
+              <span className="text-[9px] font-bold font-mono px-2 py-0.5 bg-orange-100 text-orange-600 rounded-full border border-orange-200">
+                {recentCount} updates today
+              </span>
             )}
-
-            {activeTab === "subscribers" && subscribers.length > 0 && (
-              <>
-                <button
-                  type="button"
-                  onClick={copyEmailsList}
-                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
-                >
-                  {copiedAll ? <ClipboardCheck className="size-3.5 text-green-400 animate-bounce" /> : <Copy className="size-3.5" />}
-                  <span>{copiedAll ? "Copied!" : "Copy List"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => exportData("subscribers", "csv")}
-                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
-                  title="Export to CSV"
-                >
-                  <FileDown className="size-3.5" />
-                  <span>CSV</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => exportData("subscribers", "json")}
-                  className="h-9 px-3 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] text-[10px] font-bold uppercase tracking-wider rounded-xl hover:border-forge-accent/30 text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer font-mono shrink-0 shadow-sm"
-                  title="Export to JSON"
-                >
-                  <FileDown className="size-3.5" />
-                  <span>JSON</span>
-                </button>
-              </>
-            )}
-
-            {activeTab !== "newsletter" && (
-              <div className="relative w-full sm:w-[260px]">
-                <Search className="size-3.5 text-[#5e5f6a] absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  placeholder={activeTab === "inquiries" ? "Search submissions..." : "Search subscriber emails..."}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-9 bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-xl pl-9 pr-4 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono"
-                />
-              </div>
-            )}
+            <div className="h-4 w-px bg-neutral-200" />
+            <span className="text-[10px] font-mono text-neutral-500">
+              User: <strong className="text-neutral-800">Admin</strong>
+            </span>
           </div>
-        </div>
+        </header>
 
-        {/* ── Tab Contents ── */}
-        <div className="flex-1">
+        {/* Content Viewport */}
+        <div className="flex-1 overflow-y-auto p-8 md:p-12 relative max-w-[1280px] w-full mx-auto">
+          
           <AnimatePresence mode="wait">
-            {activeTab === "inquiries" && (
-              /* Inquiries Grid */
-              filteredInquiries.length === 0 ? (
-                <motion.div 
-                  key="inquiries-empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <GlassCard className="p-12 text-center border-dashed border-white/[0.06]" hover={false}>
-                    <FolderGit2 className="size-8 mx-auto mb-3 opacity-30 text-[#5e5f6a]" />
-                    <p className="text-xs font-mono uppercase tracking-wider text-[#5e5f6a]">No client inquiries found.</p>
-                  </GlassCard>
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="inquiries-grid"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                >
-                  {filteredInquiries.map((inquiry, idx) => (
-                    <GlassCard
-                      key={inquiry.id}
-                      className="p-5 flex flex-col justify-between hover:border-forge-accent/20"
-                    >
+            
+            {/* ── VIEW: OVERVIEW (Editorial Layout) ── */}
+            {activeTab === "overview" && (
+              <motion.div
+                key="overview-pane"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-12"
+              >
+                {/* Editorial display stat grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-0 divide-y md:divide-y-0 md:divide-x divide-[#EBEAE6] border-y border-[#EBEAE6] py-8">
+                  <div className="py-4 md:py-0 md:pr-8">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold block">
+                      Pipeline Volume
+                    </span>
+                    <h3 className="text-3xl font-black font-syne text-neutral-900 mt-2 select-text">
+                      {stats.pipelineBudget}
+                    </h3>
+                    <p className="text-[9px] font-mono text-neutral-400 mt-1">Est. value of active specifications</p>
+                  </div>
+                  <div className="py-4 md:py-0 md:px-8">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold block">
+                      Avg Deal Size
+                    </span>
+                    <h3 className="text-3xl font-black font-syne text-neutral-900 mt-2 select-text">
+                      {stats.averageDeal}
+                    </h3>
+                    <p className="text-[9px] font-mono text-neutral-400 mt-1">Mean inquiry contract matrix</p>
+                  </div>
+                  <div className="py-4 md:py-0 md:px-8">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold block">
+                      Client Leads
+                    </span>
+                    <h3 className="text-3xl font-black font-syne text-neutral-900 mt-2 select-text">
+                      {stats.inquiriesCount}
+                    </h3>
+                    <p className="text-[9px] font-mono text-neutral-400 mt-1">Individual project submissions</p>
+                  </div>
+                  <div className="py-4 md:py-0 md:pl-8">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold block">
+                      Audience Size
+                    </span>
+                    <h3 className="text-3xl font-black font-syne text-neutral-900 mt-2 select-text">
+                      {stats.subscribersCount}
+                    </h3>
+                    <p className="text-[9px] font-mono text-neutral-400 mt-1">Active verified email broadcast list</p>
+                  </div>
+                </div>
+
+                {/* Graph Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Inquiry chart */}
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm">
+                    <div className="flex justify-between items-center mb-6">
                       <div>
-                        <div className="flex items-start justify-between mb-3.5">
-                          <div className="max-w-[70%]">
-                            <h3 className="font-extrabold text-white font-syne text-[14px] truncate">
-                              {inquiry.name}
-                            </h3>
-                            <span className="text-[10px] text-[#a1a1aa] font-mono block mt-0.5 truncate">
-                              {inquiry.contact}
-                            </span>
-                          </div>
-                          <span className="text-[9px] text-[#5e5f6a] font-mono border border-white/[0.06] px-2 py-0.5 rounded-lg bg-white/[0.03] backdrop-blur-sm shrink-0">
-                            {new Date(inquiry.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        {/* Meta Pills */}
-                        <div className="flex flex-wrap gap-1.5 mb-4">
-                          {inquiry.serviceNeed && (
-                            <span className="text-[9px] font-extrabold px-2.5 py-0.5 rounded-lg bg-forge-accent/[0.08] border border-forge-accent/15 text-forge-accent uppercase font-mono tracking-wider backdrop-blur-sm">
-                              {inquiry.serviceNeed}
-                            </span>
-                          )}
-                          {inquiry.budget && (
-                            <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/[0.08] border border-emerald-500/15 text-emerald-400 font-mono backdrop-blur-sm">
-                              {inquiry.budget}
-                            </span>
-                          )}
-                          {inquiry.status && inquiry.status !== "pending" && (
-                            <span className={cn(
-                              "text-[9px] font-bold px-2.5 py-0.5 rounded-lg font-mono backdrop-blur-sm border",
-                              inquiry.status === "completed" ? "bg-green-500/10 border-green-500/20 text-green-400" :
-                              inquiry.status === "development" ? "bg-orange-500/10 border-orange-500/20 text-orange-400" :
-                              inquiry.status === "design" ? "bg-purple-500/10 border-purple-500/20 text-purple-400" :
-                              "bg-slate-500/10 border-slate-500/20 text-slate-400"
-                            )}>
-                              {inquiry.status}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Description snippet */}
-                        <p className="text-[12px] text-[#a1a1aa]/80 line-clamp-3 leading-relaxed mb-4 min-h-[54px]">
-                          {inquiry.details || "No project specification details provided."}
+                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">
+                          Inbound Velocity
+                        </h4>
+                        <p className="text-lg font-bold text-neutral-900 mt-1">
+                          {chartData.inquiries.reduce((a, b) => a + b, 0)} leads last 7 days
                         </p>
                       </div>
+                      <TrendingUp className="size-4 text-orange-500" />
+                    </div>
+                    <SparklineChart data={chartData.inquiries} labels={chartData.labels} strokeColor="#FF6A00" fillColor="url(#accentGrad)" />
+                  </div>
 
-                      <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between mt-auto">
-                        <button
-                          onClick={() => setSelectedInquiry(inquiry)}
-                          className="h-8 px-3 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:border-forge-accent/30 text-[11px] font-bold uppercase tracking-wider text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1.5 cursor-pointer font-mono backdrop-blur-sm"
-                        >
-                          <Eye className="size-3.5" />
-                          <span>View Console</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleDelete("inquiry", inquiry.id)}
-                          className="w-8 h-8 rounded-xl bg-red-950/[0.08] border border-red-900/15 hover:border-red-500/40 flex items-center justify-center text-red-400/80 hover:text-red-400 transition-all cursor-pointer shadow-sm backdrop-blur-sm"
-                          title="Delete Record"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </button>
+                  {/* Subscribers chart */}
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm">
+                    <div className="flex justify-between items-center mb-6">
+                      <div>
+                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">
+                          Audience Subscriptions
+                        </h4>
+                        <p className="text-lg font-bold text-neutral-900 mt-1">
+                          {chartData.subscribers.reduce((a, b) => a + b, 0)} new last 7 days
+                        </p>
                       </div>
-                    </GlassCard>
-                  ))}
-                </motion.div>
-              )
+                      <TrendingUp className="size-4 text-emerald-500" />
+                    </div>
+                    <SparklineChart data={chartData.subscribers} labels={chartData.labels} strokeColor="#10B981" fillColor="url(#emeraldGrad)" />
+                  </div>
+                </div>
+
+                {/* Demographics & Activity Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  
+                  {/* Service Demographics */}
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm space-y-4">
+                    <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">
+                      Requested Framework Needs
+                    </h4>
+                    {inquiries.length === 0 ? (
+                      <p className="text-xs text-neutral-400 italic">No demographics mapped yet.</p>
+                    ) : (
+                      <div className="space-y-3.5">
+                        {analytics.services.slice(0, 5).map(([service, count]) => {
+                          const percent = Math.round((count / inquiries.length) * 100);
+                          return (
+                            <div key={service} className="space-y-1">
+                              <div className="flex justify-between text-xs font-mono">
+                                <span className="text-neutral-700 truncate max-w-[70%]">{service}</span>
+                                <span className="text-neutral-400">{count} ({percent}%)</span>
+                              </div>
+                              <div className="h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-orange-500 rounded-full" style={{ width: `${percent}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Budgets Mapped */}
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm space-y-4">
+                    <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">
+                      Budget Distributions
+                    </h4>
+                    {inquiries.length === 0 ? (
+                      <p className="text-xs text-neutral-400 italic">No budget statistics.</p>
+                    ) : (
+                      <div className="space-y-3.5">
+                        {analytics.budgets.slice(0, 5).map(([budget, count]) => {
+                          const percent = Math.round((count / inquiries.length) * 100);
+                          return (
+                            <div key={budget} className="space-y-1">
+                              <div className="flex justify-between text-xs font-mono">
+                                <span className="text-neutral-700 truncate max-w-[75%]">{budget}</span>
+                                <span className="text-neutral-400">{percent}%</span>
+                              </div>
+                              <div className="h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${percent}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Realtime Event Log stream */}
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold mb-4">
+                        Recent Console Activity
+                      </h4>
+                      {activityFeed.length === 0 ? (
+                        <p className="text-xs text-neutral-400 italic">No records in registry.</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {activityFeed.slice(0, 4).map(item => (
+                            <div key={item.id} className="flex items-center justify-between text-xs font-mono">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className={cn(
+                                  "w-1.5 h-1.5 rounded-full shrink-0",
+                                  item.type === "inquiry" ? "bg-orange-500" : "bg-indigo-500"
+                                )} />
+                                <span className="text-neutral-800 font-semibold truncate leading-none">{item.label}</span>
+                              </div>
+                              <span className="text-[10px] text-neutral-400 shrink-0 ml-2">{item.time}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setAuditLogModalOpen(true)}
+                      className="text-[9px] font-mono font-bold uppercase text-orange-600 hover:text-orange-500 tracking-wider text-left underline mt-5 block w-fit"
+                    >
+                      Audit Console Logs →
+                    </button>
+                  </div>
+
+                </div>
+              </motion.div>
             )}
 
+            {/* ── VIEW: INQUIRIES (Crisp Clean List & Search) ── */}
+            {activeTab === "inquiries" && (
+              <motion.div
+                key="inquiries-pane"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-6"
+              >
+                {/* Filters / Search Strip */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-[#E8E7E2] pb-6">
+                  <div className="relative w-full sm:w-80">
+                    <Search className="size-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Filter inquiries..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full h-10 bg-white border border-[#E8E7E2] rounded-lg pl-9 pr-4 text-xs text-neutral-900 placeholder-neutral-400 outline-none focus:border-orange-500/50 transition-all font-mono"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end sm:self-auto font-mono">
+                    <button
+                      onClick={() => exportData("inquiries", "csv")}
+                      className="h-10 px-4 bg-white border border-[#E8E7E2] text-[10px] font-bold uppercase tracking-wider rounded-lg text-neutral-600 hover:text-neutral-900 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      <FileDown className="size-3.5" />
+                      <span>Export CSV</span>
+                    </button>
+                    <button
+                      onClick={() => exportData("inquiries", "json")}
+                      className="h-10 px-4 bg-white border border-[#E8E7E2] text-[10px] font-bold uppercase tracking-wider rounded-lg text-neutral-600 hover:text-neutral-900 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      <FileDown className="size-3.5" />
+                      <span>JSON</span>
+                    </button>
+                  </div>
+                </div>
+
+                {filteredInquiries.length === 0 ? (
+                  <div className="text-center py-16 border-2 border-dashed border-[#E8E7E2] rounded-xl bg-white/20">
+                    <FolderGit2 className="size-8 text-neutral-300 mx-auto mb-2" />
+                    <p className="text-xs font-mono uppercase text-neutral-400 tracking-wider">No matching inquiries found</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredInquiries.map((inq) => (
+                      <div
+                        key={inq.id}
+                        className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm hover:shadow-md hover:border-orange-500/25 transition-all flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex justify-between items-start gap-4">
+                            <div className="min-w-0">
+                              <h4 className="font-extrabold text-neutral-900 truncate tracking-tight text-sm font-syne select-text">
+                                {inq.name}
+                              </h4>
+                              <p className="text-[10px] text-neutral-400 font-mono truncate select-text mt-0.5">{inq.contact}</p>
+                            </div>
+                            <span className="text-[8px] font-mono text-neutral-400 bg-neutral-100 border border-neutral-200 px-2 py-0.5 rounded leading-none shrink-0">
+                              {new Date(inq.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1.5 my-3.5 select-none">
+                            <span className="text-[8px] font-black font-mono px-2 py-0.5 rounded bg-orange-50 text-orange-600 border border-orange-100 uppercase tracking-wider">
+                              {inq.serviceNeed || "Project Request"}
+                            </span>
+                            {inq.budget && (
+                              <span className="text-[8px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                {inq.budget}
+                              </span>
+                            )}
+                            {inq.status && inq.status !== "pending" && (
+                              <span className={cn(
+                                "text-[8px] font-bold font-mono px-2 py-0.5 rounded border capitalize",
+                                inq.status === "completed" ? "bg-green-50 text-green-600 border-green-100" :
+                                inq.status === "development" ? "bg-blue-50 text-blue-600 border-blue-100" :
+                                inq.status === "design" ? "bg-purple-50 text-purple-600 border-purple-100" :
+                                "bg-neutral-50 text-neutral-500 border-neutral-100"
+                              )}>
+                                {inq.status}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-xs text-neutral-500 leading-relaxed line-clamp-3 min-h-[54px] select-text">
+                            {inq.details || "No specification text provided."}
+                          </p>
+                        </div>
+
+                        <div className="pt-4 border-t border-[#F2F1EC] flex items-center justify-between mt-5 font-mono">
+                          <button
+                            onClick={() => setSelectedInquiry(inq)}
+                            className="h-8 px-3 rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                          >
+                            <Eye className="size-3" />
+                            <span>Workspace Console</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleDelete("inquiry", inq.id)}
+                            className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-500 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+                            title="Delete permanently"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* ── VIEW: SUBSCRIBERS (Minimal Clean Table) ── */}
             {activeTab === "subscribers" && (
-              /* Subscribers List */
-              filteredSubscribers.length === 0 ? (
-                <motion.div 
-                  key="subscribers-empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <GlassCard className="p-12 text-center border-dashed border-white/[0.06]" hover={false}>
-                    <Users className="size-8 mx-auto mb-3 opacity-30 text-[#5e5f6a]" />
-                    <p className="text-xs font-mono uppercase tracking-wider text-[#5e5f6a]">No subscribers found.</p>
-                  </GlassCard>
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="subscribers-table"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  <GlassCard className="overflow-hidden" hover={false}>
-                    <table className="w-full border-collapse text-left text-xs text-[#a1a1aa]">
-                      <thead className="bg-white/[0.03] border-b border-white/[0.06] font-mono text-[9px] text-[#a1a1aa] uppercase tracking-widest">
+              <motion.div
+                key="subscribers-pane"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-6"
+              >
+                {/* Search / Actions */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-[#E8E7E2] pb-6">
+                  <div className="relative w-full sm:w-80">
+                    <Search className="size-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search email list..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full h-10 bg-white border border-[#E8E7E2] rounded-lg pl-9 pr-4 text-xs text-neutral-900 placeholder-neutral-400 outline-none focus:border-orange-500/50 transition-all font-mono"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end sm:self-auto font-mono">
+                    <button
+                      onClick={copyEmailsList}
+                      className="h-10 px-4 bg-white border border-[#E8E7E2] text-[10px] font-bold uppercase tracking-wider rounded-lg text-neutral-600 hover:text-neutral-900 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      {copiedAll ? <ClipboardCheck className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
+                      <span>{copiedAll ? "Copied list" : "Copy email string"}</span>
+                    </button>
+                    <button
+                      onClick={() => exportData("subscribers", "csv")}
+                      className="h-10 px-4 bg-white border border-[#E8E7E2] text-[10px] font-bold uppercase tracking-wider rounded-lg text-neutral-600 hover:text-neutral-900 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    >
+                      <FileDown className="size-3.5" />
+                      <span>Export CSV</span>
+                    </button>
+                  </div>
+                </div>
+
+                {filteredSubscribers.length === 0 ? (
+                  <div className="text-center py-16 border-2 border-dashed border-[#E8E7E2] rounded-xl bg-white/20">
+                    <Users className="size-8 text-neutral-300 mx-auto mb-2" />
+                    <p className="text-xs font-mono uppercase text-neutral-400 tracking-wider">No subscribers matched search query</p>
+                  </div>
+                ) : (
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl overflow-hidden shadow-sm">
+                    <table className="w-full border-collapse text-left text-xs text-neutral-600">
+                      <thead className="bg-[#FAF9F6] border-b border-[#E8E7E2] font-mono text-[9px] text-neutral-400 uppercase tracking-widest">
                         <tr>
-                          <th className="px-6 py-4 font-black">Subscriber Email Address</th>
-                          <th className="px-6 py-4 font-black">Authentication / Subscribed At</th>
-                          <th className="px-6 py-4 font-black text-right">Actions</th>
+                          <th className="px-6 py-4 font-black">Registered Email Address</th>
+                          <th className="px-6 py-4 font-black">Authorized Subscribed Date</th>
+                          <th className="px-6 py-4 font-black text-right">Database Controls</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/[0.04] font-mono">
+                      <tbody className="divide-y divide-[#EBEAE6] font-mono">
                         {filteredSubscribers.map((subscriber, idx) => (
-                          <tr key={subscriber.id} className="hover:bg-white/[0.02] transition-colors">
-                            <td className="px-6 py-3.5 text-white text-sm font-semibold">
+                          <tr key={subscriber.id} className="hover:bg-[#FAF9F6]/50 transition-colors">
+                            <td className="px-6 py-4 text-neutral-900 font-bold text-sm select-text">
                               {subscriber.email}
                             </td>
-                            <td className="px-6 py-3.5">
+                            <td className="px-6 py-4">
                               {new Date(subscriber.createdAt).toLocaleString()}
                             </td>
-                            <td className="px-6 py-3.5 text-right flex justify-end gap-2">
+                            <td className="px-6 py-4 text-right flex justify-end gap-2">
                               <button
                                 onClick={() => {
                                   navigator.clipboard.writeText(subscriber.email);
                                   setCopiedIndex(idx);
                                   setTimeout(() => setCopiedIndex(null), 2000);
                                 }}
-                                className="h-7 px-2.5 bg-white/[0.03] border border-white/[0.06] hover:border-forge-accent/30 rounded-lg text-[10px] font-bold uppercase tracking-wider text-[#a1a1aa] hover:text-white transition-all flex items-center gap-1 cursor-pointer shadow-sm backdrop-blur-sm"
+                                className="h-8 px-3.5 bg-white border border-[#E8E7E2] hover:border-orange-500/30 rounded-lg text-[9px] font-bold uppercase tracking-wider text-neutral-600 hover:text-neutral-900 transition-all flex items-center gap-1 cursor-pointer shadow-sm"
                               >
-                                {copiedIndex === idx ? <ClipboardCheck className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
-                                <span>{copiedIndex === idx ? "Copied" : "Copy"}</span>
+                                {copiedIndex === idx ? <Check className="size-3 text-emerald-500" /> : <Copy className="size-3" />}
+                                <span>{copiedIndex === idx ? "Done" : "Copy"}</span>
                               </button>
                               <button
                                 onClick={() => handleDelete("subscriber", subscriber.id)}
-                                className="w-7 h-7 bg-red-950/[0.08] border border-red-900/15 hover:border-red-500/40 rounded-lg flex items-center justify-center text-red-400/80 hover:text-red-400 transition-all cursor-pointer shadow-sm backdrop-blur-sm"
-                                title="Delete Subscriber"
+                                className="w-8 h-8 bg-red-50 hover:bg-red-100 border border-red-100 rounded-lg flex items-center justify-center text-red-500 transition-all cursor-pointer shadow-sm"
+                                title="Unregister"
                               >
-                                <Trash2 className="size-3" />
+                                <Trash2 className="size-3.5" />
                               </button>
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                  </GlassCard>
-                </motion.div>
-              )
+                  </div>
+                )}
+              </motion.div>
             )}
 
+            {/* ── VIEW: BROADCAST NEWSLETTER (Split view layout) ── */}
             {activeTab === "newsletter" && (
-              /* Newsletter Broadcaster */
               <motion.div
-                key="newsletter-tab"
-                initial={{ opacity: 0, y: 10 }}
+                key="newsletter-pane"
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start"
               >
-                {/* Form card */}
-                <GlassCard className="p-6 space-y-6" hover={false}>
+                {/* Left Editor */}
+                <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm space-y-6">
                   <div>
-                    <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold">
-                      Compose Broadcast
+                    <h3 className="text-sm font-extrabold text-neutral-950 font-syne uppercase tracking-wide">
+                      Email Newsletter Dispatch
                     </h3>
-                    <p className="text-[10px] text-slate-500 font-mono mt-1">
-                      Draft a newsletter email to send to all verified subscribers.
+                    <p className="text-[10px] text-neutral-400 font-mono mt-1">
+                      Compose HTML template alerts to transmit directly to verified subscriber databases.
                     </p>
                   </div>
 
-                  <form onSubmit={handleSendBroadcast} className="space-y-4">
+                  <form onSubmit={handleSendBroadcast} className="space-y-4 font-mono">
                     <div className="space-y-1">
-                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                        Subject Line
-                      </label>
+                      <label className="text-[9px] uppercase font-bold text-neutral-400">Subject Title</label>
                       <input
                         type="text"
                         required
-                        placeholder="e.g. StackForge Studio Update: Shipping 3x Faster!"
+                        placeholder="e.g. StackForge Studio Update: Shipped!"
                         value={broadcastSubject}
                         onChange={(e) => setBroadcastSubject(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono"
+                        className="w-full bg-[#FAF9F6] border border-[#E8E7E2] rounded-lg px-4 py-2.5 text-xs text-neutral-900 placeholder-neutral-400 outline-none focus:border-orange-500/50 transition-all"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                        Preview Text (Sub-header)
-                      </label>
+                      <label className="text-[9px] uppercase font-bold text-neutral-400">Sub-header Preview Text</label>
                       <input
                         type="text"
-                        placeholder="e.g. Important changes and new visual modules ready"
+                        placeholder="e.g. Important releases and metrics metrics details"
                         value={broadcastPreview}
                         onChange={(e) => setBroadcastPreview(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono"
+                        className="w-full bg-[#FAF9F6] border border-[#E8E7E2] rounded-lg px-4 py-2.5 text-xs text-neutral-900 placeholder-neutral-400 outline-none focus:border-orange-500/50 transition-all"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                        Email Body (HTML allowed)
-                      </label>
+                      <label className="text-[9px] uppercase font-bold text-neutral-400">Message Body (HTML Allowed)</label>
                       <textarea
                         required
-                        rows={10}
-                        placeholder="<p>Hello there,</p><p>We have just shipped some major upgrades...</p>"
+                        rows={11}
+                        placeholder="<p>Hello Framework Operators,</p><p>We are excited to share...</p>"
                         value={broadcastBody}
                         onChange={(e) => setBroadcastBody(e.target.value)}
-                        className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-xs text-white placeholder-[#5e5f6a] outline-none focus:border-forge-accent/30 transition-all font-mono min-h-[220px]"
+                        className="w-full bg-[#FAF9F6] border border-[#E8E7E2] rounded-lg p-4 text-xs text-neutral-900 placeholder-neutral-400 outline-none focus:border-orange-500/50 transition-all min-h-[220px]"
                       />
                     </div>
 
                     {broadcastStatus !== "idle" && broadcastMessage && (
                       <div className={cn(
-                        "p-3 rounded-xl text-xs font-mono border",
+                        "p-3 rounded-lg text-xs font-mono border",
                         broadcastStatus === "success" 
-                          ? "bg-emerald-950/15 border-emerald-900/30 text-emerald-400"
+                          ? "bg-emerald-50 border-emerald-200 text-emerald-600"
                           : broadcastStatus === "error"
-                          ? "bg-red-950/15 border-red-900/30 text-red-400"
-                          : "bg-white/5 border-white/10 text-[#a1a1aa]"
+                          ? "bg-red-50 border-red-200 text-red-500"
+                          : "bg-neutral-50 border-neutral-200 text-neutral-600"
                       )}>
                         {broadcastMessage}
                       </div>
@@ -1837,106 +1688,96 @@ export default function AdminPage() {
                       type="submit"
                       disabled={broadcastStatus === "sending" || !broadcastSubject || !broadcastBody}
                       className={cn(
-                        "w-full h-10 rounded-xl text-xs font-bold font-mono uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2",
+                        "w-full h-11 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2",
                         broadcastStatus === "sending" || !broadcastSubject || !broadcastBody
-                          ? "bg-white/5 text-slate-600 border border-white/5 cursor-not-allowed"
-                          : "bg-forge-accent hover:bg-forge-accent/90 text-white shadow-lg shadow-forge-accent/20 border border-forge-accent/30"
+                          ? "bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed"
+                          : "bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/15"
                       )}
                     >
                       {broadcastStatus === "sending" ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
                         <>
-                          <span>Broadcast to {subscribers.length} Subscribers</span>
-                          <ChevronRight className="size-4" />
+                          <Send className="size-3.5" />
+                          <span>Dispatch Broadcast to {subscribers.length} contacts</span>
                         </>
                       )}
                     </button>
                   </form>
-                </GlassCard>
+                </div>
 
-                {/* Preview column */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between px-1">
-                    <h3 className="text-xs uppercase font-mono tracking-widest text-[#a1a1aa] font-bold">
-                      Live HTML Email Mockup
-                    </h3>
-                    <div className="flex bg-white/[0.03] border border-white/[0.06] rounded-lg p-0.5 gap-1 font-mono text-[9px] font-bold">
-                      <button
-                        type="button"
-                        onClick={() => setPreviewViewport("desktop")}
-                        className={cn(
-                          "px-2 py-0.5 rounded cursor-pointer transition-colors",
-                          previewViewport === "desktop" ? "bg-forge-accent text-white" : "text-[#a1a1aa] hover:text-white"
-                        )}
-                      >
-                        Desktop
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPreviewViewport("mobile")}
-                        className={cn(
-                          "px-2 py-0.5 rounded cursor-pointer transition-colors",
-                          previewViewport === "mobile" ? "bg-forge-accent text-white" : "text-[#a1a1aa] hover:text-white"
-                        )}
-                      >
-                        Mobile
-                      </button>
+                {/* Right Mockup */}
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center px-1">
+                    <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold">
+                      Rendering Mockup
+                    </h4>
+                    <div className="flex bg-[#FAF9F6] border border-[#E8E7E2] rounded-lg p-0.5 gap-1 font-mono text-[9px] font-bold shadow-sm">
+                      {["desktop", "mobile"].map(vp => (
+                        <button
+                          key={vp}
+                          type="button"
+                          onClick={() => setPreviewViewport(vp as any)}
+                          className={cn(
+                            "px-2 py-0.5 rounded cursor-pointer capitalize transition-all",
+                            previewViewport === vp ? "bg-neutral-900 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-900"
+                          )}
+                        >
+                          {vp}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  <div className="border border-white/[0.06] rounded-xl overflow-hidden shadow-2xl bg-[#0a0a0f] text-slate-300 font-sans text-xs flex flex-col items-center">
-                    {/* Simulated email header bar */}
-                    <div className="w-full bg-[#09090b] px-4 py-2 border-b border-white/[0.05] text-[10px] text-slate-500 font-mono flex items-center justify-between select-none">
-                      <span>Sender: no-reply@stackforge.dev</span>
-                      <span>Recipient: subscriber@client.com</span>
+
+                  <div className="border border-[#E8E7E2] rounded-xl overflow-hidden bg-neutral-950 text-neutral-300 font-sans text-xs flex flex-col items-center shadow-md">
+                    <div className="w-full bg-neutral-900 px-4 py-2 border-b border-neutral-800 text-[10px] text-neutral-500 font-mono flex items-center justify-between select-none">
+                      <span>Sender: ops@stackforge.co</span>
+                      <span>Recipient: list@client.com</span>
                     </div>
 
-                    <div className="w-full p-6 bg-[#040407] min-h-[400px] flex items-center justify-center overflow-y-auto">
+                    <div className="w-full p-8 bg-neutral-900 min-h-[440px] flex items-center justify-center overflow-y-auto">
                       <div 
                         className={cn(
-                          "bg-[#0a0a0f] border border-white/[0.08] rounded-xl overflow-hidden transition-all duration-300",
-                          previewViewport === "mobile" ? "w-[320px]" : "w-full max-w-[420px]"
+                          "bg-white border border-neutral-200 rounded-xl overflow-hidden transition-all duration-300 shadow-xl",
+                          previewViewport === "mobile" ? "w-[300px]" : "w-full max-w-[390px]"
                         )}
                       >
-                        <div className="bg-[#09090b] p-5 text-center border-b-4 border-forge-accent">
-                          <h1 className="text-white text-lg font-black tracking-wider m-0 font-playfair">STACKFORGE</h1>
-                          <p className="text-forge-accent text-[9px] font-mono tracking-wider uppercase m-1">Studio Update</p>
+                        <div className="bg-neutral-950 p-5 text-center border-b-4 border-orange-500 select-none">
+                          <h1 className="text-white text-lg font-black tracking-[0.2em] m-0 font-syne uppercase">STACKFORGE</h1>
+                          <p className="text-orange-500 text-[9px] font-mono tracking-wider uppercase m-1">Studio update</p>
                         </div>
                         {broadcastPreview && (
-                          <div className="bg-forge-accent/[0.03] p-3 text-center border-b border-white/[0.04]">
-                            <p className="text-forge-accent text-[10px] font-mono m-0 uppercase">{broadcastPreview}</p>
+                          <div className="bg-orange-50/50 p-2.5 text-center border-b border-orange-100">
+                            <p className="text-orange-600 text-[9px] font-mono m-0 uppercase font-bold tracking-wider">{broadcastPreview}</p>
                           </div>
                         )}
-                        <div className="p-6 leading-relaxed text-[11px] text-slate-400 min-h-[160px]">
-                          <div className="font-bold text-white mb-2 text-sm select-text">Subject: {broadcastSubject || "My Subject"}</div>
+                        <div className="p-6 leading-relaxed text-[11px] text-neutral-600 min-h-[160px] select-text">
+                          <div className="font-bold text-neutral-900 mb-2 text-xs">Subject: {broadcastSubject || "Untitled Broadcast"}</div>
                           <div 
-                            className="space-y-2 select-text font-sans"
-                            dangerouslySetInnerHTML={{ __html: broadcastBody || "<p style='color:#52525b; font-style:italic;'>Email body content will render here...</p>" }}
+                            className="space-y-2 font-sans"
+                            dangerouslySetInnerHTML={{ __html: broadcastBody || "<p style='color:#a3a3a3; font-style:italic;'>Framework content body placeholder...</p>" }}
                           />
                         </div>
-                        <div className="p-5 border-t border-white/[0.04]">
-                          <p className="text-[10px] text-slate-500 m-0">
-                            You are receiving this because you subscribed to updates from StackForge.<br/>
-                            <strong className="text-white">— The StackForge Team</strong>
-                          </p>
-                        </div>
-                        <div className="bg-[#09090b] p-3 text-center border-t border-white/[0.04] text-[9px] text-slate-600">
-                          StackForge Studio · Hyderabad, India
+                        <div className="p-5 border-t border-neutral-100 bg-[#FAF9F6] text-[10px] text-neutral-400 select-none leading-relaxed">
+                          You received this system alert because you are signed to operations logs from StackForge.<br/>
+                          <strong className="text-neutral-600">— Studio Engineering</strong>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
               </motion.div>
             )}
+
           </AnimatePresence>
         </div>
-      </div>
+      </section>
 
-      {/* ── Inquiry Detail Drawer ── */}
+      {/* ── INTERACTION: SLIDE-IN DETAIL WORKSPACE DRAWER ── */}
       <AnimatePresence>
         {selectedInquiry && (
-          <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-end p-0 sm:p-4">
+          <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-end p-0 sm:p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1946,28 +1787,28 @@ export default function AdminPage() {
             />
             
             <motion.div 
-              initial={{ x: 300, opacity: 0 }}
+              initial={{ x: 320, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 300, opacity: 0 }}
-              transition={{ type: "spring", damping: 24, stiffness: 220 }}
-              className="w-full sm:max-w-[620px] h-full sm:h-[calc(100vh-2rem)] bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-2xl border-l sm:border border-white/[0.08] sm:rounded-2xl shadow-[0_8px_60px_-12px_rgba(0,0,0,0.5)] flex flex-col justify-between relative overflow-hidden z-10"
+              exit={{ x: 320, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              className="w-full sm:max-w-[580px] h-full sm:h-[calc(100vh-2rem)] bg-[#FDFDFD] border-l sm:border border-[#E8E7E2] sm:rounded-xl shadow-2xl flex flex-col justify-between relative overflow-hidden z-10 text-[#1A1A1E]"
             >
-              {/* Drawer Accent Line */}
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-forge-accent via-orange-500 to-indigo-500" />
+              {/* Drawer left accent border */}
+              <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-gradient-to-b from-orange-500 to-amber-500" />
 
               {/* Header */}
-              <div className="px-6 py-5 border-b border-white/[0.06] bg-white/[0.03] backdrop-blur-xl flex items-center justify-between">
+              <div className="px-6 py-5 border-b border-[#E8E7E2] bg-[#FAF9F6]/80 flex items-center justify-between shrink-0 font-mono">
                 <div>
-                  <span className="text-[9px] uppercase font-mono tracking-widest text-forge-accent font-bold">
-                    Console / Submission Details
+                  <span className="text-[8px] uppercase tracking-widest text-orange-600 font-black">
+                    Inquiry database folder
                   </span>
-                  <h2 className="text-lg font-black text-white font-syne leading-tight mt-0.5">
+                  <h2 className="text-md font-black text-neutral-950 font-syne leading-tight mt-0.5 tracking-tight select-text">
                     {selectedInquiry.name}
                   </h2>
                 </div>
                 <button
                   onClick={() => setSelectedInquiry(null)}
-                  className="h-8 w-8 rounded-xl border border-white/[0.06] bg-white/[0.03] hover:border-forge-accent/30 text-xs font-semibold text-[#a1a1aa] hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-sm backdrop-blur-sm"
+                  className="h-8 w-8 rounded-lg border border-[#E8E7E2] hover:bg-neutral-100 flex items-center justify-center text-neutral-400 hover:text-neutral-800 transition-all cursor-pointer font-bold"
                 >
                   ✕
                 </button>
@@ -1976,71 +1817,63 @@ export default function AdminPage() {
               {/* Content body */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 
-                {/* Meta details grid */}
-                <div className="grid grid-cols-2 gap-4 bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] p-5 rounded-2xl">
+                {/* Meta details list */}
+                <div className="grid grid-cols-2 gap-y-4 gap-x-6 border-b border-[#EBEAE6] pb-6">
                   <div>
-                    <span className="text-[9px] text-[#a1a1aa] font-mono block uppercase font-bold">Client Email/WhatsApp</span>
+                    <span className="text-[8px] text-neutral-400 font-mono block uppercase font-bold">Client Contact</span>
                     <a
                       href={selectedInquiry.contact.includes("@") ? `mailto:${selectedInquiry.contact}` : `https://wa.me/${selectedInquiry.contact.replace(/[^\d+]/g, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-white hover:text-forge-accent font-mono inline-flex items-center gap-1 mt-1 break-all transition-colors font-bold"
+                      className="text-xs text-neutral-900 hover:text-orange-600 font-mono inline-flex items-center gap-1 mt-1 break-all transition-colors font-bold select-text"
                     >
                       <span>{selectedInquiry.contact}</span>
-                      <ExternalLink className="size-3 shrink-0" />
+                      <ExternalLink className="size-3 shrink-0 text-neutral-400" />
                     </a>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#a1a1aa] font-mono block uppercase font-bold">Date Submitted</span>
-                    <span className="text-xs text-white font-mono mt-1 block">
-                      {new Date(selectedInquiry.createdAt).toLocaleString()}
+                    <span className="text-[8px] text-neutral-400 font-mono block uppercase font-bold">Date Received</span>
+                    <span className="text-xs text-neutral-900 font-mono mt-1 block select-text">
+                      {new Date(selectedInquiry.createdAt).toLocaleString("en-IN")}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#a1a1aa] font-mono block uppercase font-bold">Business Segment</span>
-                    <span className="text-xs text-white font-semibold mt-1 block font-syne">
-                      {selectedInquiry.businessType || "Not specified"}
+                    <span className="text-[8px] text-neutral-400 font-mono block uppercase font-bold">Business Segment</span>
+                    <span className="text-xs text-neutral-900 font-semibold mt-1 block font-syne select-text">
+                      {selectedInquiry.businessType || "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#a1a1aa] font-mono block uppercase font-bold">Primary Target</span>
-                    <span className="text-xs text-forge-accent font-extrabold mt-1 block uppercase font-mono tracking-wide">
-                      {selectedInquiry.serviceNeed || "Not specified"}
+                    <span className="text-[8px] text-neutral-400 font-mono block uppercase font-bold">Target Framework</span>
+                    <span className="text-xs text-orange-600 font-black mt-1 block uppercase font-mono tracking-wider select-text">
+                      {selectedInquiry.serviceNeed || "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#a1a1aa] font-mono block uppercase font-bold">Approved Budget</span>
-                    <span className="text-xs text-emerald-400 font-extrabold mt-1 block font-mono">
-                      {selectedInquiry.budget || "Not specified"}
+                    <span className="text-[8px] text-neutral-400 font-mono block uppercase font-bold">Allocated Budget</span>
+                    <span className="text-xs text-emerald-600 font-extrabold mt-1 block font-mono select-text">
+                      {selectedInquiry.budget || "N/A"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] text-[#a1a1aa] font-mono block uppercase font-bold">Timeline</span>
-                    <span className="text-xs text-white font-semibold mt-1 block">
-                      {selectedInquiry.timeline || "Not specified"}
+                    <span className="text-[8px] text-neutral-400 font-mono block uppercase font-bold">Timeline Needed</span>
+                    <span className="text-xs text-neutral-900 font-semibold mt-1 block select-text">
+                      {selectedInquiry.timeline || "N/A"}
                     </span>
                   </div>
-                  {selectedInquiry.pageCount && (
-                    <div>
-                      <span className="text-[9px] text-[#a1a1aa] font-mono block uppercase font-bold">Total Pages</span>
-                      <span className="text-xs text-white font-bold mt-1 block font-mono">
-                        {selectedInquiry.pageCount} pages
-                      </span>
-                    </div>
-                  )}
                 </div>
 
-                {/* Features */}
+                {/* Features list */}
                 {selectedInquiry.features && (
-                  <div className="space-y-3">
-                    <h3 className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] font-bold">
-                      Requested Technical Integrations
-                    </h3>
+                  <div className="space-y-2">
+                    <h4 className="text-[9px] uppercase font-mono tracking-wider text-neutral-400 font-bold">
+                      Addon Integration Specifications
+                    </h4>
                     <div className="flex flex-wrap gap-1.5">
                       {parseFeatures(selectedInquiry.features).map((feat, idx) => (
                         <span
                           key={idx}
-                          className="text-[9px] font-black px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.06] text-white/95 font-mono uppercase tracking-wider shadow-sm backdrop-blur-sm"
+                          className="text-[8px] font-black px-2.5 py-1 rounded bg-[#FAF9F6] border border-[#E8E7E2] text-neutral-700 font-mono uppercase tracking-wider"
                         >
                           {feat}
                         </span>
@@ -2051,10 +1884,10 @@ export default function AdminPage() {
 
                 {/* File attachments */}
                 {selectedInquiry.attachments && (
-                  <div className="space-y-3">
-                    <h3 className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] font-bold">
-                      Asset Uploads
-                    </h3>
+                  <div className="space-y-2">
+                    <h4 className="text-[9px] uppercase font-mono tracking-wider text-neutral-400 font-bold">
+                      Specification Attachments
+                    </h4>
                     <div className="space-y-1.5">
                       {parseAttachments(selectedInquiry.attachments).map((file, idx) => (
                         <a
@@ -2062,11 +1895,11 @@ export default function AdminPage() {
                           href={file.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-between border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm px-4 py-2.5 rounded-xl text-xs hover:border-forge-accent/30 text-white/95 transition-all shadow-sm"
+                          className="flex items-center justify-between border border-[#E8E7E2] bg-white px-4 py-2.5 rounded-lg text-xs hover:border-orange-500/30 text-neutral-800 transition-all shadow-sm"
                         >
                           <span className="truncate pr-4 font-mono">{file.name}</span>
-                          <div className="flex items-center gap-1.5 text-forge-accent font-extrabold text-[9px] uppercase font-mono tracking-wider shrink-0">
-                            <span>Open Link</span>
+                          <div className="flex items-center gap-1.5 text-orange-600 font-black text-[9px] uppercase font-mono tracking-widest shrink-0">
+                            <span>download</span>
                             <FileDown className="size-3.5" />
                           </div>
                         </a>
@@ -2075,42 +1908,38 @@ export default function AdminPage() {
                   </div>
                 )}
 
-                {/* Project Progress & Portal Settings Card */}
-                <div className="space-y-4 pt-4 border-t border-white/[0.05]">
-                  <h3 className="text-[10px] uppercase font-mono tracking-widest text-forge-accent font-bold flex items-center gap-1.5">
-                    <Activity className="size-3.5" />
-                    Project Tracking (Client Portal settings)
-                  </h3>
+                {/* Client Portal Progress Controller */}
+                <div className="space-y-4 pt-4 border-t border-[#EBEAE6]">
+                  <h4 className="text-[9px] uppercase font-mono tracking-wider text-neutral-900 font-bold flex items-center gap-1.5">
+                    <Sliders className="size-3.5 text-orange-500" />
+                    Portal Synchronizer
+                  </h4>
 
-                  <form onSubmit={handleSaveProject} className="space-y-4 bg-white/[0.02] border border-white/[0.05] p-5 rounded-2xl">
+                  <form onSubmit={handleSaveProject} className="space-y-4 bg-[#FAF9F6] border border-[#E8E7E2] p-5 rounded-xl font-mono text-xs">
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Project Status */}
+                      {/* Project Status selector */}
                       <div className="space-y-1">
-                        <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                          Tracking Status
-                        </label>
+                        <label className="text-[8px] uppercase font-bold text-neutral-400">Sync Status</label>
                         <select
                           value={projStatus}
                           onChange={(e) => setProjStatus(e.target.value)}
-                          className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-forge-accent/30 transition-all font-mono"
+                          className="w-full bg-white border border-[#E8E7E2] rounded-lg px-2 py-1.5 text-xs text-neutral-800 outline-none focus:border-orange-500/50"
                         >
-                          <option value="pending">Inquiry Received (Phase 1)</option>
-                          <option value="contacted">Consultation (Phase 2)</option>
-                          <option value="design">UI/UX Design (Phase 3)</option>
-                          <option value="development">Development (Phase 4)</option>
-                          <option value="testing">Testing (Phase 4.5)</option>
-                          <option value="completed">Live / Shipped (Phase 5)</option>
-                          <option value="archived">Archived (Hidden)</option>
+                          <option value="pending">Inquiry Received</option>
+                          <option value="contacted">Consultation</option>
+                          <option value="design">UI/UX Design</option>
+                          <option value="development">Development</option>
+                          <option value="testing">Testing</option>
+                          <option value="completed">Live / Shipped</option>
+                          <option value="archived">Archived</option>
                         </select>
                       </div>
 
-                      {/* Progress Percentage */}
+                      {/* Progress input */}
                       <div className="space-y-1">
-                        <div className="flex justify-between items-baseline">
-                          <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                            Progress Weight
-                          </label>
-                          <span className="text-[10px] font-mono font-bold text-forge-accent">{projProgress}%</span>
+                        <div className="flex justify-between">
+                          <label className="text-[8px] uppercase font-bold text-neutral-400">Percentage</label>
+                          <span className="text-[10px] font-bold text-orange-600">{projProgress}%</span>
                         </div>
                         <input
                           type="range"
@@ -2119,7 +1948,7 @@ export default function AdminPage() {
                           step="5"
                           value={projProgress}
                           onChange={(e) => setProjProgress(parseInt(e.target.value, 10))}
-                          className="w-full h-1 bg-[#0a0a0f] rounded-lg appearance-none cursor-pointer accent-forge-accent mt-3.5"
+                          className="w-full h-1 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-orange-600 mt-2.5"
                         />
                       </div>
                     </div>
@@ -2127,44 +1956,38 @@ export default function AdminPage() {
                     <div className="grid grid-cols-2 gap-4">
                       {/* Figma Link */}
                       <div className="space-y-1">
-                        <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                          Figma File Link
-                        </label>
+                        <label className="text-[8px] uppercase font-bold text-neutral-400">Figma Canvas</label>
                         <input
                           type="url"
                           placeholder="https://figma.com/file/..."
                           value={projFigma}
                           onChange={(e) => setProjFigma(e.target.value)}
-                          className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 outline-none focus:border-forge-accent/30 transition-all font-mono"
+                          className="w-full bg-white border border-[#E8E7E2] rounded-lg px-2.5 py-1.5 text-xs placeholder-neutral-300 outline-none focus:border-orange-500/50"
                         />
                       </div>
 
                       {/* Staging Link */}
                       <div className="space-y-1">
-                        <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                          Staging Site URL
-                        </label>
+                        <label className="text-[8px] uppercase font-bold text-neutral-400">Staging URL</label>
                         <input
                           type="url"
-                          placeholder="https://staging.domain.com"
+                          placeholder="https://staging.site"
                           value={projStaging}
                           onChange={(e) => setProjStaging(e.target.value)}
-                          className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 outline-none focus:border-forge-accent/30 transition-all font-mono"
+                          className="w-full bg-white border border-[#E8E7E2] rounded-lg px-2.5 py-1.5 text-xs placeholder-neutral-300 outline-none focus:border-orange-500/50"
                         />
                       </div>
                     </div>
 
-                    {/* Developer Update Notes */}
+                    {/* Developer notes */}
                     <div className="space-y-1">
-                      <label className="text-[9px] uppercase font-mono tracking-widest text-[#a1a1aa] block font-bold">
-                        Developer Update Notes (Visible to Client)
-                      </label>
+                      <label className="text-[8px] uppercase font-bold text-neutral-400">Operational Log Updates</label>
                       <textarea
                         rows={3}
-                        placeholder="Describe current status: e.g. Finished wireframes. Starting dashboard styling tomorrow."
+                        placeholder="Current logs details for client to inspect..."
                         value={projNotes}
                         onChange={(e) => setProjNotes(e.target.value)}
-                        className="w-full bg-[#0a0a0f] border border-white/[0.08] rounded-xl p-3 text-xs text-white placeholder-slate-600 outline-none focus:border-forge-accent/30 transition-all font-mono"
+                        className="w-full bg-white border border-[#E8E7E2] rounded-lg p-2.5 text-xs placeholder-neutral-300 outline-none focus:border-orange-500/50"
                       />
                     </div>
 
@@ -2172,61 +1995,60 @@ export default function AdminPage() {
                       type="submit"
                       disabled={projSaving}
                       className={cn(
-                        "w-full h-9 rounded-xl text-[10px] font-bold font-mono uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                        "w-full h-9 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5",
                         projSaving
-                          ? "bg-white/5 text-slate-600 border border-white/5 cursor-not-allowed"
-                          : "bg-white/[0.04] border border-white/[0.06] hover:border-forge-accent/30 text-white shadow-sm"
+                          ? "bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed"
+                          : "bg-neutral-900 hover:bg-neutral-800 text-white shadow-sm"
                       )}
                     >
                       {projSaving ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <>
-                          <ClipboardCheck className="size-3.5 text-forge-accent" />
-                          <span>Save Project Tracking Details</span>
-                        </>
+                        <span>Commit Synchronization Settings</span>
                       )}
                     </button>
                   </form>
                 </div>
 
-                {/* Project details */}
-                <div className="space-y-3">
-                  <h3 className="text-[10px] uppercase font-mono tracking-widest text-[#a1a1aa] font-bold">
-                    Project Specifications
-                  </h3>
-                  <div className="border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm rounded-2xl p-5 text-xs text-white/80 leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto font-mono">
-                    {selectedInquiry.details || "No additional project details were provided by the client."}
+                {/* Plain spec info */}
+                <div className="space-y-2">
+                  <h4 className="text-[9px] uppercase font-mono tracking-wider text-neutral-400 font-bold">
+                    Plain Text Specifications
+                  </h4>
+                  <div className="border border-[#E8E7E2] bg-white rounded-lg p-5 text-xs text-neutral-600 leading-relaxed whitespace-pre-wrap max-h-[220px] overflow-y-auto font-mono select-text shadow-inner">
+                    {selectedInquiry.details || "No operational specification details registered."}
                   </div>
                 </div>
+
               </div>
 
-              {/* Footer */}
-              <div className="px-6 py-4 border-t border-white/[0.06] bg-white/[0.03] backdrop-blur-xl flex items-center justify-between">
+              {/* Drawer Footer Controls */}
+              <div className="px-6 py-4 border-t border-[#E8E7E2] bg-[#FAF9F6] flex items-center justify-between shrink-0 font-mono">
                 <a
                   href={selectedInquiry.contact.includes("@") ? `mailto:${selectedInquiry.contact}` : `https://wa.me/${selectedInquiry.contact.replace(/[^\d+]/g, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-10 px-5 bg-forge-accent hover:bg-forge-accent/90 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-forge-accent/20 border border-forge-accent/30 hover:scale-[1.01]"
+                  className="h-10 px-5 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 cursor-pointer shadow-md"
                 >
-                  <span>Reply to Inquiry</span>
+                  <span>Transmit Response</span>
                   <ExternalLink className="size-3.5" />
                 </a>
 
                 <button
                   onClick={() => handleDelete("inquiry", selectedInquiry.id)}
-                  className="h-10 px-4 rounded-xl bg-red-950/[0.15] border border-red-900/20 hover:border-red-500/40 text-red-400 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer font-mono backdrop-blur-sm"
+                  className="h-10 px-4 rounded-lg border border-red-200 hover:bg-red-50 text-red-500 font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Trash2 className="size-3.5" />
-                  <span>Purge</span>
+                  <span>Purge Record</span>
                 </button>
               </div>
+
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* ── Audit Log History Modal ── */}
+      {/* ── AUDIT LOG LIST DIALOG MODAL ── */}
       <AnimatePresence>
         {auditLogModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -2235,46 +2057,46 @@ export default function AdminPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setAuditLogModalOpen(false)}
-              className="absolute inset-0 bg-[#030306]/80 backdrop-blur-md"
+              className="absolute inset-0 bg-[#0C0C0F]/65 backdrop-blur-sm"
             />
             
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={{ opacity: 0, y: 15, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="relative w-full max-w-4xl max-h-[85vh] bg-gradient-to-b from-white/[0.06] to-white/[0.02] backdrop-blur-2xl border border-white/[0.08] shadow-[0_8px_60px_-12px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)] rounded-2xl flex flex-col overflow-hidden"
+              exit={{ opacity: 0, y: 15, scale: 0.97 }}
+              className="relative w-full max-w-4xl max-h-[85vh] bg-white border border-[#E8E7E2] shadow-2xl rounded-xl flex flex-col overflow-hidden text-[#1A1A1E]"
             >
               {/* Header */}
-              <div className="px-6 py-5 border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-between shrink-0">
+              <div className="px-6 py-5 border-b border-[#E8E7E2] bg-[#FAF9F6] flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 flex items-center justify-center border border-indigo-500/30">
-                    <History className="size-5 text-indigo-400" />
+                  <div className="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center border border-orange-200">
+                    <History className="size-4.5 text-orange-600" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-black text-white font-syne tracking-widest uppercase">Full Audit Log History</h2>
-                    <p className="text-[10px] text-[#a1a1aa] font-mono mt-0.5">Chronological system events and records</p>
+                    <h2 className="text-sm font-black text-neutral-900 font-syne tracking-wider uppercase">System Audit Log History</h2>
+                    <p className="text-[10px] text-neutral-400 font-mono mt-0.5">Sequential logging registry records</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setAuditLogModalOpen(false)}
-                  className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] flex items-center justify-center text-[#a1a1aa] hover:text-white transition-all cursor-pointer"
+                  className="w-8 h-8 rounded-lg border border-[#E8E7E2] hover:bg-neutral-100 flex items-center justify-center text-neutral-400 hover:text-neutral-800 transition-all cursor-pointer"
                 >
                   <X className="size-4" />
                 </button>
               </div>
 
-              {/* Filters & Search */}
-              <div className="px-6 py-4 border-b border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 bg-[#0a0a0f]/40">
-                <div className="flex bg-white/[0.03] p-1.5 border border-white/[0.06] rounded-xl gap-1.5 w-full sm:w-auto">
+              {/* Filters Panel */}
+              <div className="px-6 py-4 border-b border-[#E8E7E2] flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 bg-[#FAF9F6]/50">
+                <div className="flex bg-neutral-100 p-1 border border-neutral-200 rounded-lg gap-1 w-full sm:w-auto font-mono text-[9px] font-bold">
                   {["all", "inquiry", "subscriber"].map(tab => (
                     <button
                       key={tab}
                       onClick={() => setAuditLogTab(tab as any)}
                       className={cn(
-                        "h-8 px-4 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all flex-1 sm:flex-none cursor-pointer",
+                        "h-7 px-3.5 rounded capitalize transition-all cursor-pointer",
                         auditLogTab === tab
-                          ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-sm"
-                          : "text-[#a1a1aa] hover:text-white hover:bg-white/[0.04] border border-transparent"
+                          ? "bg-white text-neutral-900 shadow-sm"
+                          : "text-neutral-500 hover:text-neutral-900"
                       )}
                     >
                       {tab}
@@ -2283,20 +2105,20 @@ export default function AdminPage() {
                 </div>
                 
                 <div className="relative w-full sm:w-64">
-                  <Search className="size-3.5 text-[#5e5f6a] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="size-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search logs..."
+                    placeholder="Filter audit logs..."
                     value={auditLogSearch}
                     onChange={(e) => setAuditLogSearch(e.target.value)}
-                    className="w-full h-9 bg-white/[0.03] border border-white/[0.06] rounded-xl pl-9 pr-4 text-[11px] text-white placeholder-[#5e5f6a] outline-none focus:border-indigo-500/30 transition-all font-mono"
+                    className="w-full h-9 bg-white border border-[#E8E7E2] rounded-lg pl-9 pr-4 text-[10px] text-neutral-900 placeholder-neutral-400 outline-none focus:border-orange-500/50 transition-all font-mono"
                   />
                 </div>
               </div>
 
-              {/* Log List */}
-              <div className="flex-1 overflow-y-auto p-2">
-                <div className="w-full text-left border-collapse">
+              {/* Log List View */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="space-y-1">
                   {activityFeedAll
                     .filter(item => auditLogTab === "all" || item.type === auditLogTab)
                     .filter(item => 
@@ -2304,57 +2126,50 @@ export default function AdminPage() {
                       item.sublabel.toLowerCase().includes(auditLogSearch.toLowerCase())
                     )
                     .map((item, idx) => (
-                    <div key={`${item.id}-${idx}`} className="flex items-center gap-4 py-3 px-4 rounded-xl hover:bg-white/[0.02] transition-colors border-b border-white/[0.02] last:border-0 group/feed">
-                      <div className={cn(
-                        "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 font-mono text-xs font-black border backdrop-blur-sm",
-                        item.action === "+1"
-                          ? "bg-emerald-500/[0.08] border-emerald-500/20 text-emerald-400"
-                          : "bg-red-500/[0.08] border-red-500/20 text-red-400"
-                      )}>
-                        {item.action}
-                      </div>
+                      <div key={`${item.id}-${idx}`} className="flex items-center gap-4 py-3 px-4 rounded-lg hover:bg-[#FAF9F6] border-b border-neutral-100 last:border-0 transition-colors">
+                        <div className={cn(
+                          "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono text-[10px] font-black border",
+                          item.action === "+1"
+                            ? "bg-emerald-50 border-emerald-100 text-emerald-600"
+                            : "bg-red-50 border-red-100 text-red-500"
+                        )}>
+                          {item.action}
+                        </div>
 
-                      <div className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border backdrop-blur-sm",
-                        item.type === "inquiry"
-                          ? "bg-forge-accent/[0.06] border-forge-accent/15"
-                          : "bg-indigo-500/[0.06] border-indigo-500/15"
-                      )}>
-                        {item.type === "inquiry" 
-                          ? <MessageSquarePlus className="size-4 text-forge-accent" />
-                          : <UserPlus className="size-4 text-indigo-400" />
-                        }
-                      </div>
+                        <div className={cn(
+                          "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border",
+                          item.type === "inquiry"
+                            ? "bg-orange-50 border-orange-100"
+                            : "bg-indigo-50 border-indigo-100"
+                        )}>
+                          {item.type === "inquiry" 
+                            ? <MessageSquarePlus className="size-3.5 text-orange-600" />
+                            : <UserPlus className="size-3.5 text-indigo-600" />
+                          }
+                        </div>
 
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-white truncate font-syne leading-tight group-hover/feed:text-indigo-300 transition-colors">
-                          {item.label}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] text-[#a1a1aa] font-mono truncate">
-                            {item.sublabel}
-                          </span>
-                          <span className="w-1 h-1 rounded-full bg-white/10" />
-                          <span className="text-[10px] text-[#5e5f6a] font-mono uppercase tracking-wider">
-                            {item.type}
-                          </span>
+                        <div className="flex-1 min-w-0 font-mono text-xs">
+                          <p className="font-bold text-neutral-900 truncate leading-none select-text">
+                            {item.label}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5 text-[9px] text-neutral-400">
+                            <span className="truncate select-text">{item.sublabel}</span>
+                            <span className="w-1 h-1 rounded-full bg-neutral-200" />
+                            <span className="uppercase font-bold tracking-wider">{item.type}</span>
+                          </div>
+                        </div>
+
+                        <div className="text-right shrink-0 font-mono text-[9px] text-neutral-400">
+                          <p className="font-bold text-neutral-700">{item.rawDate.toLocaleDateString("en-IN")}</p>
+                          <p className="mt-0.5">{item.rawDate.toLocaleTimeString("en-IN")}</p>
                         </div>
                       </div>
-
-                      <div className="text-right shrink-0">
-                        <p className="text-[10px] text-white/70 font-mono">
-                          {item.rawDate.toLocaleDateString()}
-                        </p>
-                        <p className="text-[9px] text-[#5e5f6a] font-mono mt-0.5">
-                          {item.rawDate.toLocaleTimeString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  
                   {activityFeedAll.filter(item => auditLogTab === "all" || item.type === auditLogTab).filter(item => item.label.toLowerCase().includes(auditLogSearch.toLowerCase()) || item.sublabel.toLowerCase().includes(auditLogSearch.toLowerCase())).length === 0 && (
-                    <div className="p-12 text-center text-[#5e5f6a]">
-                      <History className="size-8 mx-auto mb-3 opacity-30" />
-                      <p className="text-xs font-mono uppercase tracking-wider">No logs found.</p>
+                    <div className="py-12 text-center text-neutral-400">
+                      <History className="size-8 mx-auto mb-2 text-neutral-300" />
+                      <p className="text-xs font-mono uppercase tracking-wider">No sequential logs mapped</p>
                     </div>
                   )}
                 </div>
@@ -2363,6 +2178,7 @@ export default function AdminPage() {
           </div>
         )}
       </AnimatePresence>
+
     </main>
   );
 }

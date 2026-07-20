@@ -15,6 +15,22 @@ import { projects } from "@/lib/projects-data";
 
 export default function WorkPage() {
 
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const categories = ["All", "Hospitality", "Catering", "Creative", "Local Business"];
+
+  const getCategory = (subtitle: string) => {
+    if (subtitle.toLowerCase().includes("hospitality")) return "Hospitality";
+    if (subtitle.toLowerCase().includes("catering")) return "Catering";
+    if (subtitle.toLowerCase().includes("creative")) return "Creative";
+    if (subtitle.toLowerCase().includes("local business")) return "Local Business";
+    return "Other";
+  };
+
+  const filteredProjects = selectedCategory === "All"
+    ? projects
+    : projects.filter((p) => getCategory(p.subtitle) === selectedCategory);
+
   return (
     <div className="min-h-screen flex flex-col bg-forge-bg">
       {/* Grain texture overlay */}
@@ -34,20 +50,43 @@ export default function WorkPage() {
             <h1 className="text-fluid-display font-bold text-forge-text font-playfair mb-6">
               Our <span className="text-forge-accent/70">Projects</span>
             </h1>
-            <p className="text-fluid-body-lg text-forge-text-secondary/60 max-w-[600px] leading-relaxed mb-4">
+            <p className="text-fluid-body-lg text-forge-text-secondary/60 max-w-[600px] leading-relaxed mb-6">
               Explore our full collection of speed-optimized, conversion-focused websites and applications. We construct bespoke interfaces tailored for performance.
             </p>
 
-            {/* Privacy Disclaimer Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forge-surface/40 border border-forge-divider/50 backdrop-blur-md text-[11px] font-mono text-forge-text-secondary/70 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-forge-accent shrink-0 animate-pulse" />
-              <span>For privacy concerns, we show demo data of all clients.</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-forge-divider/50 pb-8 mt-8">
+              {/* Category Filter Tabs */}
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => {
+                  const isActive = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={cn(
+                        "px-4 py-1.5 rounded-full text-xs font-mono transition-all duration-300",
+                        isActive
+                          ? "bg-forge-accent text-white font-bold shadow-[0_0_15px_rgba(255,106,0,0.15)]"
+                          : "bg-forge-surface/30 text-forge-text-secondary/60 border border-forge-divider/40 hover:text-forge-text hover:border-forge-accent/30"
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Privacy Disclaimer Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-forge-surface/40 border border-forge-divider/50 backdrop-blur-md text-[11px] font-mono text-forge-text-secondary/70 shadow-sm w-fit">
+                <span className="w-1.5 h-1.5 rounded-full bg-forge-accent shrink-0 animate-pulse" />
+                <span>For privacy concerns, we show demo data of all clients.</span>
+              </div>
             </div>
           </div>
 
           {/* Project Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {projects.map((project, index) => (
+            {filteredProjects.map((project, index) => (
               <div
                 key={project.title}
                 className="group block rounded-xl border border-forge-divider bg-forge-surface/30 overflow-hidden card-hover transition-all duration-300 hover:-translate-y-1 hover:border-forge-accent/25 hover:shadow-lg"

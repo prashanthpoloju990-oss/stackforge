@@ -456,7 +456,7 @@ export function About() {
                         transition={{ duration: 0.5, delay: index * 0.15 + 0.1, ease: [0.16, 1, 0.3, 1] }}
                         className="text-xs font-mono text-forge-accent/80 tracking-[0.2em] uppercase font-bold block"
                       >
-                        // {item.number}
+                        {"// "}{item.number}
                       </motion.span>
                     </div>
 

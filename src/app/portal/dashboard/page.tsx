@@ -15,7 +15,9 @@ import {
   Globe,
   MessageSquare,
   Sparkles,
-  ClipboardList
+  ClipboardList,
+  ChevronRight,
+  Flame
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabaseClient } from "@/lib/supabase-client";
@@ -89,10 +91,12 @@ export default function ClientDashboardPage() {
       setLoading(false);
     }
   }
+
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardData();
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Subscribe to real-time changes
   useEffect(() => {
@@ -163,10 +167,10 @@ export default function ClientDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030306] flex flex-col items-center justify-center text-white font-sans">
+      <div className="min-h-screen bg-[#0C0C0F] flex flex-col items-center justify-center text-white font-sans">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-forge-accent border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-mono tracking-widest text-[#a1a1aa] uppercase animate-pulse">
+          <div className="w-8 h-8 border-[3px] border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-[10px] font-mono tracking-widest text-neutral-500 uppercase animate-pulse">
             Syncing Portal Data...
           </p>
         </div>
@@ -174,63 +178,40 @@ export default function ClientDashboardPage() {
     );
   }
 
+  // ── CLIENT PORTAL DASHBOARD REDESIGN (SPLIT-PANE LAYOUT) ──
   return (
-    <div className="min-h-screen bg-[#030306] text-white font-sans overflow-x-hidden relative flex flex-col">
-      {/* Decorative ambient lights */}
-      <div className="absolute top-0 right-1/4 w-[400px] h-[400px] rounded-full bg-forge-accent/[0.03] blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-500/[0.02] blur-[150px] pointer-events-none" />
-
-      {/* Grain overlay */}
-      <div className="grain-overlay opacity-25" aria-hidden="true" />
-
-      {/* ── Navbar Header ── */}
-      <header className="sticky top-0 z-40 bg-[#040407]/75 backdrop-blur-md border-b border-white/[0.05] select-none">
-        <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-forge-accent/15 border border-forge-accent/30 flex items-center justify-center">
-              <Sparkles className="size-4 text-forge-accent" />
+    <div className="min-h-screen bg-[#FAF9F6] text-[#1A1A1E] font-sans flex overflow-hidden">
+      
+      {/* ── Left Sidebar (Dark Charcoal #0C0C0F Sidebar) ── */}
+      <aside className="w-[260px] bg-[#0C0C0F] text-white flex flex-col justify-between shrink-0 border-r border-white/[0.04] z-20">
+        <div>
+          {/* Logo brand strip */}
+          <div className="p-6 border-b border-white/[0.04] flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center">
+              <Flame className="size-4 text-white" />
             </div>
             <div>
-              <span className="text-sm font-black tracking-widest uppercase font-syne">StackForge</span>
-              <span className="text-[8px] font-mono text-[#a1a1aa] tracking-widest uppercase block -mt-0.5">Portal</span>
+              <h2 className="text-xs font-black tracking-[0.25em] uppercase font-syne leading-none text-white">
+                StackForge
+              </h2>
+              <span className="text-[7.5px] font-mono text-neutral-500 tracking-wider uppercase block mt-1">
+                Client Dashboard
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-5">
-            <span className="text-xs font-mono text-slate-400 truncate max-w-[140px] sm:max-w-none">
-              Client: <span className="text-white font-medium">{clientEmail}</span>
-            </span>
-            <button
-              onClick={handleLogout}
-              className="px-3.5 py-1.5 border border-white/10 hover:border-red-500/30 hover:bg-red-500/5 hover:text-red-400 text-slate-400 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 touch-manipulation shrink-0"
-            >
-              <LogOut className="size-3.5" />
-              <span className="hidden sm:inline">Exit Portal</span>
-              <span className="sm:hidden">Exit</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* ── Main Workspace ── */}
-      <main className="flex-1 max-w-[1200px] w-full mx-auto px-6 py-8 md:py-12 relative z-10">
-        {projects.length === 0 ? (
-          <div className="h-[50vh] flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl p-8 bg-white/[0.01]">
-            <FolderGit2 className="size-12 text-slate-600 mb-4" />
-            <h2 className="text-lg font-bold font-syne">No Active Inquiries</h2>
-            <p className="text-slate-500 text-xs mt-1.5 text-center max-w-[320px] font-mono">
-              We couldn't locate any inquiries. If you recently sent one, it may take a few minutes to register.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
+          {/* Project List */}
+          <div className="p-4 space-y-4">
+            <h3 className="text-[9px] uppercase tracking-widest text-neutral-500 font-bold font-mono px-2">
+              Your Submissions ({projects.length})
+            </h3>
             
-            {/* Sidebar — Inquiry Selection List */}
-            <aside className="space-y-4">
-              <h2 className="text-[10px] uppercase tracking-widest text-[#a1a1aa] font-bold font-mono px-1">
-                Your Projects ({projects.length})
-              </h2>
-              <div className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible gap-3 pb-2 lg:pb-0 scrollbar-none scroll-smooth snap-x snap-mandatory lg:snap-none relative">
+            {projects.length === 0 ? (
+              <div className="text-center py-8 text-neutral-500 font-mono text-[10px]">
+                No projects registered
+              </div>
+            ) : (
+              <div className="space-y-1">
                 {projects.map((project) => {
                   const isActive = project.id === selectedProjectId;
                   return (
@@ -238,95 +219,149 @@ export default function ClientDashboardPage() {
                       key={project.id}
                       onClick={() => setSelectedProjectId(project.id)}
                       className={cn(
-                        "w-full text-left p-4 rounded-xl border transition-all shrink-0 flex flex-col gap-2 min-w-[240px] lg:min-w-0 select-none",
+                        "w-full text-left p-3.5 rounded-lg border transition-all flex flex-col gap-1.5 cursor-pointer font-mono",
                         isActive
-                          ? "bg-white/[0.04] border-forge-accent/40 shadow-lg"
-                          : "bg-white/[0.01] border-white/[0.05] hover:bg-white/[0.02]"
+                          ? "bg-white/[0.04] border-white/[0.08] text-white"
+                          : "bg-transparent border-transparent text-neutral-400 hover:text-white hover:bg-white/[0.02]"
                       )}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className={cn(
-                          "px-2 py-0.5 rounded text-[9px] font-bold font-mono uppercase tracking-wider",
-                          isActive ? "bg-forge-accent text-white" : "bg-white/10 text-slate-300"
-                        )}>
-                          {project.serviceNeed || "Project"}
+                      <div className="flex justify-between items-baseline w-full">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-orange-500 truncate max-w-[65%]">
+                          {project.serviceNeed || "General Inquiry"}
                         </span>
-                        <span className="text-[10px] font-mono text-slate-500">
+                        <span className="text-[8px] text-neutral-500 shrink-0">
                           {new Date(project.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                         </span>
                       </div>
-                      <h3 className="text-sm font-semibold truncate text-white">{project.name}</h3>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
+                      <h4 className="text-xs font-bold truncate">{project.name}</h4>
+                      
+                      <div className="flex items-center gap-1.5 text-[9px] text-neutral-500 mt-1">
                         <span className={cn(
-                          "w-1.5 h-1.5 rounded-full",
+                          "w-1 h-1 rounded-full",
                           (project.status || "pending") === "completed" ? "bg-green-500" :
                           (project.status || "pending") === "development" ? "bg-orange-500" :
-                          (project.status || "pending") === "design" ? "bg-purple-500" : "bg-slate-500"
+                          (project.status || "pending") === "design" ? "bg-purple-500" : "bg-neutral-500"
                         )} />
-                        <span className="capitalize">{(project.status || "pending") === "pending" ? "Inquiry Review" : (project.status || "pending")}</span>
-                        <span className="opacity-30">|</span>
+                        <span className="capitalize">
+                          {(project.status || "pending") === "pending" ? "Received" : project.status}
+                        </span>
+                        <span>·</span>
                         <span>{project.progress || 0}%</span>
                       </div>
                     </button>
                   );
                 })}
               </div>
-            </aside>
+            )}
+          </div>
+        </div>
 
-            {/* Active Details Workspace */}
-            <div className="space-y-8">
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-white/[0.04] space-y-4 bg-black/20 font-mono">
+          <div className="px-2 truncate">
+            <span className="text-[8px] text-neutral-500 uppercase tracking-widest block">Client Profile</span>
+            <span className="text-[10px] text-neutral-300 font-bold block mt-1 truncate" title={clientEmail}>
+              {clientEmail}
+            </span>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            className="w-full h-9 rounded-lg border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] text-neutral-400 hover:text-white text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer"
+          >
+            <LogOut className="size-3" />
+            <span>Exit Portal</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Right Workspace Content Zone ── */}
+      <section className="flex-1 bg-[#FAF9F6] flex flex-col overflow-hidden relative">
+        <div className="grain-overlay opacity-[0.035] pointer-events-none" aria-hidden="true" />
+
+        {/* Header strip */}
+        <header className="h-16 border-b border-[#E8E7E2] px-8 flex items-center justify-between z-10 shrink-0 bg-white/40 backdrop-blur-md">
+          <div className="flex items-center gap-2 font-mono">
+            <span className="text-[10px] uppercase font-bold text-neutral-400">client portal</span>
+            <ChevronRight className="size-3 text-neutral-300" />
+            <span className="text-[10px] uppercase font-bold text-neutral-900 tracking-wider">
+              workspace
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 font-mono text-[9px] text-neutral-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span>Real-time channel synced</span>
+          </div>
+        </header>
+
+        {/* Viewport content */}
+        <div className="flex-1 overflow-y-auto p-8 md:p-12 relative max-w-[1280px] w-full mx-auto">
+          {projects.length === 0 ? (
+            <div className="h-[50vh] flex flex-col items-center justify-center border border-dashed border-[#E8E7E2] rounded-xl bg-white/20 p-8">
+              <FolderGit2 className="size-10 text-neutral-300 mb-3" />
+              <h3 className="text-sm font-extrabold font-syne uppercase tracking-wider text-neutral-800">No Active Inquiries</h3>
+              <p className="text-neutral-500 text-xs mt-1.5 text-center max-w-[300px] font-mono leading-relaxed">
+                We couldn't locate any inquiries. If you recently sent one, it may take a few minutes to register.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-10">
               {selectedProject && (
                 <>
-                  {/* Status Banner Card */}
-                  <section className="bg-gradient-to-b from-white/[0.05] to-white/[0.01] border border-white/[0.07] rounded-2xl p-6 md:p-8 relative">
-                    <div className="absolute top-0 right-0 p-6 font-mono text-[9px] text-[#a1a1aa] tracking-widest uppercase">
-                      Tracker ID: {selectedProject.id.slice(8)}
+                  {/* Status Banner Board */}
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 md:p-8 shadow-sm space-y-8 relative">
+                    <div className="absolute top-6 right-6 font-mono text-[9px] text-neutral-400 uppercase tracking-widest">
+                      spec id: {selectedProject.id.split("_")[1] || selectedProject.id.slice(0, 8)}
                     </div>
-                    
-                    <div className="mb-8">
-                      <span className="text-[10px] text-forge-accent uppercase font-mono tracking-widest block mb-2">Project Phase</span>
-                      <h2 className="text-xl md:text-2xl font-bold font-syne flex items-baseline gap-2">
-                        {selectedProject.serviceNeed || "Bespoke Project"}
-                        <span className="text-xs font-mono text-slate-400 font-medium">({selectedProject.businessType})</span>
+
+                    <div>
+                      <span className="text-[9px] font-mono text-orange-600 uppercase font-black tracking-widest block mb-1">
+                        Active Project Specs
+                      </span>
+                      <h2 className="text-xl md:text-2xl font-black text-neutral-950 font-syne tracking-tight leading-tight select-text">
+                        {selectedProject.serviceNeed || "Bespoke System"}
+                        {selectedProject.businessType && (
+                          <span className="text-xs font-mono text-neutral-400 font-normal ml-2">({selectedProject.businessType})</span>
+                        )}
                       </h2>
                     </div>
 
-                    {/* ── Visual Pipeline ── */}
+                    {/* Status Pipeline Grid */}
                     {(selectedProject.status || "pending") === "archived" ? (
-                      <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-center font-mono text-slate-400 text-xs">
-                        This project record has been archived by the administrator.
+                      <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-lg text-center font-mono text-neutral-500 text-xs">
+                        This project record has been archived.
                       </div>
                     ) : (
-                      <div className="mt-8 select-none">
-                        {/* Pipeline Track (Desktop layout) */}
-                        <div className="hidden md:grid grid-cols-5 gap-4 relative mb-12">
-                          {/* Connecting background progress line */}
-                          <div className="absolute top-5 left-8 right-8 h-0.5 bg-white/[0.06] -z-10" />
+                      <div className="pt-4">
+                        {/* Desktop Pipeline (Horizontal) */}
+                        <div className="hidden md:grid grid-cols-5 gap-4 relative">
+                          <div className="absolute top-4 left-8 right-8 h-0.5 bg-neutral-100 -z-10" />
                           <div 
-                            className="absolute top-5 left-8 h-0.5 bg-forge-accent transition-all duration-700 -z-10 origin-left"
-                            style={{ width: `${Math.max(0, Math.min(100, (statusIndex / 4) * 100)) - 12}%` }}
+                            className="absolute top-4 left-8 h-0.5 bg-orange-500 transition-all duration-700 -z-10 origin-left"
+                            style={{ width: `${Math.max(0, Math.min(100, (statusIndex / 4) * 100)) - 10}%` }}
                           />
 
                           {STATUS_PIPELINE.map((step, idx) => {
                             const isDone = idx < statusIndex;
                             const isCurrent = idx === statusIndex;
                             return (
-                              <div key={step.key} className="text-center flex flex-col items-center">
+                              <div key={step.key} className="text-center flex flex-col items-center select-none">
                                 <div className={cn(
-                                  "w-10 h-10 rounded-full flex items-center justify-center font-mono font-bold text-xs border-2 transition-all duration-500",
-                                  isDone ? "bg-forge-accent border-forge-accent text-white shadow-[0_0_12px_rgba(255,106,0,0.4)]" :
-                                  isCurrent ? "bg-forge-accent/20 border-forge-accent text-forge-accent animate-pulse" :
-                                  "bg-[#0a0a0f] border-white/10 text-slate-500"
+                                  "w-8.5 h-8.5 rounded-full flex items-center justify-center font-mono font-bold text-xs border transition-all duration-500",
+                                  isDone ? "bg-orange-600 border-orange-600 text-white shadow-sm shadow-orange-600/10" :
+                                  isCurrent ? "bg-orange-50 border-orange-500 text-orange-600 font-black animate-pulse" :
+                                  "bg-white border-neutral-200 text-neutral-400"
                                 )}>
                                   {idx + 1}
                                 </div>
                                 <span className={cn(
-                                  "text-xs font-bold mt-3 block",
-                                  isCurrent ? "text-forge-accent" : isDone ? "text-white" : "text-slate-500"
+                                  "text-[11px] font-bold mt-2.5 block tracking-tight font-syne",
+                                  isCurrent ? "text-orange-600" : isDone ? "text-neutral-800" : "text-neutral-400"
                                 )}>
                                   {step.label}
                                 </span>
-                                <span className="text-[9px] text-slate-500 mt-1 block font-mono px-2 leading-tight">
+                                <span className="text-[8px] text-neutral-400 mt-0.5 block font-mono px-2 leading-tight">
                                   {step.desc}
                                 </span>
                               </div>
@@ -334,28 +369,28 @@ export default function ClientDashboardPage() {
                           })}
                         </div>
 
-                        {/* Pipeline Track (Mobile layout) */}
-                        <div className="md:hidden flex flex-col gap-6 relative pl-7 sm:pl-8 border-l border-white/[0.08]">
+                        {/* Mobile Pipeline (Vertical) */}
+                        <div className="md:hidden flex flex-col gap-6 relative pl-7 border-l border-neutral-200 select-none">
                           {STATUS_PIPELINE.map((step, idx) => {
                             const isDone = idx < statusIndex;
                             const isCurrent = idx === statusIndex;
                             return (
-                              <div key={step.key} className="relative flex flex-col gap-1">
+                              <div key={step.key} className="relative flex flex-col gap-0.5">
                                 <div className={cn(
-                                  "absolute -left-[37px] sm:-left-[45px] top-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-mono font-bold text-[10px] sm:text-xs border-2",
-                                  isDone ? "bg-forge-accent border-forge-accent text-white" :
-                                  isCurrent ? "bg-forge-accent/20 border-forge-accent text-forge-accent" :
-                                  "bg-[#0a0a0f] border-white/10 text-slate-500"
+                                  "absolute -left-[35px] top-0.5 w-6.5 h-6.5 rounded-full flex items-center justify-center font-mono font-bold text-[10px] border",
+                                  isDone ? "bg-orange-600 border-orange-600 text-white" :
+                                  isCurrent ? "bg-orange-50 border-orange-500 text-orange-600" :
+                                  "bg-white border-neutral-200 text-neutral-400"
                                 )}>
                                   {idx + 1}
                                 </div>
                                 <span className={cn(
-                                  "text-xs font-bold",
-                                  isCurrent ? "text-forge-accent" : isDone ? "text-white" : "text-slate-500"
+                                  "text-xs font-bold tracking-tight font-syne",
+                                  isCurrent ? "text-orange-600" : isDone ? "text-neutral-800" : "text-neutral-400"
                                 )}>
                                   {step.label}
                                 </span>
-                                <span className="text-[10px] text-slate-500 font-mono">
+                                <span className="text-[9px] text-neutral-400 font-mono">
                                   {step.desc}
                                 </span>
                               </div>
@@ -365,59 +400,58 @@ export default function ClientDashboardPage() {
                       </div>
                     )}
 
-                    {/* ── Progress Bar ── */}
-                    <div className="mt-8 pt-6 border-t border-white/[0.05]">
-                      <div className="flex justify-between items-center mb-2 select-none">
-                        <span className="text-xs font-mono text-slate-400">Task Completion Weight</span>
-                        <span className="text-sm font-black font-mono text-forge-accent">{selectedProject.progress || 0}%</span>
+                    {/* Progress Bar */}
+                    <div className="pt-6 border-t border-[#F2F1EC] select-none">
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-[10px] font-mono text-neutral-400">Framework Milestone Weight</span>
+                        <span className="text-xs font-black font-mono text-orange-600">{selectedProject.progress || 0}%</span>
                       </div>
-                      <div className="w-full h-2.5 bg-white/[0.04] rounded-full overflow-hidden border border-white/[0.06] p-[2px]">
+                      <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden p-[1px]">
                         <motion.div 
                           initial={{ width: 0 }}
                           animate={{ width: `${selectedProject.progress || 0}%` }}
                           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                          className="h-full rounded-full bg-forge-accent shadow-[0_0_8px_#ff6a00]"
+                          className="h-full rounded-full bg-orange-600 shadow-sm"
                         />
                       </div>
                     </div>
-                  </section>
+                  </div>
 
-                  {/* Split Details Section */}
+                  {/* Details Split Column */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     
-                    {/* Developer notes / updates */}
-                    <section className="bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/[0.06] rounded-2xl p-6 flex flex-col h-full gap-5">
-                      <div className="flex items-center gap-2 text-forge-accent">
-                        <MessageSquare className="size-4" />
-                        <h3 className="text-xs font-bold font-mono uppercase tracking-widest">Latest Developer Update</h3>
+                    {/* Operations Log updates */}
+                    <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm flex flex-col justify-between h-full">
+                      <div className="flex items-center gap-2 text-orange-600 mb-4 select-none">
+                        <MessageSquare className="size-4 shrink-0" />
+                        <h4 className="text-[10px] font-mono uppercase tracking-widest font-black">Latest Operational Log</h4>
                       </div>
-                      <div className="flex-1 bg-white/[0.02] border border-white/[0.04] p-5 rounded-xl text-sm leading-relaxed text-slate-300 font-mono whitespace-pre-wrap select-text">
+                      <div className="flex-1 bg-[#FAF9F6] border border-[#EBEAE6] p-5 rounded-xl text-xs leading-relaxed text-neutral-700 font-mono whitespace-pre-wrap select-text min-h-[160px]">
                         {selectedProject.clientNotes || 
-                          `Thank you for submitting your project specs!\n\nOur team is currently evaluating your design assets and business details. We will reach out within 12 hours to schedule our kick-off consultation call.`
+                          `Your specification payload has been loaded into database registries.\n\nOur studio engineers are analyzing the design materials. A lead engineer will coordinate a launch roadmap with you shortly.`
                         }
                       </div>
-                    </section>
+                    </div>
 
-                    {/* Resources & Quick Links */}
-                    <section className="bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/[0.06] rounded-2xl p-6 space-y-6">
-                      <div className="flex items-center gap-2 text-[#a1a1aa]">
-                        <Layers className="size-4 text-forge-accent" />
-                        <h3 className="text-xs font-bold font-mono uppercase tracking-widest text-white">Project Workspace Assets</h3>
+                    {/* Workspace Assets */}
+                    <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm space-y-6">
+                      <div className="flex items-center gap-2 text-neutral-400 mb-2 select-none">
+                        <Layers className="size-4 shrink-0 text-orange-500" />
+                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-900 font-bold">Workspace Nodes</h4>
                       </div>
 
-                      {/* Deliverables / URLs */}
-                      <div className="space-y-3">
-                        <h4 className="text-[10px] uppercase font-mono tracking-widest text-slate-500">Live Environments</h4>
+                      <div className="space-y-3 font-mono">
+                        <h5 className="text-[9px] uppercase tracking-widest text-neutral-400 block font-bold">Live Environments</h5>
                         
                         {/* Figma Link */}
-                        <div className="flex items-center justify-between p-3.5 rounded-xl border border-white/[0.04] bg-white/[0.01] hover:bg-white/[0.02] transition-colors">
+                        <div className="flex items-center justify-between p-3.5 rounded-lg border border-[#E8E7E2] bg-[#FAF9F6]/30 hover:bg-[#FAF9F6]/80 transition-colors">
                           <div className="flex items-center gap-2.5">
-                            <div className="size-8 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center">
-                              <Figma className="size-4 text-pink-400" />
+                            <div className="size-7 rounded bg-pink-50 flex items-center justify-center border border-pink-100">
+                              <Figma className="size-3.5 text-pink-500" />
                             </div>
                             <div>
-                              <span className="text-xs font-semibold block">Design Mockups</span>
-                              <span className="text-[9px] font-mono text-slate-500">Figma Prototype Board</span>
+                              <span className="text-[11px] font-bold block text-neutral-900">Design Board</span>
+                              <span className="text-[8px] text-neutral-400 leading-none">Figma Layout Proto</span>
                             </div>
                           </div>
                           {selectedProject.figmaLink ? (
@@ -425,25 +459,25 @@ export default function ClientDashboardPage() {
                               href={selectedProject.figmaLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-forge-accent hover:text-white flex items-center gap-1 font-mono"
+                              className="text-[10px] text-orange-600 hover:underline flex items-center gap-1 font-bold"
                             >
                               <span>Open Board</span>
                               <ExternalLink className="size-3" />
                             </a>
                           ) : (
-                            <span className="text-[10px] font-mono text-slate-600">Pending Setup</span>
+                            <span className="text-[9px] text-neutral-400">Pending Setup</span>
                           )}
                         </div>
 
-                        {/* Staging Link */}
-                        <div className="flex items-center justify-between p-3.5 rounded-xl border border-white/[0.04] bg-white/[0.01] hover:bg-white/[0.02] transition-colors">
+                        {/* Staging URL */}
+                        <div className="flex items-center justify-between p-3.5 rounded-lg border border-[#E8E7E2] bg-[#FAF9F6]/30 hover:bg-[#FAF9F6]/80 transition-colors">
                           <div className="flex items-center gap-2.5">
-                            <div className="size-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                              <Globe className="size-4 text-emerald-400" />
+                            <div className="size-7 rounded bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                              <Globe className="size-3.5 text-emerald-600" />
                             </div>
                             <div>
-                              <span className="text-xs font-semibold block">Staging Preview</span>
-                              <span className="text-[9px] font-mono text-slate-500">Live development server</span>
+                              <span className="text-[11px] font-bold block text-neutral-900">Staging Server</span>
+                              <span className="text-[8px] text-neutral-400 leading-none">Live preview build</span>
                             </div>
                           </div>
                           {selectedProject.stagingLink ? (
@@ -451,90 +485,94 @@ export default function ClientDashboardPage() {
                               href={selectedProject.stagingLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-forge-accent hover:text-white flex items-center gap-1 font-mono"
+                              className="text-[10px] text-orange-600 hover:underline flex items-center gap-1 font-bold"
                             >
-                              <span>Visit Site</span>
+                              <span>Visit Staging</span>
                               <ExternalLink className="size-3" />
                             </a>
                           ) : (
-                            <span className="text-[10px] font-mono text-slate-600">Pending Deploy</span>
+                            <span className="text-[9px] text-neutral-400">Pending Deploy</span>
                           )}
                         </div>
                       </div>
 
-                      {/* Attachments */}
-                      <div className="space-y-3 pt-3 border-t border-white/[0.05]">
-                        <h4 className="text-[10px] uppercase font-mono tracking-widest text-slate-500">Submitted Attachments</h4>
+                      {/* Attachments list */}
+                      <div className="space-y-3 pt-4 border-t border-[#F2F1EC] font-mono">
+                        <h5 className="text-[9px] uppercase tracking-widest text-neutral-400 block font-bold">Specs Assets</h5>
                         {parseAttachments(selectedProject.attachments).length === 0 ? (
-                          <p className="text-[10px] font-mono text-slate-600 px-1 py-1">No attachments uploaded.</p>
+                          <p className="text-[9px] text-neutral-400 italic">No assets attached to inquiry.</p>
                         ) : (
-                          <div className="grid grid-cols-1 gap-2 max-h-[160px] overflow-y-auto scrollbar-none pr-1">
+                          <div className="grid grid-cols-1 gap-2 max-h-[120px] overflow-y-auto pr-1">
                             {parseAttachments(selectedProject.attachments).map((file, idx) => (
                               <a
                                 key={idx}
                                 href={file.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-between p-3 rounded-lg border border-white/[0.04] bg-white/[0.01] hover:bg-white/[0.02] text-slate-300 hover:text-white text-xs font-mono transition-all"
+                                className="flex items-center justify-between p-2.5 rounded border border-[#E8E7E2] hover:border-orange-500/25 bg-white text-neutral-700 hover:text-neutral-900 text-[10px] transition-all shadow-sm"
                               >
                                 <div className="flex items-center gap-2 truncate pr-4">
-                                  <FileText className="size-3.5 text-forge-accent/60 shrink-0" />
+                                  <FileText className="size-3.5 text-orange-500 shrink-0" />
                                   <span className="truncate">{file.name}</span>
                                 </div>
-                                <ExternalLink className="size-3 text-slate-500 group-hover:text-white shrink-0" />
+                                <ExternalLink className="size-3 text-neutral-400 shrink-0" />
                               </a>
                             ))}
                           </div>
                         )}
                       </div>
-                    </section>
+                    </div>
                   </div>
 
-                  {/* Project Specs Overview */}
-                  <section className="bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/[0.06] rounded-2xl p-6 md:p-8 space-y-6 select-text">
-                    <div className="flex items-center gap-2">
-                      <ClipboardList className="size-4 text-forge-accent" />
-                      <h3 className="text-xs font-bold font-mono uppercase tracking-widest text-white">Project Inquiry Specification</h3>
+                  {/* Technical Specs board */}
+                  <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 md:p-8 space-y-6 select-text shadow-sm">
+                    <div className="flex items-center gap-2 select-none">
+                      <ClipboardList className="size-4 text-orange-500 shrink-0" />
+                      <h4 className="text-[10px] font-mono uppercase tracking-widest font-black text-neutral-900">
+                        Technical Registry Specs
+                      </h4>
                     </div>
 
-                    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-6 font-mono text-xs leading-relaxed border-b border-white/[0.04] pb-6">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-6 font-mono text-xs leading-relaxed border-b border-[#F2F1EC] pb-6">
                       <div className="space-y-1">
-                        <span className="text-slate-500 uppercase text-[9px] block">Service Type</span>
-                        <span className="text-white font-semibold">{selectedProject.serviceNeed || "Not specified"}</span>
+                        <span className="text-neutral-400 uppercase text-[8px] block font-bold">Service Category</span>
+                        <span className="text-neutral-900 font-bold">{selectedProject.serviceNeed || "N/A"}</span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-slate-500 uppercase text-[9px] block">Budget Frame</span>
-                        <span className="text-white font-semibold">{selectedProject.budget || "Not specified"}</span>
+                        <span className="text-neutral-400 uppercase text-[8px] block font-bold">Budget Tier</span>
+                        <span className="text-neutral-900 font-bold">{selectedProject.budget || "N/A"}</span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-slate-500 uppercase text-[9px] block">Target Timeline</span>
-                        <span className="text-white font-semibold">{selectedProject.timeline || "Not specified"}</span>
+                        <span className="text-neutral-400 uppercase text-[8px] block font-bold">Target Timeline</span>
+                        <span className="text-neutral-900 font-bold">{selectedProject.timeline || "N/A"}</span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-slate-500 uppercase text-[9px] block">Sub-Page Count</span>
-                        <span className="text-white font-semibold">{selectedProject.pageCount || "Single Page / Landing"}</span>
+                        <span className="text-neutral-400 uppercase text-[8px] block font-bold">Estimated Pages</span>
+                        <span className="text-neutral-900 font-bold">{selectedProject.pageCount || "Single Page / Landing"}</span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-slate-500 uppercase text-[9px] block">Registered Contact</span>
-                        <span className="text-white font-semibold truncate block">{selectedProject.contact}</span>
+                        <span className="text-neutral-400 uppercase text-[8px] block font-bold">Registered Contact</span>
+                        <span className="text-neutral-900 font-bold truncate block">{selectedProject.contact}</span>
                       </div>
                       <div className="space-y-1">
-                        <span className="text-slate-500 uppercase text-[9px] block">Date Received</span>
-                        <span className="text-white font-semibold">{new Date(selectedProject.createdAt).toLocaleDateString("en-IN", { dateStyle: "long" })}</span>
+                        <span className="text-neutral-400 uppercase text-[8px] block font-bold">Registration Date</span>
+                        <span className="text-neutral-900 font-bold">
+                          {new Date(selectedProject.createdAt).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Custom Add-ons */}
-                    <div className="space-y-3 pb-6 border-b border-white/[0.04]">
-                      <h4 className="text-[10px] uppercase font-mono tracking-widest text-slate-500">Selected Scope Add-ons</h4>
+                    {/* Technical add-ons */}
+                    <div className="space-y-3 pb-6 border-b border-[#F2F1EC]">
+                      <h5 className="text-[9px] uppercase tracking-widest text-neutral-400 block font-mono font-bold select-none">Scope Integrations</h5>
                       {parseFeatures(selectedProject.features).length === 0 ? (
-                        <p className="text-[10px] font-mono text-slate-600">No add-ons selected.</p>
+                        <p className="text-[10px] font-mono text-neutral-400 italic">No integrations specified.</p>
                       ) : (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 select-none">
                           {parseFeatures(selectedProject.features).map((feature) => (
                             <span 
                               key={feature} 
-                              className="px-2.5 py-1 rounded-md text-[10px] font-semibold bg-forge-accent/10 border border-forge-accent/20 text-forge-accent font-mono uppercase"
+                              className="px-2.5 py-1 rounded bg-[#FAF9F6] border border-[#E8E7E2] text-neutral-800 text-[9px] font-bold font-mono uppercase tracking-wider"
                             >
                               {feature}
                             </span>
@@ -543,26 +581,26 @@ export default function ClientDashboardPage() {
                       )}
                     </div>
 
-                    {/* Original project description */}
-                    <div className="space-y-2">
-                      <h4 className="text-[10px] uppercase font-mono tracking-widest text-slate-500">Original Requirements Summary</h4>
-                      <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap pl-1 font-mono">
-                        {selectedProject.details || "No project description was provided at submission."}
+                    {/* Requirements summary */}
+                    <div className="space-y-2 font-mono text-xs">
+                      <h5 className="text-[9px] uppercase tracking-widest text-neutral-400 block font-bold select-none">Requirements Details</h5>
+                      <p className="text-neutral-500 leading-relaxed whitespace-pre-wrap pl-1 font-mono">
+                        {selectedProject.details || "No requirements text uploaded."}
                       </p>
                     </div>
-                  </section>
+                  </div>
                 </>
               )}
             </div>
+          )}
+        </div>
 
-          </div>
-        )}
-      </main>
+        {/* Footer info */}
+        <footer className="py-6 border-t border-[#E8E7E2] bg-white/20 text-center select-none text-[9px] font-mono text-neutral-400 shrink-0">
+          StackForge Portal Registry · secure encryption TLS 1.3 · session cookie HttpOnly
+        </footer>
+      </section>
 
-      {/* Footer System Info */}
-      <footer className="py-6 border-t border-white/[0.04] bg-[#040407]/40 text-center select-none text-[10px] font-mono text-slate-600 mt-12 pb-[max(1.5rem,env(safe-area-inset-bottom,1.5rem))]">
-        StackForge Project Portal · secure channel TLS 1.3 · session cookies secure HttpOnly
-      </footer>
     </div>
   );
 }
