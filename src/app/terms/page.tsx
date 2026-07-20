@@ -1,5 +1,4 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Navbar } from "@/components/stackforge/navbar";
 import { Footer } from "@/components/stackforge/footer";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
@@ -7,6 +6,23 @@ import { BackToTop } from "@/components/ui/back-to-top";
 import { CookieConsent } from "@/components/ui/cookie-consent";
 import { StickyCta } from "@/components/stackforge/sticky-cta";
 import { SignalButton } from "@/components/ui/signal-button";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions | StackForge",
+  description: "Read the Terms and Conditions of StackForge regarding our design and development services, advance payment policy, deliverables, and governing law.",
+  alternates: {
+    canonical: "/terms",
+  },
+  openGraph: {
+    title: "Terms & Conditions | StackForge",
+    description: "Read the Terms and Conditions of StackForge regarding our design and development services, advance payment policy, deliverables, and governing law.",
+    url: "https://stackforge.co.in/terms",
+  },
+  twitter: {
+    title: "Terms & Conditions | StackForge",
+    description: "Read the Terms and Conditions of StackForge regarding our design and development services, advance payment policy, deliverables, and governing law.",
+  }
+};
 
 export default function TermsPage() {
   return (

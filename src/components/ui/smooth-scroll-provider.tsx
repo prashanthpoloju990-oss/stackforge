@@ -3,6 +3,7 @@
 import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
 import { useTheme } from "next-themes";
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 /**
@@ -16,6 +17,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
   useSmoothScroll();
   const { setTheme } = useTheme();
   const initialized = useRef(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!initialized.current) {
@@ -26,6 +28,11 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
 
   // Initialize Lenis for buttery smooth scrolling
   useEffect(() => {
+    // Disable Lenis for admin and portal routes to allow native dashboard scrolling
+    if (pathname?.startsWith("/admin") || pathname?.startsWith("/portal")) {
+      return;
+    }
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -43,7 +50,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     return () => {
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
 
   return <>{children}</>;
 }

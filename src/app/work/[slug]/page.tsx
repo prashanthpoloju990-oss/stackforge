@@ -26,9 +26,26 @@ export async function generateMetadata({ params }: PageProps) {
       title: "Project Not Found | StackForge",
     };
   }
+  const imageUrl = `https://stackforge.co.in${project.image}`;
   return {
     title: `${project.title} | ${project.subtitle} Case Study`,
     description: project.description,
+    alternates: {
+      canonical: `/work/${slug}`,
+    },
+    openGraph: {
+      title: `${project.title} | ${project.subtitle} Case Study`,
+      description: project.description,
+      type: "website",
+      url: `https://stackforge.co.in/work/${slug}`,
+      images: [{ url: imageUrl }],
+    },
+    twitter: {
+      title: `${project.title} | ${project.subtitle} Case Study`,
+      description: project.description,
+      card: "summary_large_image",
+      images: [imageUrl],
+    }
   };
 }
 
@@ -40,8 +57,34 @@ export default async function WorkPage({ params }: PageProps) {
     notFound();
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": project.title,
+    "description": project.description,
+    "image": `https://stackforge.co.in${project.image}`,
+    "genre": project.subtitle,
+    "publisher": {
+      "@type": "Organization",
+      "name": "StackForge",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://stackforge.co.in/logo.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://stackforge.co.in/work/${slug}`
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-forge-bg overflow-x-hidden">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Grain texture overlay */}
       <div className="grain-overlay" aria-hidden="true" />
 

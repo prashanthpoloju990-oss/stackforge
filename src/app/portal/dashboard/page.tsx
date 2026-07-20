@@ -63,6 +63,49 @@ function getStatusIndex(status: string): number {
   }
 }
 
+function MarkdownRenderer({ content }: { content: string }) {
+  const blocks = content.trim().split("\n\n");
+  return (
+    <div className="space-y-4 text-xs font-sans text-neutral-700 leading-relaxed select-text">
+      {blocks.map((block, index) => {
+        const trimmed = block.trim();
+        if (trimmed.startsWith("### ")) {
+          return (
+            <h4 key={index} className="text-xs font-extrabold text-neutral-900 font-syne uppercase tracking-wider mt-4 mb-2 flex items-center gap-1.5 border-b border-neutral-100 pb-1">
+              <Sparkles className="size-3 text-orange-500 shrink-0" />
+              {trimmed.replace("### ", "")}
+            </h4>
+          );
+        }
+        if (trimmed.startsWith("## ")) {
+          return (
+            <h3 key={index} className="text-sm font-black text-neutral-950 font-syne uppercase tracking-tight mt-6 mb-3">
+              {trimmed.replace("## ", "")}
+            </h3>
+          );
+        }
+        if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+          const items = trimmed.split("\n").map(li => li.replace(/^[-*]\s+/, ""));
+          return (
+            <ul key={index} className="list-disc pl-4 space-y-1 my-2">
+              {items.map((item, liIdx) => (
+                <li key={liIdx} className="text-neutral-600">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        return (
+          <p key={index} className="text-neutral-600">
+            {trimmed}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ClientDashboardPage() {
   const router = useRouter();
   const [clientEmail, setClientEmail] = useState("");
@@ -180,7 +223,7 @@ export default function ClientDashboardPage() {
 
   // ── CLIENT PORTAL DASHBOARD REDESIGN (SPLIT-PANE LAYOUT) ──
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#1A1A1E] font-sans flex overflow-hidden">
+    <div className="h-screen bg-[#FAF9F6] text-[#1A1A1E] font-sans flex overflow-hidden">
       
       {/* ── Left Sidebar (Dark Charcoal #0C0C0F Sidebar) ── */}
       <aside className="w-[260px] bg-[#0C0C0F] text-white flex flex-col justify-between shrink-0 border-r border-white/[0.04] z-20">
@@ -423,13 +466,33 @@ export default function ClientDashboardPage() {
                     {/* Operations Log updates */}
                     <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm flex flex-col justify-between h-full">
                       <div className="flex items-center gap-2 text-orange-600 mb-4 select-none">
-                        <MessageSquare className="size-4 shrink-0" />
-                        <h4 className="text-[10px] font-mono uppercase tracking-widest font-black">Latest Operational Log</h4>
+                        {selectedProject.clientNotes && (selectedProject.clientNotes.includes("###") || selectedProject.clientNotes.includes("Roadmap")) ? (
+                          <>
+                            <Sparkles className="size-4 shrink-0 animate-pulse text-orange-500" />
+                            <h4 className="text-[10px] font-mono uppercase tracking-widest font-black">AI Project Roadmap</h4>
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare className="size-4 shrink-0 text-orange-500" />
+                            <h4 className="text-[10px] font-mono uppercase tracking-widest font-black">Latest Operational Log</h4>
+                          </>
+                        )}
                       </div>
-                      <div className="flex-1 bg-[#FAF9F6] border border-[#EBEAE6] p-5 rounded-xl text-xs leading-relaxed text-neutral-700 font-mono whitespace-pre-wrap select-text min-h-[160px]">
-                        {selectedProject.clientNotes || 
+                      <div className={cn(
+                        "flex-1 border p-5 rounded-xl text-xs leading-relaxed min-h-[160px]",
+                        selectedProject.clientNotes && (selectedProject.clientNotes.includes("###") || selectedProject.clientNotes.includes("Roadmap"))
+                          ? "bg-gradient-to-br from-orange-50/20 via-white to-amber-50/10 border-orange-500/10"
+                          : "bg-[#FAF9F6] border-[#EBEAE6] font-mono whitespace-pre-wrap select-text"
+                      )}>
+                        {selectedProject.clientNotes ? (
+                          selectedProject.clientNotes.includes("###") || selectedProject.clientNotes.includes("Roadmap") ? (
+                            <MarkdownRenderer content={selectedProject.clientNotes} />
+                          ) : (
+                            selectedProject.clientNotes
+                          )
+                        ) : (
                           `Your specification payload has been loaded into database registries.\n\nOur studio engineers are analyzing the design materials. A lead engineer will coordinate a launch roadmap with you shortly.`
-                        }
+                        )}
                       </div>
                     </div>
 

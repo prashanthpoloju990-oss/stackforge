@@ -1,5 +1,4 @@
-"use client";
-
+import type { Metadata } from "next";
 import { Navbar } from "@/components/stackforge/navbar";
 import { Footer } from "@/components/stackforge/footer";
 import { ScrollProgress } from "@/components/ui/scroll-progress";
@@ -7,6 +6,23 @@ import { BackToTop } from "@/components/ui/back-to-top";
 import { CookieConsent } from "@/components/ui/cookie-consent";
 import { StickyCta } from "@/components/stackforge/sticky-cta";
 import { SignalButton } from "@/components/ui/signal-button";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | StackForge",
+  description: "Read the Privacy Policy of StackForge details regarding how we collect, store, utilize, and protect your personal information and onboarding assets.",
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title: "Privacy Policy | StackForge",
+    description: "Read the Privacy Policy of StackForge details regarding how we collect, store, utilize, and protect your personal information and onboarding assets.",
+    url: "https://stackforge.co.in/privacy",
+  },
+  twitter: {
+    title: "Privacy Policy | StackForge",
+    description: "Read the Privacy Policy of StackForge details regarding how we collect, store, utilize, and protect your personal information and onboarding assets.",
+  }
+};
 
 export default function PrivacyPage() {
   return (

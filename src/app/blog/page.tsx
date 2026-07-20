@@ -1,17 +1,23 @@
 import Link from "next/link";
 import { Navbar } from "@/components/stackforge/navbar";
 import { Footer } from "@/components/stackforge/footer";
-import { BLOG_POSTS } from "@/lib/blog-data";
+import { getMergedBlogPosts } from "@/lib/blog-db";
 import { BlobButton } from "@/components/ui/blob-button";
 import { Calendar, Clock, User, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Blog | StackForge High-Performance Dev Studio",
   description: "Read the latest insights from the StackForge team on Next.js performance, custom design systems, web optimization, and startup MVP scaling.",
+  alternates: {
+    canonical: "/blog",
+  },
 };
 
 export default function BlogListingPage() {
+  const BLOG_POSTS = getMergedBlogPosts();
   return (
     <div className="min-h-screen flex flex-col bg-forge-bg overflow-x-hidden">
       {/* Grain texture overlay */}

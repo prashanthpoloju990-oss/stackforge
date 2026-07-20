@@ -5,13 +5,9 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build && node -e \"const fs = require('fs'); fs.cpSync('.next/static', '.next/standalone/.next/static', { recursive: true, force: true }); fs.cpSync('public', '.next/standalone/public', { recursive: true, force: true });\"",
-    "build:netlify": "npx prisma generate || echo 'Skipping prisma generate due to file lock' && next build",
+    "build:netlify": "next build",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
-    "lint": "eslint .",
-    "db:push": "prisma db push",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

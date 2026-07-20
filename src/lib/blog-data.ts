@@ -8,6 +8,7 @@ export interface BlogPost {
   category: string;
   tags: string[];
   content: string; // Markdown or simple HTML markup
+  bannerImage?: string;
 }
 
 export const BLOG_POSTS: BlogPost[] = [

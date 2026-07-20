@@ -44,11 +44,27 @@ import {
   LayoutDashboard,
   Send,
   Sliders,
-  Settings
+  Settings,
+  BookOpen,
+  Paintbrush
 } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabaseClient } from "@/lib/supabase-client";
+
+// ── Markdown Formatter for AI Analysis ──
+function formatMarkdown(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/^### (.*$)/gim, '<h5 style="color:#FF6A00; font-size:10px; font-weight:850; text-transform:uppercase; font-family:monospace; margin-top:14px; margin-bottom:4px;">$1</h5>')
+    .replace(/^## (.*$)/gim, '<h4 style="color:#1A1A1E; font-size:11px; font-weight:bold; margin-top:16px; margin-bottom:6px;">$1</h4>')
+    .replace(/^# (.*$)/gim, '<h3 style="color:#1A1A1E; font-size:13px; font-weight:black; margin-top:20px; margin-bottom:8px;">$1</h3>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#1A1A1E; font-weight:bold;">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="background:#f3f4f6; padding:2px 4px; border-radius:4px; font-family:monospace; font-size:10px;">$1</code>')
+    .replace(/^\s*-\s*(.*$)/gim, '<li style="margin-left:12px; list-style-type:disc; padding-left:4px; margin-bottom:4px;">$1</li>')
+    .replace(/\n/g, '<br />');
+}
 
 interface ContactSubmission {
   id: string;
@@ -240,7 +256,7 @@ export default function AdminPage() {
   // Data state
   const [inquiries, setInquiries] = useState<ContactSubmission[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
-  const [activeTab, setActiveTab] = useState<"overview" | "inquiries" | "subscribers" | "newsletter">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "inquiries" | "subscribers" | "newsletter" | "blog">("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedInquiry, setSelectedInquiry] = useState<ContactSubmission | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -267,6 +283,26 @@ export default function AdminPage() {
   const [auditLogTab, setAuditLogTab] = useState<"all" | "inquiry" | "subscriber">("all");
   const [auditLogSearch, setAuditLogSearch] = useState("");
 
+  // AI Assistant states
+  const [aiNewsletterPrompt, setAiNewsletterPrompt] = useState("");
+  const [aiNewsletterTone, setAiNewsletterTone] = useState("witty");
+  const [aiNewsletterLoading, setAiNewsletterLoading] = useState(false);
+  const [aiNewsletterError, setAiNewsletterError] = useState("");
+
+  const [aiInquiryAnalysis, setAiInquiryAnalysis] = useState<string | null>(null);
+  const [aiInquiryReply, setAiInquiryReply] = useState<string | null>(null);
+  const [aiInquiryLoading, setAiInquiryLoading] = useState(false);
+  const [aiInquiryError, setAiInquiryError] = useState("");
+  const [aiDrawerTab, setAiDrawerTab] = useState<"analysis" | "reply">("analysis");
+
+  // AI Blog Writer states
+  const [aiBlogTopic, setAiBlogTopic] = useState("");
+  const [aiBlogCategory, setAiBlogCategory] = useState("Web Engineering");
+  const [aiBlogKeywords, setAiBlogKeywords] = useState("");
+  const [aiBlogLoading, setAiBlogLoading] = useState(false);
+  const [aiBlogError, setAiBlogError] = useState("");
+  const [aiBlogDraft, setAiBlogDraft] = useState<any | null>(null);
+
   // Update detail states when inquiry changes
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -276,6 +312,9 @@ export default function AdminPage() {
       setProjFigma(selectedInquiry.figmaLink || "");
       setProjStaging(selectedInquiry.stagingLink || "");
       setProjNotes(selectedInquiry.clientNotes || "");
+      setAiInquiryAnalysis(null);
+      setAiInquiryReply(null);
+      setAiInquiryError("");
     }
   }, [selectedInquiry]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -608,6 +647,89 @@ export default function AdminPage() {
       downloadAnchor.click();
       downloadAnchor.remove();
       URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleGenerateAiNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiNewsletterPrompt || aiNewsletterLoading) return;
+    setAiNewsletterLoading(true);
+    setAiNewsletterError("");
+    try {
+      const res = await fetch("/api/admin/ai/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: aiNewsletterPrompt,
+          tone: aiNewsletterTone,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate newsletter");
+      
+      setBroadcastSubject(data.subject || "");
+      setBroadcastPreview(data.previewText || "");
+      setBroadcastBody(data.bodyHtml || "");
+      localStorage.setItem("sf_draft_subject", data.subject || "");
+      localStorage.setItem("sf_draft_preview", data.previewText || "");
+      localStorage.setItem("sf_draft_body", data.bodyHtml || "");
+      setAiNewsletterPrompt("");
+    } catch (err: any) {
+      setAiNewsletterError(err.message || "An error occurred during draft generation.");
+    } finally {
+      setAiNewsletterLoading(false);
+    }
+  };
+
+  const handleAnalyzeInquiry = async () => {
+    if (!selectedInquiry || aiInquiryLoading) return;
+    setAiInquiryLoading(true);
+    setAiInquiryError("");
+    setAiInquiryAnalysis(null);
+    setAiInquiryReply(null);
+    try {
+      const res = await fetch("/api/admin/ai/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inquiryId: selectedInquiry.id,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to analyze inquiry");
+      setAiInquiryAnalysis(data.analysis || "");
+      setAiInquiryReply(data.draftReply || "");
+    } catch (err: any) {
+      setAiInquiryError(err.message || "An error occurred during lead analysis.");
+    } finally {
+      setAiInquiryLoading(false);
+    }
+  };
+
+  const handleGenerateAiBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiBlogTopic || aiBlogLoading) return;
+    setAiBlogLoading(true);
+    setAiBlogError("");
+    setAiBlogDraft(null);
+
+    try {
+      const res = await fetch("/api/admin/ai/blog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic: aiBlogTopic,
+          category: aiBlogCategory,
+          keywords: aiBlogKeywords,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate blog post");
+      setAiBlogDraft(data.post);
+    } catch (err: any) {
+      setAiBlogError(err.message || "An error occurred during blog drafting.");
+    } finally {
+      setAiBlogLoading(false);
     }
   };
 
@@ -1100,7 +1222,7 @@ export default function AdminPage() {
 
   // ── PREMIUM EDITORIAL SPLIT-PANE REDESIGN ──
   return (
-    <main className="min-h-screen bg-[#FDFDFD] text-[#1A1A1E] flex font-sans overflow-hidden">
+    <main className="h-screen bg-[#FDFDFD] text-[#1A1A1E] flex font-sans overflow-hidden">
       
       {/* ── Left Sidebar (Dark Charcoal #0E0E12 Pane) ── */}
       <aside className="w-[240px] bg-[#0C0C0F] text-white flex flex-col justify-between shrink-0 border-r border-white/[0.04] z-20">
@@ -1127,6 +1249,7 @@ export default function AdminPage() {
               { id: "inquiries", label: "Inquiries", icon: FolderGit2, count: inquiries.length },
               { id: "subscribers", label: "Subscribers", icon: Users, count: subscribers.length },
               { id: "newsletter", label: "Broadcast", icon: Mail },
+              { id: "blog", label: "Blog Writer", icon: BookOpen },
             ].map(item => {
               const Icon = item.icon;
               const isSelected = activeTab === item.id;
@@ -1635,6 +1758,68 @@ export default function AdminPage() {
                     </p>
                   </div>
 
+                  {/* AI Newsletter Writer Card */}
+                  <div className="bg-[#FAF9F6] border border-orange-500/15 rounded-xl p-4 space-y-3 shadow-inner">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="size-3.5 text-orange-500" />
+                      <h4 className="text-[10px] font-black font-syne uppercase tracking-wider text-neutral-900">
+                        AI Newsletter Co-Writer
+                      </h4>
+                    </div>
+                    <form onSubmit={handleGenerateAiNewsletter} className="space-y-3 font-mono">
+                      <div className="space-y-1">
+                        <label className="text-[8px] uppercase font-bold text-neutral-400">Newsletter Topic / Prompt</label>
+                        <textarea
+                          rows={3}
+                          required
+                          value={aiNewsletterPrompt}
+                          onChange={(e) => setAiNewsletterPrompt(e.target.value)}
+                          placeholder="e.g. Write an update about Next.js 15, mentioning that Turbopack speeds up dev time. Keep it brief..."
+                          className="w-full bg-white border border-[#E8E7E2] rounded-lg p-2.5 text-xs text-neutral-900 placeholder-neutral-300 outline-none focus:border-orange-500/50 transition-all select-text"
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <div className="flex-1 space-y-1">
+                          <label className="text-[8px] uppercase font-bold text-neutral-400">Select Tone</label>
+                          <select
+                            value={aiNewsletterTone}
+                            onChange={(e) => setAiNewsletterTone(e.target.value)}
+                            className="w-full bg-white border border-[#E8E7E2] rounded-lg px-2.5 py-1.5 text-xs text-neutral-800 outline-none focus:border-orange-500/50"
+                          >
+                            <option value="witty">Witty / Tech-Startup</option>
+                            <option value="professional">Professional / Enterprise</option>
+                            <option value="launch">Product Launch / Hype</option>
+                            <option value="minimalist">Minimalist / Dev Log</option>
+                          </select>
+                        </div>
+                        <div className="flex items-end">
+                          <button
+                            type="submit"
+                            disabled={aiNewsletterLoading || !aiNewsletterPrompt}
+                            className={cn(
+                              "h-9 px-4 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                              aiNewsletterLoading || !aiNewsletterPrompt
+                                ? "bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed"
+                                : "bg-neutral-900 hover:bg-neutral-800 text-white shadow-sm"
+                            )}
+                          >
+                            {aiNewsletterLoading ? (
+                              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <>
+                                <Sparkles className="size-3" />
+                                <span>Generate Draft</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      {aiNewsletterError && (
+                        <p className="text-[9px] text-red-500 font-bold">{aiNewsletterError}</p>
+                      )}
+                    </form>
+                  </div>
+
                   <form onSubmit={handleSendBroadcast} className="space-y-4 font-mono">
                     <div className="space-y-1">
                       <label className="text-[9px] uppercase font-bold text-neutral-400">Subject Title</label>
@@ -1767,6 +1952,183 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+              </motion.div>
+            )}
+
+            {/* ── VIEW: AI BLOG WRITER (High fidelity drafting & publishing) ── */}
+            {activeTab === "blog" && (
+              <motion.div
+                key="blog-pane"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start"
+              >
+                {/* Left controls */}
+                <div className="bg-white border border-[#E8E7E2] rounded-xl p-6 shadow-sm space-y-6">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-neutral-950 font-syne uppercase tracking-wide">
+                      AI Editorial Writer
+                    </h3>
+                    <p className="text-[10px] text-neutral-400 font-mono mt-1">
+                      Draft full-length articles and generate visual cover banners using Flux Pro.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleGenerateAiBlog} className="space-y-4 font-mono text-xs">
+                    <div className="space-y-1">
+                      <label className="text-[8px] uppercase font-bold text-neutral-400">Article Topic or Angle</label>
+                      <textarea
+                        rows={3}
+                        required
+                        value={aiBlogTopic}
+                        onChange={(e) => setAiBlogTopic(e.target.value)}
+                        placeholder="e.g. How Next.js Server Actions replace REST APIs for secure forms, showing code samples..."
+                        className="w-full bg-white border border-[#E8E7E2] rounded-lg p-2.5 text-xs text-neutral-900 placeholder-neutral-300 outline-none focus:border-orange-500/50 transition-all select-text"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[8px] uppercase font-bold text-neutral-400">Post Category</label>
+                        <select
+                          value={aiBlogCategory}
+                          onChange={(e) => setAiBlogCategory(e.target.value)}
+                          className="w-full bg-white border border-[#E8E7E2] rounded-lg px-2.5 py-1.5 text-xs text-neutral-800 outline-none focus:border-orange-500/50"
+                        >
+                          <option value="Web Engineering">Web Engineering</option>
+                          <option value="Design System">Design System</option>
+                          <option value="Next.js">Next.js</option>
+                          <option value="Case Study">Case Study</option>
+                          <option value="AI & Automation">AI & Automation</option>
+                          <option value="Startup Strategy">Startup Strategy</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[8px] uppercase font-bold text-neutral-400">SEO Keywords (Comma Separated)</label>
+                        <input
+                          type="text"
+                          value={aiBlogKeywords}
+                          onChange={(e) => setAiBlogKeywords(e.target.value)}
+                          placeholder="e.g. Next.js, Forms, Server Actions"
+                          className="w-full bg-white border border-[#E8E7E2] rounded-lg px-2.5 py-1.5 text-xs text-neutral-900 placeholder-neutral-300 outline-none focus:border-orange-500/50 transition-all font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {aiBlogError && (
+                      <div className="text-[10px] text-red-600 font-mono bg-red-50 border border-red-200 p-2.5 rounded-lg">
+                        {aiBlogError}
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={aiBlogLoading || !aiBlogTopic}
+                      className={cn(
+                        "w-full h-10 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5",
+                        aiBlogLoading || !aiBlogTopic
+                          ? "bg-neutral-100 text-neutral-400 border border-neutral-200 cursor-not-allowed"
+                          : "bg-neutral-900 hover:bg-neutral-800 text-white shadow-sm"
+                      )}
+                    >
+                      {aiBlogLoading ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Generating Article & Cover... (takes ~15s)</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="size-3.5" />
+                          <span>Generate Article & Banner</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+
+                {/* Right Draft Preview */}
+                <div className="space-y-4">
+                  <h4 className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 font-bold px-1">
+                    Article Mockup & Preview
+                  </h4>
+
+                  <div className="border border-[#E8E7E2] rounded-xl overflow-hidden bg-white shadow-sm flex flex-col min-h-[460px]">
+                    {aiBlogDraft ? (
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          {/* Banner preview */}
+                          {aiBlogDraft.bannerImage && (
+                            <div className="w-full h-40 relative bg-neutral-100 border-b border-[#E8E7E2]">
+                              <img
+                                src={aiBlogDraft.bannerImage}
+                                alt="Banner cover"
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute top-3 right-3 bg-black/60 text-white text-[8px] font-mono px-2 py-0.5 rounded backdrop-blur-sm">
+                                Generated Banner (Flux Pro)
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="p-6 space-y-4 select-text">
+                            {/* Metadata */}
+                            <div className="flex items-center gap-3 font-mono text-[9px] text-neutral-400">
+                              <span className="px-2 py-0.5 bg-orange-50 text-orange-600 border border-orange-100 uppercase font-bold rounded">
+                                {aiBlogDraft.category}
+                              </span>
+                              <span>By {aiBlogDraft.author}</span>
+                              <span>•</span>
+                              <span>{aiBlogDraft.readTime}</span>
+                            </div>
+
+                            {/* Title */}
+                            <h2 className="text-lg font-black text-neutral-900 font-syne tracking-tight leading-tight">
+                              {aiBlogDraft.title}
+                            </h2>
+
+                            {/* Excerpt */}
+                            <p className="text-xs text-neutral-500 font-medium italic">
+                              {aiBlogDraft.excerpt}
+                            </p>
+
+                            {/* Content teaser */}
+                            <div className="border-t border-neutral-100 pt-4 text-xs text-neutral-600 leading-relaxed max-h-48 overflow-y-auto whitespace-pre-wrap font-sans">
+                              {aiBlogDraft.content}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Publish Success CTA */}
+                        <div className="p-4 bg-[#FAF9F6] border-t border-[#E8E7E2] flex items-center justify-between">
+                          <span className="text-[9px] font-mono text-neutral-400">Status: Draft Generated Successfully</span>
+                          <button
+                            onClick={() => {
+                              alert("Blog post saved to local json database successfully! Navigate to /blog to view.");
+                              setAiBlogDraft(null);
+                              setAiBlogTopic("");
+                              setAiBlogKeywords("");
+                            }}
+                            className="h-8 px-4 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow"
+                          >
+                            <CheckCircle2 className="size-3.5" />
+                            <span>Publish to Website</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-8 text-neutral-400">
+                        <BookOpen className="size-8 text-neutral-200 mb-3" />
+                        <p className="text-xs font-mono uppercase tracking-wider">No Draft Active</p>
+                        <p className="text-[10px] max-w-[280px] mt-1">
+                          Configure a topic on the left and trigger generation to output a preview here.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             )}
 
@@ -1907,6 +2269,118 @@ export default function AdminPage() {
                     </div>
                   </div>
                 )}
+
+                {/* AI Lead Assistant Section */}
+                <div className="space-y-4 pt-4 border-t border-[#EBEAE6]">
+                  <h4 className="text-[9px] uppercase font-mono tracking-wider text-neutral-900 font-bold flex items-center gap-1.5">
+                    <Sparkles className="size-3.5 text-orange-500" />
+                    AI Lead Intelligence
+                  </h4>
+
+                  {!aiInquiryAnalysis ? (
+                    <button
+                      type="button"
+                      onClick={handleAnalyzeInquiry}
+                      disabled={aiInquiryLoading}
+                      className={cn(
+                        "w-full h-10 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border shadow-sm",
+                        aiInquiryLoading
+                          ? "bg-neutral-50 text-neutral-400 border-neutral-200 cursor-not-allowed"
+                          : "bg-orange-50 hover:bg-orange-100/80 text-orange-700 border-orange-200/50"
+                      )}
+                    >
+                      {aiInquiryLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
+                          <span>Generating AI Scorecard...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="size-3.5" />
+                          <span>Run AI Lead Assessment</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <div className="border border-[#E8E7E2] rounded-xl overflow-hidden bg-white shadow-sm flex flex-col">
+                      {/* Tabs Header */}
+                      <div className="bg-[#FAF9F6] border-b border-[#E8E7E2] px-3 py-2 flex items-center justify-between">
+                        <div className="flex bg-neutral-200/60 p-0.5 rounded-lg gap-1 font-mono text-[9px] font-bold">
+                          <button
+                            type="button"
+                            onClick={() => setAiDrawerTab("analysis")}
+                            className={cn(
+                              "px-3 py-1 rounded cursor-pointer transition-all",
+                              aiDrawerTab === "analysis" ? "bg-neutral-900 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-900"
+                            )}
+                          >
+                            Scorecard
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAiDrawerTab("reply")}
+                            className={cn(
+                              "px-3 py-1 rounded cursor-pointer transition-all",
+                              aiDrawerTab === "reply" ? "bg-neutral-900 text-white shadow-sm" : "text-neutral-500 hover:text-neutral-900"
+                            )}
+                          >
+                            Draft Reply
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleAnalyzeInquiry}
+                          disabled={aiInquiryLoading}
+                          className="text-[8px] font-mono font-bold uppercase tracking-wider text-orange-600 hover:text-orange-500 transition-colors flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        >
+                          {aiInquiryLoading ? (
+                            <div className="w-2.5 h-2.5 border border-orange-600 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Sparkles className="size-2.5 animate-pulse" />
+                          )}
+                          <span>Re-Analyze</span>
+                        </button>
+                      </div>
+
+                      {/* Tab Content */}
+                      <div className="p-4 text-xs min-h-[180px] bg-white">
+                        {aiDrawerTab === "analysis" ? (
+                          <div 
+                            className="font-sans leading-relaxed text-neutral-600 space-y-2 select-text"
+                            dangerouslySetInnerHTML={{ __html: formatMarkdown(aiInquiryAnalysis || "") }}
+                          />
+                        ) : (
+                          <div className="space-y-3">
+                            <textarea
+                              rows={8}
+                              value={aiInquiryReply || ""}
+                              onChange={(e) => setAiInquiryReply(e.target.value)}
+                              className="w-full bg-[#FAF9F6] border border-[#E8E7E2] rounded-lg p-3 text-xs text-neutral-800 outline-none font-mono focus:border-orange-500/50 transition-all select-text"
+                            />
+                            <div className="flex justify-end">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(aiInquiryReply || "");
+                                  alert("Draft copied to clipboard!");
+                                }}
+                                className="h-8 px-3.5 bg-white border border-[#E8E7E2] hover:border-neutral-400 rounded-lg text-[9px] font-bold uppercase tracking-wider text-neutral-600 hover:text-neutral-900 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+                              >
+                                <Copy className="size-3" />
+                                <span>Copy Draft</span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {aiInquiryError && (
+                    <p className="text-[9px] text-red-500 font-bold font-mono">{aiInquiryError}</p>
+                  )}
+                </div>
 
                 {/* Client Portal Progress Controller */}
                 <div className="space-y-4 pt-4 border-t border-[#EBEAE6]">

@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "@/components/stackforge/navbar";
 import { Footer } from "@/components/stackforge/footer";
-import { BLOG_POSTS, type BlogPost } from "@/lib/blog-data";
+import { type BlogPost } from "@/lib/blog-data";
+import { getMergedBlogPosts } from "@/lib/blog-db";
 import { BlobButton } from "@/components/ui/blob-button";
 import { Calendar, Clock, ArrowLeft, ArrowUpRight, Share2, Quote } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
+  const BLOG_POSTS = getMergedBlogPosts();
   return BLOG_POSTS.map((p) => ({
     slug: p.slug,
   }));
@@ -19,15 +21,37 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
+  const BLOG_POSTS = getMergedBlogPosts();
   const post = BLOG_POSTS.find((p) => p.slug === slug);
   if (!post) {
     return {
       title: "Article Not Found | StackForge",
     };
   }
+  const fullUrl = `https://stackforge.co.in/blog/${slug}`;
+  const bannerUrl = post.bannerImage 
+    ? (post.bannerImage.startsWith("http") ? post.bannerImage : `https://stackforge.co.in${post.bannerImage}`) 
+    : undefined;
+  
   return {
     title: `${post.title} | StackForge Blog`,
     description: post.excerpt,
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
+    openGraph: {
+      title: `${post.title} | StackForge Blog`,
+      description: post.excerpt,
+      type: "article",
+      url: fullUrl,
+      images: bannerUrl ? [{ url: bannerUrl }] : undefined,
+    },
+    twitter: {
+      title: `${post.title} | StackForge Blog`,
+      description: post.excerpt,
+      card: "summary_large_image",
+      images: bannerUrl ? [bannerUrl] : undefined,
+    }
   };
 }
 
@@ -133,14 +157,52 @@ function parseInlineFormatting(text: string): React.ReactNode[] {
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
+  const BLOG_POSTS = getMergedBlogPosts();
   const post = BLOG_POSTS.find((p) => p.slug === slug);
 
   if (!post) {
     notFound();
   }
 
+  let isoDate = new Date().toISOString();
+  try {
+    if (post.date) isoDate = new Date(post.date).toISOString();
+  } catch (e) {}
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": post.title,
+    "description": post.excerpt,
+    "datePublished": isoDate,
+    "author": {
+      "@type": "Person",
+      "name": post.author
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "StackForge",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://stackforge.co.in/logo.png"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://stackforge.co.in/blog/${slug}`
+    },
+    "image": post.bannerImage 
+      ? (post.bannerImage.startsWith("http") ? post.bannerImage : `https://stackforge.co.in${post.bannerImage}`) 
+      : undefined
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-forge-bg overflow-x-hidden">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Grain texture overlay */}
       <div className="grain-overlay" aria-hidden="true" />
 
@@ -186,6 +248,17 @@ export default async function BlogPostPage({ params }: PageProps) {
               </div>
             </div>
           </div>
+
+          {/* Banner Image */}
+          {post.bannerImage && (
+            <div className="w-full mb-12 border-2 border-forge-text rounded-xl overflow-hidden shadow-[5px_5px_0px_0px_var(--forge-accent)] bg-forge-surface/30">
+              <img 
+                src={post.bannerImage} 
+                alt={post.title}
+                className="w-full h-auto max-h-[460px] object-cover"
+              />
+            </div>
+          )}
 
           {/* Body Content */}
           <MarkdownRenderer content={post.content} />

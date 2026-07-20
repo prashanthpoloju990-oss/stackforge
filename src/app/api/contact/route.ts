@@ -113,8 +113,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // --- RATE LIMIT BYPASSED FOR DEBUGGING ---
-    const isAllowed = true;
+    /* ── IP-Based Rate Limiting ── */
+    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
+    const clientIp = ip.split(",")[0].trim();
+    const isAllowed = await checkRateLimit(`ip:contact-form:${clientIp}`, 3, 5 * 60 * 1000); // 3 requests per 5 minutes
     if (!isAllowed) {
       return NextResponse.json(
         { error: "Too many requests from this IP. Please try again after 5 minutes." },
@@ -456,6 +458,13 @@ export async function POST(request: NextRequest) {
       if (supabaseErr) throw supabaseErr;
       if (newSubmission) {
         submissionId = newSubmission.id;
+
+        // Trigger background AI roadmap generation asynchronously (fire-and-forget)
+        if (process.env.OPENROUTER_API_KEY) {
+          generateRoadmapInBackground(submissionId).catch(err => {
+            console.error("[CONTACT-API] Background AI Roadmap generation failed:", err);
+          });
+        }
       }
     } catch (dbErr) {
       console.error("[DATABASE] Failed to save contact submission to Supabase:", dbErr);
@@ -569,3 +578,81 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+async function generateRoadmapInBackground(projectId: string) {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) return;
+
+  try {
+    const { data: project, error } = await supabase
+      .from("ContactSubmission")
+      .select("*")
+      .eq("id", projectId)
+      .single();
+
+    if (error || !project) {
+      console.error("[CONTACT-API-BG] Failed to fetch project for roadmap generation:", error);
+      return;
+    }
+
+    const systemPrompt = `You are a world-class Agile Project Manager at StackForge. Your job is to draft a premium development roadmap for a client based on their project inquiry specs.
+    
+PROJECT DETAILS:
+- Project Type: ${project.serviceNeed || "Bespoke System"}
+- Business Category: ${project.businessType || "General Web Project"}
+- Budget Bracket: ${project.budget || "N/A"}
+- Requested Timeline: ${project.timeline || "N/A"}
+- Target Pages: ${project.pageCount || "Single Page / Landing"}
+- Required Integrations: ${project.features || "None"}
+- Project Details: ${project.details || "No details provided"}
+
+Write a clean, highly motivating, and premium development roadmap in Markdown format. Use clear headings (## or ###), bullet points, and highlight tech recommendations.
+Include:
+1. ### Project Architecture & Tech Stack: (recommend a modern premium stack like Next.js App Router, Tailwind CSS, Supabase PostgreSQL, and Framer Motion).
+2. ### Expected Development Milestones: (Milestone 1: UI/UX Canvas design, Milestone 2: Core Engineering, Milestone 3: Database & Security Integrations, Milestone 4: Edge deployment & Optimization).
+3. ### Actions Required from Client: (what details or assets we need next from them, e.g. brand assets, high-res images, or copywriting drafts).
+
+Output ONLY the Markdown roadmap text. Keep it professional, concise, encouraging, and clear.`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://stackforge.co.in",
+        "X-Title": "StackForge",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: "Generate the roadmap for my project." }
+        ],
+        max_tokens: 2000
+      })
+    });
+
+    if (response.ok) {
+      const completion = await response.json();
+      const roadmapText = completion.choices?.[0]?.message?.content || "";
+      if (roadmapText) {
+        const { error: updateErr } = await supabase
+          .from("ContactSubmission")
+          .update({ clientNotes: roadmapText })
+          .eq("id", projectId);
+        
+        if (updateErr) {
+          console.error("[CONTACT-API-BG] Failed to update clientNotes with roadmap:", updateErr);
+        } else {
+          console.log(`[CONTACT-API-BG] Successfully generated and stored roadmap for project ${projectId}`);
+        }
+      }
+    } else {
+      const errText = await response.text();
+      console.error("[CONTACT-API-BG] OpenRouter error:", errText);
+    }
+  } catch (err) {
+    console.error("[CONTACT-API-BG] Unexpected error:", err);
+  }
+}
+

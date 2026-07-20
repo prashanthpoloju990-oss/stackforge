@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 import { projects } from "@/lib/projects-data";
-import { BLOG_POSTS } from "@/lib/blog-data";
+import { getMergedBlogPosts } from "@/lib/blog-db";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://stackforge.co.in";
   const now = new Date();
+  const BLOG_POSTS = getMergedBlogPosts();
 
   const staticPages: MetadataRoute.Sitemap = [
     {
