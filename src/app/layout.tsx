@@ -49,23 +49,17 @@ const spaceMono = Space_Mono({
 
 const SITE_URL = "https://stackforge.co.in";
 const SITE_DESCRIPTION =
-  "StackForge is a premium digital engineering studio specializing in high-performance React & Next.js web applications. We build speed-optimized, conversion-focused websites with bespoke design systems.";
+  "Stackforge builds high-converting websites and web apps for startups. Fast, scalable, and modern.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "StackForge | High-Performance React & Next.js Web Development Studio",
+  title: "Stackforge — Web Development Agency for Startups",
   description: SITE_DESCRIPTION,
   keywords: [
-    "StackForge",
-    "web development studio",
-    "digital engineering agency",
-    "custom web applications",
-    "React developers",
-    "Next.js specialists",
-    "TypeScript engineering",
-    "high-performance websites",
-    "conversion optimization",
-    "speed-optimized web studio"
+    "web developer India",
+    "freelance developer",
+    "startup website",
+    "landing page developer"
   ],
   authors: [{ name: "StackForge" }],
   icons: {
@@ -79,7 +73,7 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "StackForge | High-Performance React & Next.js Web Development Studio",
+    title: "Stackforge — Web Development Agency for Startups",
     description: SITE_DESCRIPTION,
     siteName: "StackForge",
     locale: "en_US",
@@ -88,14 +82,14 @@ export const metadata: Metadata = {
       url: "/stackforge-logo.jpg",
       width: 1254,
       height: 1254,
-      alt: "StackForge | High-Performance React & Next.js Web Development Studio",
+      alt: "Stackforge — Web Development Agency for Startups",
     }],
   },
   twitter: {
     card: "summary_large_image",
     creator: "@stackforge",
     site: "@stackforge",
-    title: "StackForge | High-Performance React & Next.js Web Development Studio",
+    title: "Stackforge — Web Development Agency for Startups",
     description: SITE_DESCRIPTION,
     images: ["/stackforge-logo.jpg"],
   },
