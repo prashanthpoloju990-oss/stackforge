@@ -99,6 +99,9 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ["/stackforge-logo.jpg"],
   },
+  verification: {
+    google: "96g_UC9sBArx1uV7B1TdYRxmnqQRwIUjCvHGKcdBja0",
+  },
 };
 
 export default function RootLayout({
