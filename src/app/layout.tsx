@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Syne, Playfair_Display, Dancing_Script, Great_Vibes, Space_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { SmoothScrollProvider } from "@/components/ui/smooth-scroll-provider";
@@ -116,6 +117,20 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className={`${inter.variable} ${syne.variable} ${playfair.variable} ${dancing.variable} ${greatVibes.variable} ${spaceMono.variable} font-sans antialiased`}>
+        {/* Google tag (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-0F4FCYGJPQ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-0F4FCYGJPQ');
+          `}
+        </Script>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
