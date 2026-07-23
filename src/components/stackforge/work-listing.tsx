@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { projects } from "@/lib/projects-data";
+import { ArrowUpRight, Sparkles, TrendingUp } from "lucide-react";
 
 export function WorkListing() {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -23,6 +24,29 @@ export function WorkListing() {
     ? projects
     : projects.filter((p) => getCategory(p.subtitle) === selectedCategory);
 
+  // Dynamic Bento Spans helper based on index and total filtered count
+  const getBentoSpanClass = (index: number, total: number) => {
+    if (total === 1) return "col-span-1 md:col-span-12";
+    if (total === 2) {
+      return index === 0 ? "col-span-1 md:col-span-12 lg:col-span-7" : "col-span-1 md:col-span-12 lg:col-span-5";
+    }
+    // For full list or 3+ projects, use asymmetric bento distribution:
+    switch (index % 5) {
+      case 0:
+        return "col-span-1 md:col-span-12 lg:col-span-7"; // Wide Hero Card
+      case 1:
+        return "col-span-1 md:col-span-12 lg:col-span-5"; // Medium Feature Card
+      case 2:
+        return "col-span-1 md:col-span-6 lg:col-span-4";  // 1/3 Bento Column
+      case 3:
+        return "col-span-1 md:col-span-6 lg:col-span-4";  // 1/3 Bento Column
+      case 4:
+        return "col-span-1 md:col-span-12 lg:col-span-4"; // 1/3 Bento Column
+      default:
+        return "col-span-1 md:col-span-6 lg:col-span-6";
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-forge-divider/50 pb-8 mt-8">
@@ -37,7 +61,7 @@ export function WorkListing() {
                 className={cn(
                   "px-4 py-1.5 rounded-full text-xs font-mono transition-all duration-300 cursor-pointer",
                   isActive
-                    ? "bg-forge-accent text-white font-bold shadow-[0_0_15px_rgba(255,106,0,0.15)]"
+                    ? "bg-forge-accent text-white font-bold shadow-[0_0_15px_rgba(255,106,0,0.25)]"
                     : "bg-forge-surface/30 text-forge-text-secondary/60 border border-forge-divider/40 hover:text-forge-text hover:border-forge-accent/30"
                 )}
               >
@@ -54,100 +78,113 @@ export function WorkListing() {
         </div>
       </div>
 
-      {/* Project Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-12">
-        {filteredProjects.map((project, index) => (
-          <div
-            key={project.title}
-            className="group block rounded-xl border border-forge-divider bg-forge-surface/30 overflow-hidden card-hover transition-all duration-300 hover:-translate-y-1 hover:border-forge-accent/25 hover:shadow-lg"
-          >
-            {/* Image */}
-            <div className="relative w-full aspect-[16/9.2] overflow-hidden">
-              <Image
-                src={project.image}
-                alt={project.title}
-                fill
-                className="object-cover transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority={index < 2}
-              />
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
-              
-              {/* Metric badge */}
-              <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                <div className="flex items-baseline gap-1 bg-black/75 backdrop-blur-sm rounded px-2.5 py-1 border border-white/10">
-                  <span className="text-[14px] font-bold text-forge-accent font-tabular-nums">
-                    {project.metric}
-                  </span>
-                  <span className="text-[10px] text-white/70">{project.metricLabel}</span>
-                </div>
-              </div>
-              
-              {/* Arrow icon — top right, opens case study page */}
-              <Link
-                href={`/work/${project.slug}`}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full border border-white/20 backdrop-blur-sm bg-white/10 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:bg-forge-accent/80 hover:border-forge-accent/80 cursor-pointer"
-                aria-label={`View ${project.title} case study`}
-              >
-                <svg width="10" height="10" viewBox="0 0 14 14" fill="none" className="text-white">
-                  <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
-            </div>
+      {/* Asymmetric Bento Grid Container */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 mt-12">
+        {filteredProjects.map((project, index) => {
+          const bentoSpan = getBentoSpanClass(index, filteredProjects.length);
+          const isFeaturedHero = (index % 5 === 0) && filteredProjects.length > 2;
 
-            {/* Content */}
-            <div className="p-4 md:p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] text-forge-text-secondary/50 tracking-[0.08em] uppercase font-mono mb-1">
-                    {project.subtitle}
-                  </p>
-                  <h3 className="text-[18px] md:text-[20px] font-bold text-forge-text font-syne leading-tight">
-                    {project.title}
-                  </h3>
+          return (
+            <div
+              key={project.title}
+              className={cn(
+                "group relative rounded-2xl border border-forge-divider/80 bg-gradient-to-b from-forge-surface/40 to-forge-bg/60 overflow-hidden backdrop-blur-md transition-all duration-500 hover:-translate-y-1.5 hover:border-forge-accent/40 hover:shadow-[0_16px_40px_-15px_rgba(255,106,0,0.15)] flex flex-col justify-between",
+                bentoSpan
+              )}
+            >
+              {/* Top Image Preview section */}
+              <div className={cn(
+                "relative w-full overflow-hidden shrink-0",
+                isFeaturedHero ? "aspect-[16/8.5]" : "aspect-[16/9.5]"
+              )}>
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={index < 2}
+                />
+                
+                {/* Gradient overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-forge-bg via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500" />
+                
+                {/* Metric Badge Callout */}
+                <div className="absolute top-4 left-4 z-10">
+                  <div className="flex items-center gap-1.5 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+                    <TrendingUp className="w-3.5 h-3.5 text-forge-accent" />
+                    <span className="text-xs font-bold text-forge-accent font-mono">
+                      {project.metric}
+                    </span>
+                    <span className="text-[10px] text-white/80 font-sans">{project.metricLabel}</span>
+                  </div>
                 </div>
+
+                {/* External Case Study Launch Icon Button */}
                 <Link
                   href={`/work/${project.slug}`}
-                  className="shrink-0 w-8 h-8 rounded-full border border-forge-divider flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 group-hover:border-forge-accent/30 mt-0.5 cursor-pointer hover:bg-forge-accent/10"
+                  className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full border border-white/20 backdrop-blur-md bg-black/40 flex items-center justify-center transition-all duration-300 group-hover:bg-forge-accent group-hover:border-forge-accent group-hover:scale-110 shadow-lg cursor-pointer"
                   aria-label={`View ${project.title} case study`}
                 >
-                  <svg width="10" height="10" viewBox="0 0 14 14" fill="none" className="text-forge-accent/70">
-                    <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <ArrowUpRight className="w-4 h-4 text-white" />
                 </Link>
               </div>
 
-              <p className="mt-2 text-[13px] text-forge-text-secondary/60 leading-relaxed">
-                {project.description}
-              </p>
+              {/* Bento Card Content */}
+              <div className="p-6 flex flex-col justify-between flex-1 relative z-10">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-[10px] text-forge-accent/80 tracking-[0.14em] uppercase font-mono font-semibold">
+                      {project.subtitle}
+                    </span>
+                    {isFeaturedHero && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-forge-accent/15 border border-forge-accent/30 text-forge-accent text-[9px] font-mono font-bold uppercase tracking-wider">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        Featured Case Study
+                      </span>
+                    )}
+                  </div>
 
-              {/* Tech Tags */}
-              <div className="flex flex-wrap items-center gap-1 mt-3">
-                {project.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide text-forge-text-secondary/60 bg-forge-bg/80 border border-forge-divider/40"
+                  <h3 className={cn(
+                    "font-bold text-forge-text font-syne leading-tight transition-colors duration-300 group-hover:text-forge-accent",
+                    isFeaturedHero ? "text-2xl md:text-3xl" : "text-xl md:text-22px"
+                  )}>
+                    {project.title}
+                  </h3>
+
+                  <p className="mt-2.5 text-xs md:text-sm text-forge-text-secondary/75 leading-relaxed font-sans line-clamp-3">
+                    {project.description}
+                  </p>
+                </div>
+
+                <div className="pt-5 mt-4 border-t border-forge-divider/40 flex items-center justify-between gap-4">
+                  {/* Tech Tags */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {project.tags.slice(0, 4).map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-mono tracking-wide text-forge-text-secondary/70 bg-forge-surface/60 border border-forge-divider/50 backdrop-blur-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* View Case Study CTA */}
+                  <Link
+                    href={`/work/${project.slug}`}
+                    className="inline-flex items-center gap-1 text-forge-accent text-xs font-mono font-bold uppercase tracking-wider shrink-0 transition-all duration-300 group-hover:gap-2 cursor-pointer"
                   >
-                    {tag}
-                  </span>
-                ))}
+                    <span>Explore</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
-
-              {/* View Case Study Link */}
-              <Link
-                href={`/work/${project.slug}`}
-                className="inline-flex items-center gap-1 text-forge-accent text-[12px] font-medium mt-3.5 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 hover:gap-2 cursor-pointer"
-              >
-                View Case Study
-                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
-                  <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
+

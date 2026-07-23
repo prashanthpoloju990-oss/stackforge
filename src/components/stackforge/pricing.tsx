@@ -58,18 +58,74 @@ const tiers: PricingTier[] = [
 ];
 
 function BookACallWidget() {
-  const [stage, setStage] = useState<"phone" | "confirmed">("phone");
+  const [stage, setStage] = useState<"contact" | "email_for_phone" | "otp" | "confirmed">("contact");
   const [contact, setContact] = useState("");
+  const [otpEmail, setOtpEmail] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isEmail = (str: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(str.trim());
 
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!contact.trim() || loading) return;
+  const handleSendOtp = async (targetEmail: string) => {
     setLoading(true);
     setError(null);
+    try {
+      const res = await fetch("/api/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: targetEmail }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to send verification code.");
+      
+      setOtpEmail(targetEmail);
+      setStage("otp");
+    } catch (err: any) {
+      setError(err.message || "Failed to send verification code.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInitialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanContact = contact.trim();
+    if (!cleanContact || loading) return;
+    setError(null);
+
+    if (isEmail(cleanContact)) {
+      await handleSendOtp(cleanContact);
+    } else {
+      // If user entered phone number, transition to asking for email to send OTP code to
+      setStage("email_for_phone");
+    }
+  };
+
+  const handleEmailSubmitForPhone = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = otpEmail.trim();
+    if (!cleanEmail || loading) return;
+    if (!isEmail(cleanEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    await handleSendOtp(cleanEmail);
+  };
+
+  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = otpCode.trim();
+    if (!cleanCode || loading) return;
+
+    if (cleanCode.length !== 6) {
+      setError("Please enter a 6-digit verification code.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -81,19 +137,20 @@ function BookACallWidget() {
           serviceNeed: "Book a Discovery Call",
           budget: "Flexible",
           timeline: "Urgent (1–3 days)",
-          details: `Client requested an urgent discovery call. Contact phone/email: ${contact}`,
+          details: `Client requested an urgent discovery call from pricing section. Contact: ${contact}`,
+          otpCode: cleanCode,
+          otpEmail: otpEmail.trim().toLowerCase(),
         }),
       });
-      
+
       const data = await res.json();
       if (!res.ok) {
-        const errorMsg = data.details ? `${data.error} - ${data.details}` : (data.error || "Invalid verification code.");
-        throw new Error(errorMsg);
+        throw new Error(data.error || "Verification failed. Please try again.");
       }
-      
+
       setStage("confirmed");
     } catch (err: any) {
-      setError(err.message || "Failed to request call.");
+      setError(err.message || "Failed to verify code and request call.");
     } finally {
       setLoading(false);
     }
@@ -119,13 +176,13 @@ function BookACallWidget() {
 
         <div className="w-full md:w-[360px] shrink-0 bg-forge-bg/90 border border-forge-divider p-6 rounded-2xl shadow-inner backdrop-blur-md">
           <AnimatePresence mode="wait">
-            {stage === "phone" && (
+            {stage === "contact" && (
               <motion.form
-                key="phone"
+                key="contact"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                onSubmit={handleSubmit}
+                onSubmit={handleInitialSubmit}
                 className="space-y-4"
               >
                 <div>
@@ -147,7 +204,7 @@ function BookACallWidget() {
                 {error && <p className="text-xs text-red-500 font-mono">{error}</p>}
                 <button
                   type="submit"
-                  disabled={loading || !contact}
+                  disabled={loading || !contact.trim()}
                   className="w-full h-11 bg-forge-accent hover:bg-forge-accent-hover text-white font-mono text-xs uppercase tracking-wider font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-forge-accent/20 cursor-pointer disabled:opacity-50"
                 >
                   {loading ? (
@@ -162,7 +219,123 @@ function BookACallWidget() {
               </motion.form>
             )}
 
+            {stage === "email_for_phone" && (
+              <motion.form
+                key="email_for_phone"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                onSubmit={handleEmailSubmitForPhone}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="text-[11px] uppercase font-mono tracking-wider text-forge-text-secondary/80 font-bold block mb-1">
+                    Email for Verification
+                  </label>
+                  <p className="text-[11px] text-forge-text-secondary/60 mb-2 font-sans">
+                    We send a 6-digit OTP code to verify your request for phone <strong className="text-forge-accent font-mono">{contact}</strong>.
+                  </p>
+                  <input
+                    type="email"
+                    required
+                    placeholder="yourname@domain.com"
+                    value={otpEmail}
+                    onChange={(e) => setOtpEmail(e.target.value)}
+                    className="w-full bg-forge-surface/50 border border-forge-divider rounded-xl px-4 py-3 text-sm text-forge-text placeholder:text-forge-text-secondary/40 outline-none focus:border-forge-accent focus:ring-1 focus:ring-forge-accent transition-all font-sans"
+                  />
+                </div>
+                {error && <p className="text-xs text-red-500 font-mono">{error}</p>}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setError(null); setStage("contact"); }}
+                    className="px-3 py-2 text-xs font-mono text-forge-text-secondary hover:text-white transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || !otpEmail.trim()}
+                    className="flex-1 h-11 bg-forge-accent hover:bg-forge-accent-hover text-white font-mono text-xs uppercase tracking-wider font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-forge-accent/20 cursor-pointer disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span>Send OTP Code</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </motion.form>
+            )}
 
+            {stage === "otp" && (
+              <motion.form
+                key="otp"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                onSubmit={handleVerifyOtpSubmit}
+                className="space-y-4"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] uppercase font-mono tracking-wider text-forge-text-secondary/80 font-bold block">
+                      Enter 6-Digit OTP
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => handleSendOtp(otpEmail)}
+                      disabled={loading}
+                      className="text-[10px] font-mono text-forge-accent hover:underline disabled:opacity-50"
+                    >
+                      Resend Code
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-forge-text-secondary/60 mb-2 font-sans">
+                    Code sent to <strong className="text-forge-accent font-mono">{otpEmail}</strong>.
+                  </p>
+                  <div className="relative">
+                    <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-forge-text-secondary/50" />
+                    <input
+                      type="text"
+                      required
+                      maxLength={6}
+                      placeholder="123456"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      className="w-full bg-forge-surface/50 border border-forge-divider rounded-xl pl-10 pr-4 py-3 text-center text-base tracking-[0.3em] font-mono text-forge-text placeholder:text-forge-text-secondary/40 outline-none focus:border-forge-accent focus:ring-1 focus:ring-forge-accent transition-all"
+                    />
+                  </div>
+                </div>
+                {error && <p className="text-xs text-red-500 font-mono">{error}</p>}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setError(null); setOtpCode(""); setStage("contact"); }}
+                    className="px-3 py-2 text-xs font-mono text-forge-text-secondary hover:text-white transition-colors"
+                  >
+                    Change
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || otpCode.trim().length !== 6}
+                    className="flex-1 h-11 bg-forge-accent hover:bg-forge-accent-hover text-white font-mono text-xs uppercase tracking-wider font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-forge-accent/20 cursor-pointer disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span>Verify & Book Call</span>
+                        <CheckCircle2 className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </motion.form>
+            )}
 
             {stage === "confirmed" && (
               <motion.div
@@ -176,7 +349,7 @@ function BookACallWidget() {
                 </div>
                 <h4 className="text-base font-bold text-forge-text font-syne">Callback Requested!</h4>
                 <p className="text-xs text-forge-text-secondary/80 leading-relaxed font-sans">
-                  We&apos;ll be back with a phone call shortly! Your discovery call request has been dispatched to <strong className="text-forge-accent font-mono">support@stackforge.co.in</strong>.
+                  OTP verified successfully! We&apos;ll call <strong className="text-forge-accent font-mono">{contact}</strong> shortly. Details dispatched to support team.
                 </p>
               </motion.div>
             )}

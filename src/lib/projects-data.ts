@@ -44,7 +44,7 @@ export const projects: CaseStudy[] = [
     description:
       "Bespoke outdoor catering platform with interactive menu designer, event estimator, and high-conversion booking workflow. Designed for premium events in Hyderabad.",
     tags: ["React", "Vite", "Tailwind", "Motion"],
-    image: "/work/dinefine-restaurant.png",
+    image: "/work/vijaya-outdoors.png",
     metric: "2.8\u00d7",
     metricLabel: "booking conversion lift",
     challenge:
@@ -107,7 +107,7 @@ export const projects: CaseStudy[] = [
     description:
       "A rich, immersive web application for a premier authentic dining restaurant, featuring dynamic digital menus, table reservation workflows, and culinary showcases.",
     tags: ["React", "Next.js", "Tailwind", "Motion", "Arcada"],
-    image: "/work/dinefine-restaurant.png",
+    image: "/work/haluwa-restaurant.png",
     metric: "3.4×",
     metricLabel: "table reservation boost",
     challenge:
