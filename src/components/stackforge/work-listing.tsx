@@ -10,13 +10,14 @@ import { ArrowUpRight, Sparkles, TrendingUp } from "lucide-react";
 export function WorkListing() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", "Hospitality", "Catering", "Creative", "Local Business"];
+  const categories = ["All", "Hospitality", "Culinary & Catering", "Creative", "Local Business"];
 
   const getCategory = (subtitle: string) => {
-    if (subtitle.toLowerCase().includes("hospitality")) return "Hospitality";
-    if (subtitle.toLowerCase().includes("catering")) return "Catering";
-    if (subtitle.toLowerCase().includes("creative")) return "Creative";
-    if (subtitle.toLowerCase().includes("local business")) return "Local Business";
+    const s = subtitle.toLowerCase();
+    if (s.includes("hospitality")) return "Hospitality";
+    if (s.includes("catering") || s.includes("culinary")) return "Culinary & Catering";
+    if (s.includes("creative")) return "Creative";
+    if (s.includes("local business")) return "Local Business";
     return "Other";
   };
 
