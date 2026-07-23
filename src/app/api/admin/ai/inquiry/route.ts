@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { callOpenRouterAI, parseJsonFromAiText } from "@/lib/ai-openrouter";
 
 function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET || process.env.SUPABASE_SECRET_KEY || "stackforge_default_secure_jwt_key_2026";
@@ -25,11 +26,6 @@ export async function POST(req: NextRequest) {
   const isAuth = await getAdminSession();
   if (!isAuth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "OpenRouter API Key is not configured" }, { status: 500 });
   }
 
   try {
@@ -78,52 +74,27 @@ Your response MUST be a valid JSON object with the following fields:
 
 Ensure all JSON strings are properly escaped. Do not output any text before or after the JSON block.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://stackforge.co.in",
-        "X-Title": "StackForge",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: "Analyze this client lead and write a high-converting, personalized draft reply." }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 2000
-      })
+    const rawText = await callOpenRouterAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Analyze this client lead and write a high-converting, personalized draft reply." }
+      ],
+      { maxTokens: 2500 }
+    );
+
+    const parsedData = parseJsonFromAiText(rawText);
+
+    if (!parsedData) {
+      return NextResponse.json({ error: "Failed to parse structured JSON from AI output" }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      analysis: parsedData.analysis || rawText,
+      draftReply: parsedData.draftReply || ""
     });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("[AI-INQUIRY-API] OpenRouter failed response:", errText);
-      return NextResponse.json({ error: "OpenRouter service returned an error" }, { status: 502 });
-    }
-
-    const completion = await response.json();
-    let content = completion.choices?.[0]?.message?.content || "";
-
-    // Clean up potential markdown wrappers
-    if (content.startsWith("```")) {
-      content = content.replace(/^```json\s*/i, "").replace(/```\s*$/g, "").trim();
-    }
-
-    try {
-      const parsedData = JSON.parse(content);
-      return NextResponse.json({
-        success: true,
-        analysis: parsedData.analysis || "",
-        draftReply: parsedData.draftReply || ""
-      });
-    } catch (parseError) {
-      console.error("[AI-INQUIRY-API] JSON parse error on content:", content, parseError);
-      return NextResponse.json({ error: "AI response did not follow the required JSON structure" }, { status: 500 });
-    }
-  } catch (error) {
-    console.error("[AI-INQUIRY-API] Unexpected error:", error);
-    return NextResponse.json({ error: "Failed to perform AI analysis" }, { status: 500 });
+  } catch (error: any) {
+    console.error("[AI-INQUIRY-API] Error:", error);
+    return NextResponse.json({ error: error.message || "Failed to analyze inquiry" }, { status: 502 });
   }
 }

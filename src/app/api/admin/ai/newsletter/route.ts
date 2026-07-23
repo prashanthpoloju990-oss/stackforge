@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { callOpenRouterAI, parseJsonFromAiText } from "@/lib/ai-openrouter";
 
 function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET || process.env.SUPABASE_SECRET_KEY || "stackforge_default_secure_jwt_key_2026";
@@ -26,11 +27,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "OpenRouter API Key is not configured" }, { status: 500 });
-  }
-
   try {
     const { prompt, tone } = await req.json();
 
@@ -52,53 +48,28 @@ Output MUST be a valid JSON object matching this schema:
 
 Ensure all JSON strings are properly escaped. Do not output any text before or after the JSON block.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://stackforge.co.in",
-        "X-Title": "StackForge",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Draft a newsletter broadcast with the topic: ${prompt}` }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 2000
-      })
+    const rawText = await callOpenRouterAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Draft a newsletter broadcast with the topic: ${prompt}` }
+      ],
+      { maxTokens: 2000 }
+    );
+
+    const parsedData = parseJsonFromAiText(rawText);
+
+    if (!parsedData) {
+      return NextResponse.json({ error: "Failed to parse structured JSON from AI output" }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      subject: parsedData.subject || "",
+      previewText: parsedData.previewText || "",
+      bodyHtml: parsedData.bodyHtml || ""
     });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("[AI-NEWSLETTER-API] OpenRouter failed response:", errText);
-      return NextResponse.json({ error: "OpenRouter service returned an error" }, { status: 502 });
-    }
-
-    const completion = await response.json();
-    let content = completion.choices?.[0]?.message?.content || "";
-    
-    // Clean up potential markdown wrappers
-    if (content.startsWith("```")) {
-      content = content.replace(/^```json\s*/i, "").replace(/```\s*$/g, "").trim();
-    }
-
-    try {
-      const parsedData = JSON.parse(content);
-      return NextResponse.json({
-        success: true,
-        subject: parsedData.subject || "",
-        previewText: parsedData.previewText || "",
-        bodyHtml: parsedData.bodyHtml || ""
-      });
-    } catch (parseError) {
-      console.error("[AI-NEWSLETTER-API] JSON parse error on content:", content, parseError);
-      return NextResponse.json({ error: "AI response did not follow the required JSON structure" }, { status: 500 });
-    }
-  } catch (error) {
-    console.error("[AI-NEWSLETTER-API] Unexpected error:", error);
-    return NextResponse.json({ error: "Failed to generate newsletter draft" }, { status: 500 });
+  } catch (error: any) {
+    console.error("[AI-NEWSLETTER-API] Error:", error);
+    return NextResponse.json({ error: error.message || "Failed to generate newsletter draft" }, { status: 502 });
   }
 }

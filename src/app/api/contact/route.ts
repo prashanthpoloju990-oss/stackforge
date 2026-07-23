@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { supabase } from "@/lib/supabase";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { callOpenRouterAI } from "@/lib/ai-openrouter";
 
 /* ── Validation rules ── */
 const REQUIRED_FIELDS = [
@@ -614,27 +615,15 @@ Include:
 
 Output ONLY the Markdown roadmap text. Keep it professional, concise, encouraging, and clear.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://stackforge.co.in",
-        "X-Title": "StackForge",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
-        messages: [
+    try {
+      const roadmapText = await callOpenRouterAI(
+        [
           { role: "system", content: systemPrompt },
           { role: "user", content: "Generate the roadmap for my project." }
         ],
-        max_tokens: 2000
-      })
-    });
+        { maxTokens: 2000 }
+      );
 
-    if (response.ok) {
-      const completion = await response.json();
-      const roadmapText = completion.choices?.[0]?.message?.content || "";
       if (roadmapText) {
         const { error: updateErr } = await supabase
           .from("ContactSubmission")
@@ -642,17 +631,14 @@ Output ONLY the Markdown roadmap text. Keep it professional, concise, encouragin
           .eq("id", projectId);
         
         if (updateErr) {
-          console.error("[CONTACT-API-BG] Failed to update clientNotes with roadmap:", updateErr);
-        } else {
-          console.log(`[CONTACT-API-BG] Successfully generated and stored roadmap for project ${projectId}`);
+          console.warn("[AI-ROADMAP] Failed to save generated roadmap to DB record:", updateErr);
         }
       }
-    } else {
-      const errText = await response.text();
-      console.error("[CONTACT-API-BG] OpenRouter error:", errText);
+    } catch (err) {
+      console.error("[CONTACT-API-BG] AI roadmap generation error:", err);
     }
   } catch (err) {
-    console.error("[CONTACT-API-BG] Unexpected error:", err);
+    console.error("[CONTACT-API-BG] Outer error:", err);
   }
 }
 

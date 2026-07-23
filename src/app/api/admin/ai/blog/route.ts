@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import fs from "fs";
-import path from "path";
+import { callOpenRouterAI, parseJsonFromAiText } from "@/lib/ai-openrouter";
 
 function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET || process.env.SUPABASE_SECRET_KEY || "stackforge_default_secure_jwt_key_2026";
@@ -28,11 +27,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "OpenRouter API Key is not configured" }, { status: 500 });
-  }
-
   try {
     const { topic, category, keywords } = await req.json();
 
@@ -40,7 +34,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Topic and Category are required" }, { status: 400 });
     }
 
-    // Step 1: Generate Blog Post text
     const systemPrompt = `You are a world-class senior developer and technical writer for StackForge, a premium digital engineering studio based in Hyderabad, India. StackForge builds bespoke high-performance web applications using React, Next.js, and Supabase.
     
 Your task is to write a comprehensive, engaging, and professional blog post based on the user's instructions.
@@ -55,68 +48,26 @@ Output MUST be a valid JSON object matching this schema:
   "content": "The full blog post content in Markdown format. Use clear headings (## or ###), code blocks if code is shown, bold text, lists, and bullet points. Make it detailed, informative, and authoritative.",
   "readTime": "e.g. 5 min read",
   "author": "Anil Kumar, Tech Lead",
-  "tags": ["Tag1", "Tag2", "Tag3"],
-  "bannerImagePrompt": "A highly detailed, professional descriptive prompt for generating a landscape banner image representing this article's topic. This prompt will be sent directly to the Flux image model (e.g. 'A futuristic server rack with glowing neon fibers and code lines floating, 3D render, dark background, cinematic lighting')."
+  "tags": ["Tag1", "Tag2", "Tag3"]
 }
 
 Ensure all JSON strings are properly escaped. Do not output any text before or after the JSON block.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://stackforge.co.in",
-        "X-Title": "StackForge",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Write a blog post about: ${topic}` }
-        ],
-        response_format: { type: "json_object" },
-        max_tokens: 2000
-      })
-    });
+    const rawText = await callOpenRouterAI(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: `Write a blog post about: ${topic}` }
+      ],
+      { maxTokens: 3000 }
+    );
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("[AI-BLOG-API] OpenRouter failed response:", errText);
-      return NextResponse.json({ error: "OpenRouter service returned an error drafting text" }, { status: 502 });
+    const parsedBlog = parseJsonFromAiText(rawText);
+
+    if (!parsedBlog) {
+      return NextResponse.json({ error: "AI output could not be parsed into JSON" }, { status: 500 });
     }
 
-    const completion = await response.json();
-    let contentStr = completion.choices?.[0]?.message?.content || "";
-    
-    // Clean up potential markdown wrappers
-    if (contentStr.startsWith("```")) {
-      contentStr = contentStr.replace(/^```json\s*/i, "").replace(/```\s*$/g, "").trim();
-    }
-
-    let parsedBlog;
-    try {
-      parsedBlog = JSON.parse(contentStr);
-    } catch (parseError) {
-      console.error("[AI-BLOG-API] JSON parse error on content:", contentStr, parseError);
-      return NextResponse.json({ error: "AI response did not follow the required JSON structure" }, { status: 500 });
-    }
-
-    // Step 2: Use default neobrutalist local placeholder as cover image
     const bannerImageUrl = "/download";
-
-    // Step 3: Write new blog post to the dynamic posts JSON database
-    const dynamicPostsFilePath = path.join(process.cwd(), "src", "lib", "blog-posts-dynamic.json");
-    let dynamicPosts: any[] = [];
-
-    if (fs.existsSync(dynamicPostsFilePath)) {
-      try {
-        const fileContent = fs.readFileSync(dynamicPostsFilePath, "utf8");
-        dynamicPosts = JSON.parse(fileContent || "[]");
-      } catch (readErr) {
-        console.error("[AI-BLOG-API] Error reading dynamic posts file, resetting to empty array:", readErr);
-      }
-    }
 
     const newPost = {
       title: parsedBlog.title || topic,
@@ -136,8 +87,8 @@ Ensure all JSON strings are properly escaped. Do not output any text before or a
       success: true,
       post: newPost
     });
-  } catch (error) {
-    console.error("[AI-BLOG-API] Unexpected error:", error);
-    return NextResponse.json({ error: "Failed to generate blog post" }, { status: 500 });
+  } catch (error: any) {
+    console.error("[AI-BLOG-API] Error:", error);
+    return NextResponse.json({ error: error.message || "Failed to generate blog post" }, { status: 502 });
   }
 }
