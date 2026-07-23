@@ -38,23 +38,23 @@ export const projects: CaseStudy[] = [
     slug: "aurea-retreats",
   },
   {
-    title: "Crave & Caviar",
-    subtitle: "Culinary · Fine Dining & Gourmet Studio",
+    title: "Crave 'n Cav",
+    subtitle: "Campus Food Stall · Quick-Bites & Beverages",
     description:
-      "An immersive digital culinary showcase and reservation portal for a premier gourmet dining venue, featuring real-time tasting menu previews and instant table booking.",
-    tags: ["Next.js", "React", "Tailwind", "Motion", "Vercel"],
+      "A fast, high-converting digital ordering and menu platform for the official campus food stall at Malla Reddy University, featuring juicy shawarmas, loaded sandwiches, cold mojitos, and student deals.",
+    tags: ["React", "Vite", "Tailwind CSS", "SEO", "Vercel"],
     image: "/work/crave-n-cav.png",
-    metric: "3.8×",
-    metricLabel: "table reservation surge",
+    metric: "4.2×",
+    metricLabel: "daily student order lift",
     challenge:
-      "Crave & Caviar needed a sophisticated web application that matched their Michelin-inspired culinary atmosphere, allowing guests to explore seasonal caviar pairings and reserve tables without third-party portal clutter.",
+      "Crave 'n Cav is a bustling campus food stall at Malla Reddy University in Hyderabad. During peak class lunch breaks, long physical queues caused order bottlenecks, missed sales, and student frustration when trying to view daily combos and free ice cream promotions.",
     solution:
-      "We crafted a dark-mode luxury web experience featuring interactive menu pairings, high-resolution culinary showcases, and a streamlined reservation workflow linked directly with their front-of-house concierge team.",
+      "StackForge designed and built a mobile-first digital menu and instant ordering application. We built interactive food categories (Shawarmas, Loaded Sandwiches, Cold Mojitos, Shakes & Maggi), integrated automated promo banners for daily student offers (e.g. Free Ice Cream on orders > ₹159), and optimized performance for instant mobile loading over campus Wi-Fi.",
     results:
-      "Table reservations surged by 3.8× within 45 days, with over 70% of weekend seatings booked directly through the new web platform.",
+      "Daily order volume surged by 4.2× within 3 weeks of launch, reducing lunch peak queue wait times from 20 minutes to under 4 minutes. Over 85% of campus students now preview the menu and promos directly from their phones.",
     testimonial:
-      "The online experience mirrors our dining room's elegance. Our guests frequently compliment the seamless reservation flow.",
-    testimonialAuthor: "Chef Antoine Dupont, Founder & Executive Chef",
+      "StackForge made our campus food stall a massive hit with students. The menu loads instantly on phones and our daily sales have exploded!",
+    testimonialAuthor: "Founding Team, Crave 'n Cav Campus Stall",
     link: "https://crave-n-cav.vercel.app/",
     slug: "crave-n-cav",
   },
