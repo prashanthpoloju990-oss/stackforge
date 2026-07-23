@@ -46,7 +46,8 @@ import {
   Sliders,
   Settings,
   BookOpen,
-  Paintbrush
+  Paintbrush,
+  RefreshCw
 } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -302,6 +303,7 @@ export default function AdminPage() {
   const [aiBlogLoading, setAiBlogLoading] = useState(false);
   const [aiBlogError, setAiBlogError] = useState("");
   const [aiBlogDraft, setAiBlogDraft] = useState<any | null>(null);
+  const [publishingBlog, setPublishingBlog] = useState(false);
 
   // Update detail states when inquiry changes
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -730,6 +732,31 @@ export default function AdminPage() {
       setAiBlogError(err.message || "An error occurred during blog drafting.");
     } finally {
       setAiBlogLoading(false);
+    }
+  };
+
+  const handlePublishBlog = async () => {
+    if (!aiBlogDraft || publishingBlog) return;
+    setPublishingBlog(true);
+    try {
+      const res = await fetch("/api/admin/publish-blog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ post: aiBlogDraft }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert("Blog post published successfully! Navigate to /blog to view.");
+        setAiBlogDraft(null);
+        setAiBlogTopic("");
+        setAiBlogKeywords("");
+      } else {
+        alert(data.error || "Failed to publish blog post");
+      }
+    } catch (err: any) {
+      alert("Error publishing blog post: " + (err.message || err));
+    } finally {
+      setPublishingBlog(false);
     }
   };
 
@@ -1201,6 +1228,7 @@ export default function AdminPage() {
             src="/admin-bg.jpg"
             alt="StackForge Studio"
             fill
+            sizes="(max-width: 1024px) 0vw, 50vw"
             className="object-cover opacity-65 grayscale-[30%] select-none pointer-events-none"
             priority
           />
@@ -1330,6 +1358,16 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => fetchDashboardData()}
+              disabled={loading}
+              className="h-7 px-2.5 bg-white border border-[#E8E7E2] hover:border-orange-500/40 rounded-lg text-[9px] font-mono font-bold uppercase text-neutral-600 hover:text-neutral-900 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
+              title="Refresh Dashboard Data"
+            >
+              <RefreshCw className={cn("size-3", loading && "animate-spin text-orange-500")} />
+              <span>Refresh</span>
+            </button>
             {recentCount > 0 && (
               <span className="text-[9px] font-bold font-mono px-2 py-0.5 bg-orange-100 text-orange-600 rounded-full border border-orange-200">
                 {recentCount} updates today
@@ -2105,16 +2143,21 @@ export default function AdminPage() {
                         <div className="p-4 bg-[#FAF9F6] border-t border-[#E8E7E2] flex items-center justify-between">
                           <span className="text-[9px] font-mono text-neutral-400">Status: Draft Generated Successfully</span>
                           <button
-                            onClick={() => {
-                              alert("Blog post saved to local json database successfully! Navigate to /blog to view.");
-                              setAiBlogDraft(null);
-                              setAiBlogTopic("");
-                              setAiBlogKeywords("");
-                            }}
-                            className="h-8 px-4 bg-orange-600 hover:bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow"
+                            onClick={handlePublishBlog}
+                            disabled={publishingBlog}
+                            className={cn(
+                              "h-8 px-4 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow",
+                              publishingBlog ? "bg-neutral-400 cursor-not-allowed" : "bg-orange-600 hover:bg-orange-500"
+                            )}
                           >
-                            <CheckCircle2 className="size-3.5" />
-                            <span>Publish to Website</span>
+                            {publishingBlog ? (
+                              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <>
+                                <CheckCircle2 className="size-3.5" />
+                                <span>Publish to Website</span>
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>
