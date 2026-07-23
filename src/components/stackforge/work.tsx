@@ -13,7 +13,7 @@ const STATS = [
   { value: 10, suffix: "+", label: "Projects Shipped" },
   { value: 98, suffix: "%", label: "Client Satisfaction" },
   { value: 3.2, suffix: "\u00d7", label: "Avg. Conversion Lift" },
-  { value: 6, suffix: "wks", label: "Avg. Delivery Time" },
+  { value: 2, suffix: "wks", label: "Avg. Delivery Time" },
 ];
 
 function StatItem({
